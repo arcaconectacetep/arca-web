@@ -1,4 +1,4 @@
-# ConectaCETEP
+# ConectaARCA
 
 Rede social acadêmica responsiva para estudantes, professores e gestores da Educação Profissional e Tecnológica em Itaberaba, Bahia. O protótipo centraliza comunicação escolar, aprendizagem, oportunidades e um canal privado de acolhimento.
 

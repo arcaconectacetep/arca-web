@@ -414,7 +414,7 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
         <SectionHeading
           icon={LogOut}
           title="Sessão"
-          text="Encerre o acesso ao ConectaCETEP neste dispositivo."
+          text="Encerre o acesso ao ConectaARCA neste dispositivo."
         />
         <LogoutButton />
         <CookieSettingsButton className="btn-secondary mt-5" />

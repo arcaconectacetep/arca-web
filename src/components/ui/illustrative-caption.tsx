@@ -7,7 +7,7 @@ export function IllustrativeCaption({ description }: { description: string }) {
       <span>
         {description} Imagem meramente ilustrativa, gerada por inteligência
         artificial para composição visual. As pessoas retratadas não participam nem representam integrantes
-        do projeto ConectaCETEP/ARCA.
+        do projeto ConectaARCA.
       </span>
     </figcaption>
   );

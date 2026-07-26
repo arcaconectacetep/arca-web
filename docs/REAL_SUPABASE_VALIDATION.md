@@ -13,6 +13,7 @@ As versões abaixo constam em `supabase_migrations.schema_migrations`, na ordem 
 5. `202607260001_user_deletion`
 6. `202607260002_appearance_preferences`
 7. `202607260003_post_media_management`
+8. `202607260004_rebrand_conecta_arca`
 
 ## Teste automatizado executado
 
@@ -22,7 +23,7 @@ Comando:
 npm run validate:rls
 ```
 
-Resultado: aprovado em 29 verificações reais, incluindo:
+Resultado: aprovado em 30 verificações reais, incluindo:
 
 - proteção contra autoelevação e alteração da própria suspensão;
 - autoria forçada de posts e comentários;
@@ -34,6 +35,7 @@ Resultado: aprovado em 29 verificações reais, incluindo:
 - acesso, status e notas internas para STAFF;
 - evento e notificação genérica ao atualizar suporte;
 - limite de três solicitações por usuário/hora;
+- novos protocolos no formato `ARCA-AAAA-NNNNNN`;
 - audit log visível somente para ADMIN;
 - moderação de publicação por STAFF;
 - bloqueio de publicação por conta suspensa.

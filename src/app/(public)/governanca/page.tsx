@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Governança e transparência",
-  description: "Como o protótipo ConectaCETEP organiza acesso, moderação, privacidade e responsabilidade institucional.",
+  description: "Como o protótipo ConectaARCA organiza acesso, moderação, privacidade e responsabilidade institucional.",
   alternates: { canonical: "/governanca" },
 };
 
@@ -44,7 +44,7 @@ export default async function GovernancePage() {
       <section className="mx-auto max-w-5xl px-5 py-16">
         <p className="eyebrow">Limite do protótipo</p>
         <h2 className="section-title mt-3">Não substitui os protocolos oficiais da escola.</h2>
-        <p className="mt-4 max-w-3xl leading-7 text-muted">O ConectaCETEP apoia comunicação e encaminhamento. Situações de risco imediato devem ser comunicadas a um adulto responsável ou ao serviço de emergência adequado. A gestão da unidade escolar deve definir formalmente encarregado, equipe de atendimento, prazos e fluxo de escalonamento antes do uso com dados reais.</p>
+        <p className="mt-4 max-w-3xl leading-7 text-muted">O ConectaARCA apoia comunicação e encaminhamento. Situações de risco imediato devem ser comunicadas a um adulto responsável ou ao serviço de emergência adequado. A gestão da unidade escolar deve definir formalmente encarregado, equipe de atendimento, prazos e fluxo de escalonamento antes do uso com dados reais.</p>
       </section>
     </main>
     <PublicFooter authenticated={Boolean(user)} />

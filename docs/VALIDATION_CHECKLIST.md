@@ -1,4 +1,4 @@
-# Roteiro de validação manual — ConectaCETEP
+# Roteiro de validação manual — ConectaARCA
 
 Use somente homologação e dados fictícios. Para cada item, registre data, navegador, largura, conta, resultado e evidência sem conteúdo sensível.
 
@@ -69,7 +69,7 @@ Use somente homologação e dados fictícios. Para cada item, registre data, nav
 
 - [ ] Confirmar aviso de emergência, três etapas, revisão e confirmação final.
 - [ ] Exigir categoria, urgência e descrição mínima; não permitir anexos.
-- [ ] Enviar e validar protocolo `CCT-AAAA-NNNNNN`; o quarto envio em uma hora deve falhar.
+- [ ] Enviar e validar protocolo `ARCA-AAAA-NNNNNN`; o quarto envio em uma hora deve falhar.
 - [ ] Confirmar que alerta não aparece no feed nem expõe detalhes em notificação.
 - [ ] Outro STUDENT não consulta alerta/eventos alheios; autor vê somente próprios eventos públicos.
 - [ ] Autor não altera descrição, categoria, urgência, autoria, protocolo, status ou responsável.

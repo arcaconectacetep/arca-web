@@ -5,7 +5,7 @@ import { LegalPage, type LegalSection } from "@/components/ui/legal-page";
 export const metadata: Metadata = {
   title: "Política de Privacidade",
   description:
-    "Como o ConectaCETEP utiliza e protege os dados da comunidade escolar.",
+    "Como o ConectaARCA utiliza e protege os dados da comunidade escolar.",
   alternates: { canonical: "/privacidade" },
 };
 
@@ -69,7 +69,7 @@ const sections: LegalSection[] = [
       <p>
         A autenticação e o banco de dados utilizam o Supabase. Políticas de
         acesso no banco restringem informações conforme o papel de cada usuário.
-        Senhas não são armazenadas diretamente pelo ConectaCETEP.
+        Senhas não são armazenadas diretamente pelo ConectaARCA.
       </p>
     ),
   },
@@ -101,7 +101,7 @@ const sections: LegalSection[] = [
     title: "Limitações do protótipo",
     content: (
       <p>
-        O ConectaCETEP é um projeto acadêmico funcional e ainda não representa
+        O ConectaARCA é um projeto acadêmico funcional e ainda não representa
         um serviço institucional definitivo. Dados de demonstração não devem
         conter informações pessoais reais ou sensíveis.
       </p>

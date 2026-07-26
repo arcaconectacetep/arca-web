@@ -215,10 +215,11 @@ async function run() {
       description: "Relato temporário criado exclusivamente para validar as políticas RLS.",
       allow_contact: false,
     })
-    .select("id")
+    .select("id,protocol")
     .single();
   if (alertError || !alert) throw alertError ?? new Error("Falha ao criar alerta temporário.");
   const alertId = alert.id;
+  assert(/^ARCA-\d{4}-\d{6}$/.test(alert.protocol), "Novas solicitações recebem protocolo com identidade ARCA");
 
   const { data: ownAlert } = await studentA.client.from("support_alerts").select("id").eq("id", alertId);
   assert(ownAlert?.length === 1, "Autor visualiza a própria solicitação de suporte");

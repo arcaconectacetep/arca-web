@@ -28,7 +28,7 @@ export default async function Layout({
     <div className="min-h-screen bg-canvas">
       <header className="border-b border-line bg-paper">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-          <b>Administração · ConectaCETEP</b>
+          <b>Administração · ConectaARCA</b>
           <Link href="/inicio" className="btn-ghost">
             <ArrowLeft className="size-4" />
             Voltar ao app

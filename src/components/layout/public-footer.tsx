@@ -38,7 +38,7 @@ export function PublicFooter({ authenticated = false }: { authenticated?: boolea
       </div>
       <div className="border-t border-line/70">
         <div className="mx-auto flex max-w-7xl flex-col gap-1 px-5 py-5 text-xs text-muted sm:flex-row sm:justify-between">
-          <span>© 2026 ConectaCETEP</span>
+          <span>© 2026 ConectaARCA</span>
           <span>Protótipo acadêmico funcional</span>
         </div>
       </div>

@@ -12,7 +12,7 @@ export default async function Page({
     <div className="grid gap-8 xl:grid-cols-[minmax(0,700px)_300px]">
       <section>
         <p className="eyebrow">Feed escolar</p>
-        <h1 className="page-title mb-6 mt-2">O CETEP acontece aqui.</h1>
+        <h1 className="page-title mb-6 mt-2">A comunidade acontece aqui.</h1>
         <Suspense fallback={<FeedSkeleton cards={3} />}>
           <Feed
             search={params.q}

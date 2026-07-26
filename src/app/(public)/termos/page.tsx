@@ -5,7 +5,7 @@ import { LegalPage, type LegalSection } from "@/components/ui/legal-page";
 export const metadata: Metadata = {
   title: "Termos de Uso",
   description:
-    "Regras para participação responsável na comunidade ConectaCETEP.",
+    "Regras para participação responsável na comunidade ConectaARCA.",
   alternates: { canonical: "/termos" },
 };
 
@@ -15,8 +15,8 @@ const sections: LegalSection[] = [
     title: "Finalidade da plataforma",
     content: (
       <p>
-        O ConectaCETEP é um protótipo acadêmico voltado à comunicação,
-        aprendizagem e convivência da comunidade escolar do CETEP. A plataforma
+        O ConectaARCA é um protótipo acadêmico voltado à comunicação,
+        aprendizagem e convivência da comunidade escolar. A plataforma
         não substitui canais oficiais da instituição ou serviços de emergência.
       </p>
     ),
@@ -92,7 +92,7 @@ export default function Page() {
     <LegalPage
       eyebrow="Regras da comunidade"
       title="Termos de Uso"
-      description="Um acordo simples para manter o ConectaCETEP seguro, respeitoso e útil para toda a comunidade escolar."
+      description="Um acordo simples para manter o ConectaARCA seguro, respeitoso e útil para toda a comunidade escolar."
       updatedAt="26 de julho de 2026"
       sections={sections}
       icon={Scale}

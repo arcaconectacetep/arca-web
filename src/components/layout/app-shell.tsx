@@ -69,11 +69,11 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
             <MobileMenu username={p?.username} role={p?.role} />
             <BrandLogo href="/inicio" compact />
             <span className="text-sm font-bold tracking-tight">
-              ConectaCETEP
+              ConectaARCA
             </span>
           </div>
           <span className="hidden text-sm text-muted lg:block">
-            CETEP · Itaberaba, Bahia
+            ARCA · Itaberaba, Bahia
           </span>
           <div className="flex items-center gap-1">
             <Link

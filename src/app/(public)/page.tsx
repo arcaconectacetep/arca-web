@@ -17,7 +17,7 @@ import { IllustrativeCaption } from "@/components/ui/illustrative-caption";
 
 export const metadata: Metadata = {
   title: "ARCA — Rede acadêmica e tecnologia social",
-  description: "Conheça o ConectaCETEP, tecnologia social criada pelo curso técnico em Informática para conectar aprendizagem, comunicação e acolhimento no Piemonte do Paraguaçu.",
+  description: "Conheça o ConectaARCA, tecnologia social criada pelo curso técnico em Informática para conectar aprendizagem, comunicação e acolhimento no Piemonte do Paraguaçu.",
   alternates: { canonical: "/" },
 };
 
@@ -25,7 +25,7 @@ const areas = [
   {
     icon: Users,
     title: "Feed escolar",
-    text: "A vida do CETEP em um fluxo claro e participativo.",
+    text: "A vida escolar em um fluxo claro e participativo.",
   },
   {
     icon: BookOpen,
@@ -66,7 +66,7 @@ export default async function Landing() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
-    name: "ConectaCETEP",
+    name: "ConectaARCA",
     description: "Rede acadêmica para informação, aprendizagem e acolhimento.",
     address: {
       "@type": "PostalAddress",
@@ -92,7 +92,7 @@ export default async function Landing() {
                 Informação, aprendizado e acolhimento em um só espaço.
               </h1>
               <p className="reveal reveal-delay-1 mt-7 max-w-2xl text-lg leading-8 text-muted">
-                O ConectaCETEP conecta estudantes, professores e projetos,
+                O ConectaARCA conecta estudantes, professores e projetos,
                 fortalecendo a comunicação, a inclusão e o cuidado dentro da
                 comunidade escolar.
               </p>
@@ -153,7 +153,7 @@ export default async function Landing() {
               <p className="eyebrow">A estrutura do projeto</p>
               <h2 className="page-title mt-3">ARCA é método, território e proteção.</h2>
               <p className="mt-5 leading-7 text-muted">
-                O nome organiza a proposta que sustenta o ConectaCETEP: usar conhecimento técnico para aproximar pessoas, circular saberes e fortalecer uma rede de cuidado no Piemonte do Paraguaçu.
+                O nome organiza a proposta que sustenta o ConectaARCA: usar conhecimento técnico para aproximar pessoas, circular saberes e fortalecer uma rede de cuidado no Piemonte do Paraguaçu.
               </p>
               <Link className="btn-secondary mt-6" href="/sobre">Conhecer a história <ArrowRight className="size-4" /></Link>
             </div>

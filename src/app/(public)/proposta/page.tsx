@@ -8,8 +8,8 @@ import { PublicFooter } from "@/components/layout/public-footer";
 import { IllustrativeCaption } from "@/components/ui/illustrative-caption";
 
 export const metadata: Metadata = {
-  title: "Proposta do ConectaCETEP",
-  description: "Objetivos, metodologia e impacto esperado da tecnologia social ConectaCETEP baseada no método ARCA.",
+  title: "Proposta do ConectaARCA",
+  description: "Objetivos, metodologia e impacto esperado da tecnologia social ConectaARCA baseada no método ARCA.",
   alternates: { canonical: "/proposta" },
 };
 

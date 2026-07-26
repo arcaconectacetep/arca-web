@@ -8,7 +8,7 @@ import { IllustrativeCaption } from "@/components/ui/illustrative-caption";
 
 export const metadata: Metadata = {
   title: "Sobre o projeto ARCA",
-  description: "Origem, território e propósito do ConectaCETEP, tecnologia social desenvolvida pelo curso técnico em Informática de Itaberaba.",
+  description: "Origem, território e propósito do ConectaARCA, tecnologia social desenvolvida pelo curso técnico em Informática de Itaberaba.",
   alternates: { canonical: "/sobre" },
 };
 
@@ -22,7 +22,7 @@ export default async function Page() {
         <div className="mx-auto max-w-5xl px-5 py-16 sm:py-24">
           <p className="eyebrow">Sobre o projeto</p>
           <h1 className="mt-4 max-w-4xl text-4xl font-bold leading-tight sm:text-6xl">Uma rede criada na escola para fortalecer a própria escola.</h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted">O ConectaCETEP é uma tecnologia social digital desenvolvida pelo curso técnico em Informática, em Itaberaba, para integrar comunicação, aprendizagem, cultura e proteção socioemocional na Educação Profissional e Tecnológica.</p>
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted">O ConectaARCA é uma tecnologia social digital desenvolvida pelo curso técnico em Informática, em Itaberaba, para integrar comunicação, aprendizagem, cultura e proteção socioemocional na Educação Profissional e Tecnológica.</p>
         </div>
       </header>
       <figure className="mx-auto max-w-5xl px-5 pt-12">

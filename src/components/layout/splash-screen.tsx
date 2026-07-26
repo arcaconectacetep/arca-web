@@ -30,7 +30,7 @@ export function SplashScreen() {
     <div className={`splash ${closing ? "splash-closing" : ""}`} role="status" aria-live="polite" aria-label="Preparando o ARCA">
       <div className="splash-orbit" aria-hidden>
         {icons.map((Icon, index) => <span className={`splash-node splash-node-${index + 1}`} key={index}><Icon className="size-5" /></span>)}
-        <div className="splash-brand"><strong>ARCA</strong><span>ConectaCETEP</span></div>
+        <div className="splash-brand"><strong>ARCA</strong><span>ConectaARCA</span></div>
       </div>
       <p>Preparando seu espaço</p>
       <span className="splash-progress" aria-hidden><i /></span>

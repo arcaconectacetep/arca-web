@@ -52,7 +52,7 @@ export function AuthPage({
           </ul>
         </div>
         <p className="flex items-center gap-2 text-sm text-white/70">
-          <LockKeyhole className="size-4" /> CETEP · Itaberaba, Bahia
+          <LockKeyhole className="size-4" /> ARCA · Itaberaba, Bahia
         </p>
       </aside>
       <section className="grid place-items-center px-5 py-10 sm:px-8 lg:bg-paper">
