@@ -85,6 +85,7 @@ Use somente homologação e dados fictícios. Para cada item, registre data, nav
 ## Último ADMIN
 
 - [ ] Com um único ADMIN ativo, tentar rebaixá-lo e suspendê-lo pelo painel e por API autenticada; esperar rejeição.
+- [ ] Confirmar que a exclusão explícita do último ADMIN é permitida após os avisos e a reautenticação.
 - [ ] Tentar autoalteração de papel; esperar rejeição.
 - [ ] Com dois ADMINs, confirmar rebaixamento válido de um deles e respectivo audit log.
 

@@ -123,12 +123,8 @@ export async function deleteOwnAccount(input: unknown) {
       captchaToken: z.string().min(1).max(2048),
     }).safeParse(input);
     if (!parsed.success) return { ok: false, error: "Revise a frase de confirmação e conclua a verificação de segurança." };
-    const { db, user, role } = await context();
+    const { db, user } = await context();
     if (!user.email) return { ok: false, error: "Esta conta não possui um e-mail válido." };
-    if (role === "ADMIN") {
-      const { count } = await db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "ADMIN").is("suspended_at", null);
-      if ((count ?? 0) <= 1) return { ok: false, error: "Transfira a administração antes de excluir o último ADMIN." };
-    }
     const { error: passwordError } = await db.auth.signInWithPassword({
       email: user.email,
       password: parsed.data.password,

@@ -14,6 +14,7 @@ As versões abaixo constam em `supabase_migrations.schema_migrations`, na ordem 
 6. `202607260002_appearance_preferences`
 7. `202607260003_post_media_management`
 8. `202607260004_rebrand_conecta_arca`
+9. `202607260005_allow_last_admin_deletion`
 
 ## Teste automatizado executado
 
@@ -44,7 +45,7 @@ O script cria usuários fictícios temporários pela Supabase Admin API, autenti
 
 ## Limites desta evidência
 
-- A proteção do último ADMIN permanece no roteiro manual porque testá-la contra os administradores reais exigiria alterar temporariamente privilégios de contas permanentes.
+- Rebaixar ou suspender o último ADMIN permanece protegido. Sua exclusão explícita é permitida e deve ser confirmada manualmente, pois pode deixar o sistema sem acesso administrativo.
 - Cadastro por e-mail, recuperação de senha e Turnstile dependem de interação no navegador e continuam no roteiro manual.
 - A CLI do Supabase não oferece binário para Android/Termux; o histórico foi consultado diretamente pelo PostgreSQL com conexão TLS.
 - Testes com TalkBack, VoiceOver e dispositivos físicos não foram declarados como executados.
