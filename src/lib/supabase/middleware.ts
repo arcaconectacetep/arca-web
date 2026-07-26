@@ -29,7 +29,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
   const privateRoute =
-    /^\/(inicio|espaco|mural|tendencias|suporte|notificacoes|perfil|configuracoes|onboarding|admin)/.test(
+    /^\/(inicio|espaco|mural|tendencias|suporte|notificacoes|perfil|publicacao|configuracoes|onboarding|admin)/.test(
       path,
     );
   if (privateRoute && !user) {

@@ -1,5 +1,12 @@
+import { Suspense } from "react";
 import { Feed } from "@/components/feed/feed";
-export default function Page() {
+import { FeedSkeleton } from "@/components/feed/feed-skeleton";
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; categoria?: string; pagina?: string }>;
+}) {
+  const params = await searchParams;
   return (
     <section className="mx-auto max-w-3xl">
       <p className="eyebrow">Mural informativo</p>
@@ -7,7 +14,14 @@ export default function Page() {
       <p className="mb-7 mt-3 text-muted">
         Notícias escolares, saúde, segurança, campanhas, eventos e prazos.
       </p>
-      <Feed section="WALL" />
+      <Suspense fallback={<FeedSkeleton cards={3} />}>
+        <Feed
+          section="WALL"
+          search={params.q}
+          type={params.categoria}
+          page={Number(params.pagina ?? 1)}
+        />
+      </Suspense>
     </section>
   );
 }

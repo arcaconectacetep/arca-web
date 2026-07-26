@@ -5,6 +5,7 @@ import { ImagePlus, Send, X } from "lucide-react";
 import { toast } from "sonner";
 import { createPost } from "@/app/actions";
 import type { Role, Section } from "@/types/database";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 export function PostComposer({
   section = "FEED",
   role,
@@ -148,7 +149,11 @@ export function PostComposer({
           </label>
         )}
         <button disabled={pending} className="btn-primary ml-auto">
-          <Send className="size-4" />
+          {pending ? (
+            <LoadingSpinner label="Enviando publicação" />
+          ) : (
+            <Send className="size-4" />
+          )}
           {pending ? "Publicando…" : "Publicar"}
         </button>
       </div>

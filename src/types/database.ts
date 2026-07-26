@@ -34,6 +34,7 @@ export interface Post {
   content: string;
   type: PostType;
   section: Section;
+  course_id: string | null;
   pinned: boolean;
   official: boolean;
   created_at: string;

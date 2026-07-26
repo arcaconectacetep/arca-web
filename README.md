@@ -6,11 +6,11 @@ Rede social acadêmica responsiva para estudantes, professores e gestores da Edu
 
 - Landing page, cadastro, login, recuperação e redefinição de senha com Supabase Auth.
 - Onboarding obrigatório com curso, username único, tema e preferências de acessibilidade.
-- Feed paginado (primeiros 20 itens), publicações fixadas, categorias, imagens, curtidas e comentários.
+- Feed com busca, filtros e paginação server-side de 10 itens, publicações fixadas, categorias, imagens, curtidas e comentários.
 - Espaço Pedagógico, Mural e Tendências com pontuação `curtidas + comentários × 2`.
 - Canal de suporte privado em três etapas, confirmação final, protocolo, histórico e limite de 3 envios/hora.
 - Notificações internas e painel administrativo para usuários, posts, alertas e auditoria.
-- RLS em todas as tabelas, proteção contra autoelevação de papel e bloqueio de contas suspensas.
+- RLS em todas as tabelas, proteção Turnstile no Auth, bloqueio contra autoelevação de papel e contas suspensas.
 - Upload server-only de JPEG, PNG e WebP para o ImgChest (sem Supabase Storage ou base64).
 - Temas Azul, Aurora e Neutro; alto contraste, redução de movimento e fonte 100/115/130%.
 
@@ -35,6 +35,7 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 SUPABASE_SECRET_KEY=
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
 IMG_CHEST_API_KEY=
 DIRECT_CONNECTION_STRING=
 DEMO_USER_PASSWORD=
@@ -45,6 +46,10 @@ DEMO_ADMIN_EMAIL=admin.demo@example.com
 ```
 
 `SUPABASE_SECRET_KEY`, `IMG_CHEST_API_KEY`, `DIRECT_CONNECTION_STRING` e `DEMO_USER_PASSWORD` são segredos exclusivamente locais/servidor. Nunca use prefixo `NEXT_PUBLIC_` neles. A Vercel não precisa das variáveis `DIRECT_CONNECTION_STRING` ou `DEMO_*` para executar a aplicação. Gere o token do ImgChest em Profile → Security → Personal Access Tokens.
+
+## Cloudflare Turnstile
+
+Crie um widget Turnstile para os domínios local e de produção e salve apenas a Site Key em `NEXT_PUBLIC_TURNSTILE_SITE_KEY`. No Supabase Dashboard, acesse Authentication → Bot and Abuse Protection, escolha Cloudflare Turnstile e configure a Secret Key diretamente no Supabase. A Secret Key do Turnstile não é necessária na aplicação nem na Vercel: login, cadastro e recuperação encaminham o token ao Supabase, que realiza a validação.
 
 ## Supabase: migrations e seed
 
@@ -114,7 +119,7 @@ Abra `http://localhost:3000` e siga [docs/VALIDATION_CHECKLIST.md](docs/VALIDATI
 
 Públicas: `/`, `/login`, `/cadastro`, `/recuperar-senha`, `/redefinir-senha`, `/termos`, `/privacidade`.
 
-Autenticadas: `/onboarding`, `/inicio`, `/espaco`, `/mural`, `/tendencias`, `/suporte`, `/suporte/novo`, `/suporte/[id]`, `/notificacoes`, `/perfil/[username]`, `/configuracoes`.
+Autenticadas: `/onboarding`, `/inicio`, `/espaco`, `/mural`, `/tendencias`, `/publicacao/[id]`, `/suporte`, `/suporte/novo`, `/suporte/[id]`, `/notificacoes`, `/perfil/[username]`, `/configuracoes`.
 
 Equipe: `/admin`, `/admin/usuarios`, `/admin/publicacoes`, `/admin/alertas`, `/admin/logs` (logs somente ADMIN).
 
@@ -142,4 +147,4 @@ Importe o repositório na Vercel, configure todas as variáveis, use `npm run bu
 
 ## Privacidade e limitações do protótipo
 
-Não use dados reais sensíveis na demonstração. Alertas não aceitam anexos nem aparecem no feed; notas internas são restritas por RLS. Imagens públicas são processadas por um serviço externo. O MVP não inclui chat, seguidores, PWA, documentos, WhatsApp ou SMS. Paginação avançada/infinite scroll e exclusão remota de imagens do ImgChest ficam fora do escopo do protótipo.
+Não use dados reais sensíveis na demonstração. Alertas não aceitam anexos nem aparecem no feed; notas internas são restritas por RLS. Imagens públicas são processadas por um serviço externo. O MVP não inclui chat, seguidores, PWA, documentos, WhatsApp ou SMS. Infinite scroll e exclusão remota de imagens do ImgChest ficam fora do escopo do protótipo.

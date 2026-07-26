@@ -7,6 +7,7 @@ import { Check, Eye, EyeOff, LoaderCircle, MailCheck } from "lucide-react";
 import { useForm, type Resolver } from "react-hook-form";
 import { z } from "zod";
 import { login, recoverPassword, signUp, updatePassword } from "@/app/actions";
+import { Turnstile } from "@/components/security/turnstile";
 import {
   loginSchema,
   recoverPasswordSchema,
@@ -134,6 +135,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const [serverError, setServerError] = useState("");
   const [success, setSuccess] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaNonce, setCaptchaNonce] = useState(0);
   const {
     register,
     handleSubmit,
@@ -155,6 +158,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         if (value) form.set(key, "on");
       } else if (value !== undefined) form.set(key, value);
     });
+    if (mode !== "reset") form.set("captchaToken", captchaToken);
 
     startTransition(async () => {
       const action =
@@ -166,8 +170,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
               ? recoverPassword
               : updatePassword;
       const result = await action(form);
-      if (result && !result.ok) setServerError(result.error);
-      else if (mode !== "login") setSuccess(true);
+      if (result && !result.ok) {
+        setServerError(result.error);
+        setCaptchaToken("");
+        setCaptchaNonce((value) => value + 1);
+      } else if (mode !== "login") setSuccess(true);
     });
   }
 
@@ -336,7 +343,15 @@ export function AuthForm({ mode }: { mode: Mode }) {
         </div>
       )}
 
-      <button disabled={pending} className="btn-primary w-full" type="submit">
+      {mode !== "reset" && (
+        <Turnstile key={captchaNonce} onToken={setCaptchaToken} />
+      )}
+
+      <button
+        disabled={pending || (mode !== "reset" && !captchaToken)}
+        className="btn-primary w-full"
+        type="submit"
+      >
         {pending && (
           <LoaderCircle className="size-4 animate-spin" aria-hidden />
         )}

@@ -33,7 +33,21 @@ const safe = (e: unknown) =>
     : e instanceof Error && e.message === "DENIED"
       ? "Acesso não autorizado."
       : "Não foi possível concluir a ação.";
+
+function revalidatePostViews() {
+  revalidatePath("/inicio");
+  revalidatePath("/espaco");
+  revalidatePath("/mural");
+  revalidatePath("/tendencias");
+  revalidatePath("/publicacao/[id]", "page");
+}
 export async function login(form: FormData) {
+  const captchaToken = String(form.get("captchaToken") ?? "");
+  if (!captchaToken || captchaToken.length > 2048)
+    return {
+      ok: false,
+      error: "Conclua a verificação de segurança.",
+    } satisfies ActionResult;
   const parsed = loginSchema.safeParse({
     email: form.get("email"),
     password: form.get("password"),
@@ -47,6 +61,7 @@ export async function login(form: FormData) {
   const result = await db.auth.signInWithPassword({
     email: parsed.data.email,
     password: parsed.data.password,
+    options: { captchaToken },
   });
   if (result.error)
     return {
@@ -56,6 +71,12 @@ export async function login(form: FormData) {
   redirect("/inicio");
 }
 export async function signUp(form: FormData) {
+  const captchaToken = String(form.get("captchaToken") ?? "");
+  if (!captchaToken || captchaToken.length > 2048)
+    return {
+      ok: false,
+      error: "Conclua a verificação de segurança.",
+    } satisfies ActionResult;
   const parsed = signupSchema.safeParse({
     fullName: form.get("fullName"),
     email: form.get("email"),
@@ -75,6 +96,7 @@ export async function signUp(form: FormData) {
     options: {
       data: { full_name: parsed.data.fullName },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/onboarding`,
+      captchaToken,
     },
   });
   return error
@@ -90,6 +112,12 @@ export async function logout() {
   redirect("/");
 }
 export async function recoverPassword(form: FormData) {
+  const captchaToken = String(form.get("captchaToken") ?? "");
+  if (!captchaToken || captchaToken.length > 2048)
+    return {
+      ok: false,
+      error: "Conclua a verificação de segurança.",
+    } satisfies ActionResult;
   const parsed = recoverPasswordSchema.safeParse({ email: form.get("email") });
   if (!parsed.success)
     return {
@@ -97,9 +125,16 @@ export async function recoverPassword(form: FormData) {
       error: parsed.error.issues[0]?.message ?? "Informe um e-mail válido.",
     } satisfies ActionResult;
   const db = await createClient();
-  await db.auth.resetPasswordForEmail(parsed.data.email, {
+  const { error } = await db.auth.resetPasswordForEmail(parsed.data.email, {
     redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/redefinir-senha`,
+    captchaToken,
   });
+  if (error)
+    return {
+      ok: false,
+      error:
+        "Não foi possível validar a solicitação. Refaça a verificação de segurança.",
+    } satisfies ActionResult;
   return { ok: true } satisfies ActionResult;
 }
 export async function updatePassword(form: FormData) {
@@ -203,7 +238,7 @@ export async function createPost(input: unknown) {
         };
       }
     }
-    revalidatePath("/inicio");
+    revalidatePostViews();
     return { ok: true, data: { id: post.id } };
   } catch (e) {
     return { ok: false, error: safe(e) };
@@ -242,7 +277,7 @@ export async function updatePost(id: string, input: unknown) {
       })
       .eq("id", id);
     if (error) return { ok: false, error: "Não foi possível editar." };
-    revalidatePath("/inicio");
+    revalidatePostViews();
     return { ok: true };
   } catch (e) {
     return { ok: false, error: safe(e) };
@@ -263,7 +298,7 @@ export async function deletePost(id: string) {
         ok: false,
         error: "Publicação não encontrada ou sem permissão.",
       };
-    revalidatePath("/inicio");
+    revalidatePostViews();
     return { ok: true };
   } catch (e) {
     return { ok: false, error: safe(e) };
@@ -288,7 +323,7 @@ export async function toggleLike(postId: string) {
           .from("post_likes")
           .insert({ post_id: postId, user_id: user.id });
     if (result.error) return { ok: false, error: "Não foi possível curtir." };
-    revalidatePath("/inicio");
+    revalidatePostViews();
     return { ok: true };
   } catch (e) {
     return { ok: false, error: safe(e) };
@@ -302,7 +337,7 @@ export async function createComment(input: unknown) {
       .from("comments")
       .insert({ post_id: d.postId, author_id: user.id, content: d.content });
     if (error) return { ok: false, error: "Não foi possível comentar." };
-    revalidatePath("/inicio");
+    revalidatePostViews();
     return { ok: true };
   } catch (e) {
     return { ok: false, error: safe(e) };
@@ -318,6 +353,7 @@ export async function updateComment(id: string, content: string) {
       .eq("id", id)
       .eq("author_id", user.id);
     if (error) return { ok: false, error: "Não foi possível editar." };
+    revalidatePostViews();
     return { ok: true };
   } catch (e) {
     return { ok: false, error: safe(e) };
@@ -331,6 +367,7 @@ export async function deleteComment(id: string) {
       .delete()
       .eq("id", id)
       .eq("author_id", user.id);
+    if (!error) revalidatePostViews();
     return error
       ? { ok: false, error: "Não foi possível excluir." }
       : { ok: true };

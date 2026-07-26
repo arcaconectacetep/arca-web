@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Bell, Menu, Settings, ShieldCheck } from "lucide-react";
+import { Bell, Settings, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/ui/avatar";
 import { UserPreferences } from "@/components/accessibility/user-preferences";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { AppNav } from "@/components/layout/app-nav";
+import { MobileMenu } from "@/components/layout/mobile-menu";
 export async function AppShell({ children }: { children: React.ReactNode }) {
   const db = await createClient();
   const {
@@ -64,8 +65,8 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       <div className="lg:pl-64">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-line/80 bg-canvas/95 px-4 backdrop-blur md:px-8">
           <div className="flex items-center gap-1 lg:hidden">
-            <Menu aria-hidden className="size-5 text-muted" />
-            <BrandLogo href="/inicio" compact className="ml-1" />
+            <MobileMenu username={p?.username} role={p?.role} />
+            <BrandLogo href="/inicio" compact />
             <span className="text-sm font-bold tracking-tight">
               ConectaCETEP
             </span>
