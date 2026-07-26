@@ -23,3 +23,4 @@
 - Retorno mobile: permanece abaixo do cabeçalho durante a rolagem, sobre uma superfície opaca, sem ser recortado pelo header fixo.
 - Rodapé público: uma única composição compartilhada, com identidade, localização, links institucionais e estado de acesso adequado à sessão.
 - Perfil: banner azul sólido; avatar atravessa a divisão em moldura branca de 6px e a ação de edição permanece no conteúdo, fora do banner.
+- Administração: navegação em superfície própria com estado ativo; métricas gerais em faixa compacta e filas de risco separadas abaixo; valores de banco nunca aparecem sem rótulo humano.

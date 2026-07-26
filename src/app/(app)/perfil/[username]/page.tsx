@@ -6,13 +6,7 @@ import { ptBR } from "date-fns/locale";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/ui/avatar";
 import { PageBack } from "@/components/ui/page-back";
-
-const roleLabels: Record<string, string> = {
-  STUDENT: "Estudante",
-  TEACHER: "Professor(a)",
-  STAFF: "Gestão",
-  ADMIN: "Administrador(a)",
-};
+import { labelFor, roleLabels } from "@/lib/labels";
 
 export default async function Page({
   params,
@@ -71,7 +65,7 @@ export default async function Page({
               {p.full_name}
             </h1>
             <p className="mt-1 text-sm text-muted sm:text-base">
-              @{p.username} · {roleLabels[p.role] ?? "Membro da comunidade"}
+              @{p.username} · {labelFor(roleLabels, p.role)}
             </p>
           </div>
           <p className="mt-5 max-w-2xl leading-7 text-ink/90">

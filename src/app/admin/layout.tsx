@@ -1,15 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  ArrowLeft,
-  FileText,
-  LayoutDashboard,
-  LifeBuoy,
-  ScrollText,
-  Users,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
+import { AdminNav } from "@/components/admin/admin-nav";
 export const metadata: Metadata = {
   title: "Administração",
   robots: { index: false, follow: false },
@@ -30,13 +24,6 @@ export default async function Layout({
     .eq("id", user.id)
     .single();
   if (!p || !["STAFF", "ADMIN"].includes(p.role)) redirect("/acesso-negado");
-  const items = [
-    ["/admin", "Visão geral", LayoutDashboard],
-    ["/admin/usuarios", "Usuários", Users],
-    ["/admin/publicacoes", "Publicações", FileText],
-    ["/admin/alertas", "Alertas", LifeBuoy],
-    ["/admin/logs", "Auditoria", ScrollText],
-  ] as const;
   return (
     <div className="min-h-screen bg-canvas">
       <header className="border-b border-line bg-paper">
@@ -48,19 +35,10 @@ export default async function Layout({
           </Link>
         </div>
       </header>
-      <div className="mx-auto grid max-w-7xl gap-7 px-4 py-7 lg:grid-cols-[220px_1fr]">
-        <nav className="flex gap-2 overflow-x-auto lg:flex-col">
-          {items.map(([href, label, Icon]) => (
-            <Link
-              className="btn-ghost shrink-0 justify-start"
-              href={href}
-              key={href}
-            >
-              <Icon className="size-4" />
-              {label}
-            </Link>
-          ))}
-        </nav>
+      <div className="mx-auto grid max-w-7xl gap-5 px-4 py-5 lg:grid-cols-[224px_1fr] lg:gap-8 lg:py-8">
+        <aside className="card self-start p-2 lg:sticky lg:top-5">
+          <AdminNav canManageUsers={p.role === "ADMIN"} />
+        </aside>
         <main id="conteudo" className="min-w-0">
           {children}
         </main>

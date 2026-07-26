@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   accountSettingsSchema,
   commentSchema,
@@ -649,6 +650,50 @@ export async function restoreUser(id: string) {
     });
     if (auditError)
       return { ok: false, error: "Usuário reativado, mas a auditoria falhou." };
+    revalidatePath("/admin/usuarios");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: safe(e) };
+  }
+}
+export async function deleteUser(id: string) {
+  try {
+    const { db, user } = await adminAction(["ADMIN"]);
+    if (id === user.id)
+      return { ok: false, error: "Você não pode excluir a própria conta." };
+    const { data: target } = await db
+      .from("profiles")
+      .select("role,username")
+      .eq("id", id)
+      .single();
+    if (!target) return { ok: false, error: "Usuário não encontrado." };
+    if (target.role === "ADMIN") {
+      const { count } = await db
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("role", "ADMIN")
+        .is("suspended_at", null);
+      if ((count ?? 0) <= 1)
+        return {
+          ok: false,
+          error: "O sistema precisa manter ao menos um ADMIN ativo.",
+        };
+    }
+    const admin = createAdminClient();
+    const { error } = await admin.auth.admin.deleteUser(id);
+    if (error)
+      return {
+        ok: false,
+        error:
+          "Não foi possível excluir a conta da autenticação. Verifique a migration de exclusão e a SUPABASE_SECRET_KEY.",
+      };
+    await db.from("audit_logs").insert({
+      actor_id: user.id,
+      action: "USER_DELETED",
+      resource_type: "profile",
+      resource_id: id,
+      metadata: { username: target.username },
+    });
     revalidatePath("/admin/usuarios");
     return { ok: true };
   } catch (e) {

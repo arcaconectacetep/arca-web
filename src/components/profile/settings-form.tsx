@@ -17,13 +17,13 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import {
-  logout,
   removeAvatar,
   updateAccountSettings,
   updatePassword,
 } from "@/app/actions";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { prepareImageForUpload } from "@/lib/prepare-image";
+import { LogoutButton } from "@/components/profile/logout-button";
 
 type SettingsProfile = {
   id: string;
@@ -425,12 +425,7 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
           title="Sessão"
           text="Encerre o acesso ao ConectaCETEP neste dispositivo."
         />
-        <form action={logout}>
-          <button className="btn-ghost mt-5 text-danger hover:bg-danger/5 hover:text-danger">
-            <LogOut className="size-4" />
-            Sair da conta
-          </button>
-        </form>
+        <LogoutButton />
       </section>
     </div>
   );

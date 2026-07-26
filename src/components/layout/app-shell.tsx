@@ -6,6 +6,7 @@ import { UserPreferences } from "@/components/accessibility/user-preferences";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { AppNav } from "@/components/layout/app-nav";
 import { MobileMenu } from "@/components/layout/mobile-menu";
+import { labelFor, roleLabels } from "@/lib/labels";
 export async function AppShell({ children }: { children: React.ReactNode }) {
   const db = await createClient();
   const {
@@ -48,7 +49,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
               <b className="block truncate text-sm">
                 {p?.full_name || "Meu perfil"}
               </b>
-              <small className="text-muted">{p?.role}</small>
+              <small className="text-muted">{labelFor(roleLabels, p?.role)}</small>
             </span>
           </Link>
           {["STAFF", "ADMIN"].includes(p?.role || "") && (

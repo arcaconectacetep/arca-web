@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { RoleSelect, UserToggle } from "@/components/admin/admin-actions";
+import { DeleteUserButton, RoleSelect, UserToggle } from "@/components/admin/admin-actions";
+import { roleLabels } from "@/lib/labels";
 export default async function Page({
   searchParams,
 }: {
@@ -41,10 +42,9 @@ export default async function Page({
         />
         <select className="field w-auto" name="role" defaultValue={role}>
           <option value="">Todos os papéis</option>
-          <option>STUDENT</option>
-          <option>TEACHER</option>
-          <option>STAFF</option>
-          <option>ADMIN</option>
+          {Object.entries(roleLabels).map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
         </select>
         <button className="btn-primary">Filtrar</button>
       </form>
@@ -75,8 +75,11 @@ export default async function Page({
                     <span className="text-success">Ativo</span>
                   )}
                 </td>
-                <td className="p-4 text-right">
-                  <UserToggle id={u.id} suspended={!!u.suspended_at} />
+                <td className="p-4">
+                  <div className="flex justify-end gap-1">
+                    <UserToggle id={u.id} suspended={!!u.suspended_at} />
+                    <DeleteUserButton id={u.id} name={u.full_name || `@${u.username}`} />
+                  </div>
                 </td>
               </tr>
             ))}

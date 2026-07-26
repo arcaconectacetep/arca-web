@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AlertStatus } from "@/components/admin/admin-actions";
+import { alertCategoryLabels, alertStatusLabels, alertUrgencyLabels, labelFor } from "@/lib/labels";
 export default async function Page({
   searchParams,
 }: {
@@ -25,15 +26,15 @@ export default async function Page({
       <form className="mt-6 flex flex-col gap-2 sm:flex-row">
         <select className="field sm:w-auto" name="status">
           <option value="">Todos os status</option>
-          <option>RECEIVED</option>
-          <option>UNDER_REVIEW</option>
-          <option>RESOLVED</option>
+          {Object.entries(alertStatusLabels).map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
         </select>
         <select className="field sm:w-auto" name="urgency">
           <option value="">Todas urgências</option>
-          <option>GUIDANCE</option>
-          <option>ATTENTION</option>
-          <option>URGENT</option>
+          {Object.entries(alertUrgencyLabels).map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
         </select>
         <button className="btn-primary">Filtrar</button>
       </form>
@@ -51,10 +52,12 @@ export default async function Page({
                 {a.protocol}
               </Link>
               <p className="mt-1 text-sm text-muted">
-                {a.category} · {a.profiles?.[0]?.full_name}
+                {labelFor(alertCategoryLabels, a.category)} · {a.profiles?.[0]?.full_name}
               </p>
             </div>
-            <span className="badge">{a.urgency}</span>
+            <span className={`badge ${a.urgency === "URGENT" ? "bg-danger/10 text-danger" : ""}`}>
+              {labelFor(alertUrgencyLabels, a.urgency)}
+            </span>
             <AlertStatus id={a.id} value={a.status} />
           </article>
         ))}

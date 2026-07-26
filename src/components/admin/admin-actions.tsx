@@ -2,6 +2,7 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 import {
+  deleteUser,
   hidePost,
   restorePost,
   restoreUser,
@@ -10,6 +11,8 @@ import {
   updateUserRole,
 } from "@/app/actions";
 import type { Role } from "@/types/database";
+import { alertStatusLabels, labelFor, roleLabels } from "@/lib/labels";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 function notify(result: { ok: boolean; error?: string }, success: string) {
   if (result.ok) toast.success(success);
   else toast.error(result.error ?? "Não foi possível concluir a ação.");
@@ -28,11 +31,33 @@ export function RoleSelect({ id, value }: { id: string; value: Role }) {
       }
       className="field w-auto"
     >
-      <option>STUDENT</option>
-      <option>TEACHER</option>
-      <option>STAFF</option>
-      <option>ADMIN</option>
+      {Object.entries(roleLabels).map(([role, label]) => (
+        <option key={role} value={role}>{label}</option>
+      ))}
     </select>
+  );
+}
+export function DeleteUserButton({ id, name }: { id: string; name: string }) {
+  const [pending, start] = useTransition();
+  return (
+    <button
+      type="button"
+      disabled={pending}
+      className="btn-ghost text-danger hover:bg-danger/5 hover:text-danger"
+      onClick={() => {
+        const confirmed = window.confirm(
+          `Excluir permanentemente a conta de ${name}? Publicações, comentários e solicitações dessa pessoa também serão removidos. Esta ação não pode ser desfeita.`,
+        );
+        if (!confirmed) return;
+        start(async () => {
+          const result = await deleteUser(id);
+          notify(result, "Conta excluída da autenticação.");
+        });
+      }}
+    >
+      {pending && <LoadingSpinner label="Excluindo usuário" />}
+      Excluir conta
+    </button>
   );
 }
 export function UserToggle({
@@ -99,7 +124,7 @@ export function AlertStatus({ id, value }: { id: string; value: string }) {
         "RESOLVED",
         "ARCHIVED",
       ].map((x) => (
-        <option key={x}>{x}</option>
+        <option key={x} value={x}>{labelFor(alertStatusLabels, x)}</option>
       ))}
     </select>
   );

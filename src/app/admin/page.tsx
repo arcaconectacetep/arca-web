@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { AlertTriangle, FileText, LifeBuoy, MessageSquare, Users } from "lucide-react";
+import { auditActionLabels, labelFor } from "@/lib/labels";
 export default async function Page() {
   const db = await createClient();
   const [users, posts, comments, alerts, review, urgent, hidden, activity] =
@@ -27,32 +29,29 @@ export default async function Page() {
         .limit(5),
     ]);
   const stats = [
-    ["Usuários", users.count],
-    ["Publicações", posts.count],
-    ["Comentários", comments.count],
-    ["Alertas recebidos", alerts.count],
-    ["Em análise", review.count],
-    ["Urgentes abertos", urgent.count],
-    ["Posts ocultos", hidden.count],
+    { label: "Usuários", value: users.count, icon: Users },
+    { label: "Publicações", value: posts.count, icon: FileText },
+    { label: "Comentários", value: comments.count, icon: MessageSquare },
+    { label: "Solicitações", value: alerts.count, icon: LifeBuoy },
   ];
   return (
     <>
       <p className="eyebrow">Painel administrativo</p>
       <h1 className="page-title mt-2">Visão geral</h1>
-      <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map(([l, v], i) => (
-          <div
-            key={String(l)}
-            className={`card p-5 ${i === 5 ? "ring-2 ring-danger/20" : ""}`}
-          >
-            <p className="text-sm font-semibold text-muted">{l}</p>
-            <strong className="mt-3 block text-3xl tabular-nums">
-              {v ?? 0}
-            </strong>
+      <div className="card mt-7 grid divide-y divide-line overflow-hidden sm:grid-cols-2 sm:divide-x sm:divide-y-0 xl:grid-cols-4">
+        {stats.map(({ label, value, icon: Icon }) => (
+          <div key={label} className="flex items-center gap-4 p-5">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand"><Icon className="size-5" /></span>
+            <div><p className="text-xs font-bold uppercase tracking-wide text-muted">{label}</p><strong className="block text-2xl tabular-nums">{value ?? 0}</strong></div>
           </div>
         ))}
       </div>
-      <section className="card mt-6 p-6">
+      <div className="mt-5 grid gap-4 sm:grid-cols-3">
+        <div className="card p-5"><p className="text-sm font-semibold text-muted">Em análise</p><strong className="mt-2 block text-3xl tabular-nums">{review.count ?? 0}</strong></div>
+        <div className="card border-l-4 border-l-danger p-5"><p className="flex items-center gap-2 text-sm font-semibold text-danger"><AlertTriangle className="size-4" /> Urgentes abertos</p><strong className="mt-2 block text-3xl tabular-nums">{urgent.count ?? 0}</strong></div>
+        <div className="card p-5"><p className="text-sm font-semibold text-muted">Publicações ocultas</p><strong className="mt-2 block text-3xl tabular-nums">{hidden.count ?? 0}</strong></div>
+      </div>
+      <section className="card mt-5 p-6">
         <h2 className="section-title">Atividade recente</h2>
         <div className="mt-4 divide-y divide-line">
           {!activity.data?.length ? (
@@ -61,7 +60,7 @@ export default async function Page() {
             activity.data.map((a) => (
               <div key={a.id} className="flex justify-between py-3 text-sm">
                 <span>
-                  <b>{a.action}</b> · {a.resource_type}
+                  <b>{labelFor(auditActionLabels, a.action)}</b>
                 </span>
                 <time className="text-muted">
                   {new Date(a.created_at).toLocaleString("pt-BR")}

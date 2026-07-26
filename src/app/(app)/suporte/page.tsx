@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, LifeBuoy, ShieldCheck } from "lucide-react";
 import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
+import { alertCategoryLabels, alertStatusLabels, labelFor } from "@/lib/labels";
 export default async function Page() {
   const db = await createClient();
   const {
@@ -63,11 +64,11 @@ export default async function Page() {
                 <span>
                   <b className="block font-mono text-sm">{a.protocol}</b>
                   <small className="text-muted">
-                    {a.category} ·{" "}
+                    {labelFor(alertCategoryLabels, a.category)} ·{" "}
                     {format(new Date(a.created_at), "dd/MM/yyyy")}
                   </small>
                 </span>
-                <span className="badge">{a.status}</span>
+                <span className="badge">{labelFor(alertStatusLabels, a.status)}</span>
               </Link>
             ))}
           </div>

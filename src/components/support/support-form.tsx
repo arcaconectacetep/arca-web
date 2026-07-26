@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { createSupportAlert } from "@/app/actions";
+import { alertUrgencyLabels, labelFor } from "@/lib/labels";
 const categories = [
   ["BULLYING", "Bullying"],
   ["CYBERBULLYING", "Cyberbullying"],
@@ -174,7 +175,9 @@ export function SupportForm() {
             </div>
             <div className="py-3">
               <dt className="font-bold">Urgência</dt>
-              <dd className="mt-1 text-muted">{data.urgency}</dd>
+              <dd className="mt-1 text-muted">
+                {labelFor(alertUrgencyLabels, data.urgency)}
+              </dd>
             </div>
             <div className="py-3">
               <dt className="font-bold">Descrição</dt>

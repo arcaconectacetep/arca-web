@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { labelFor, postTypeLabels } from "@/lib/labels";
 export default async function Page() {
   const db = await createClient();
   const { data } = await db
@@ -49,7 +50,7 @@ export default async function Page() {
               )}
               <div className="p-5">
                 <div className="flex items-center justify-between">
-                  <span className="badge">{p.type}</span>
+                  <span className="badge">{labelFor(postTypeLabels, p.type)}</span>
                   <span className="flex items-center gap-1 text-xs font-bold text-brand">
                     <TrendingUp className="size-4" />
                     {p.score} pontos

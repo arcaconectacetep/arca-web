@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PageBack } from "@/components/ui/page-back";
+import { alertCategoryLabels, alertStatusLabels, alertUrgencyLabels, labelFor } from "@/lib/labels";
 export default async function Page({
   params,
 }: {
@@ -36,17 +37,17 @@ export default async function Page({
         <dl className="mt-6 grid gap-5 border-t border-line pt-6 sm:grid-cols-2">
           <div>
             <dt className="text-xs font-bold uppercase text-muted">Status</dt>
-            <dd className="mt-1 font-bold text-brand">{a.status}</dd>
+            <dd className="mt-1 font-bold text-brand">{labelFor(alertStatusLabels, a.status)}</dd>
           </div>
           <div>
             <dt className="text-xs font-bold uppercase text-muted">Urgência</dt>
-            <dd className="mt-1">{a.urgency}</dd>
+            <dd className="mt-1">{labelFor(alertUrgencyLabels, a.urgency)}</dd>
           </div>
           <div>
             <dt className="text-xs font-bold uppercase text-muted">
               Categoria
             </dt>
-            <dd className="mt-1">{a.category}</dd>
+            <dd className="mt-1">{labelFor(alertCategoryLabels, a.category)}</dd>
           </div>
           <div>
             <dt className="text-xs font-bold uppercase text-muted">
@@ -67,7 +68,7 @@ export default async function Page({
               <li key={e.created_at} className="relative mb-7">
                 <span className="absolute -left-[31px] top-1 size-3 rounded-full bg-brand ring-4 ring-canvas" />
                 <b className="block text-sm">
-                  {e.new_status || "Solicitação criada"}
+                  {e.new_status ? labelFor(alertStatusLabels, e.new_status) : "Solicitação criada"}
                 </b>
                 <time className="text-xs text-muted">
                   {format(new Date(e.created_at), "dd/MM/yyyy HH:mm")}

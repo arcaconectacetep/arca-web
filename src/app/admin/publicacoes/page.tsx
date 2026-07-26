@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { PostToggle } from "@/components/admin/admin-actions";
+import { labelFor, postSectionLabels } from "@/lib/labels";
 export default async function Page() {
   const db = await createClient();
   const { data } = await db
@@ -26,7 +27,7 @@ export default async function Page() {
             >
               <div className="min-w-0 flex-1">
                 <div className="flex gap-2">
-                  <span className="badge">{p.section}</span>
+                  <span className="badge">{labelFor(postSectionLabels, p.section)}</span>
                   {p.hidden_at && (
                     <span className="badge bg-danger/10 text-danger">
                       Oculta

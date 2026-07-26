@@ -4,6 +4,7 @@ import { addSupportAlertNote } from "@/app/actions";
 import { AlertStatus } from "@/components/admin/admin-actions";
 import { createClient } from "@/lib/supabase/server";
 import { PageBack } from "@/components/ui/page-back";
+import { alertCategoryLabels, alertStatusLabels, alertUrgencyLabels, labelFor } from "@/lib/labels";
 
 export default async function Page({
   params,
@@ -31,8 +32,8 @@ export default async function Page({
       <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_320px]">
         <article className="card p-6">
           <div className="flex flex-wrap gap-2">
-            <span className="badge">{alert.category}</span>
-            <span className="badge">{alert.urgency}</span>
+            <span className="badge">{labelFor(alertCategoryLabels, alert.category)}</span>
+            <span className="badge">{labelFor(alertUrgencyLabels, alert.urgency)}</span>
           </div>
           <h2 className="section-title mt-6">Relato</h2>
           <p className="mt-3 whitespace-pre-wrap leading-7">
@@ -117,9 +118,9 @@ export default async function Page({
               created_at: string;
             }) => (
               <li key={event.id} className="py-3 text-sm">
-                <b>{event.event_type}</b>
+                <b>{event.event_type === "CREATED" ? "Solicitação criada" : "Status atualizado"}</b>
                 <span className="ml-2 text-muted">
-                  {event.previous_status || "—"} → {event.new_status || "—"}
+                  {event.previous_status ? labelFor(alertStatusLabels, event.previous_status) : "—"} → {event.new_status ? labelFor(alertStatusLabels, event.new_status) : "—"}
                 </span>
                 <time className="block text-xs text-muted">
                   {format(new Date(event.created_at), "dd/MM/yyyy HH:mm")}
