@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -35,10 +36,12 @@ export function MobileMenu({
   role?: Role;
 }) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
 
+  useEffect(() => setMounted(true), []);
   useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -93,81 +96,85 @@ export function MobileMenu({
       >
         <Menu className="size-5" />
       </button>
-      <div
-        className={`fixed inset-0 z-50 lg:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
-        aria-hidden={!open}
-        inert={!open}
-      >
-        <button
-          className={`absolute inset-0 bg-ink/40 backdrop-blur-[2px] transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0"}`}
-          type="button"
-          onClick={() => setOpen(false)}
-          aria-label="Fechar menu"
-          tabIndex={open ? 0 : -1}
-        />
-        <aside
-          ref={panelRef}
-          className={`absolute inset-y-0 left-0 flex w-[min(86vw,320px)] flex-col bg-paper p-5 shadow-2xl transition-transform duration-200 ${open ? "translate-x-0" : "-translate-x-full"}`}
-          aria-label="Menu principal"
-          aria-modal="true"
-          role="dialog"
-        >
-          <div className="flex items-center justify-between">
-            <BrandLogo href="/inicio" />
+      {mounted &&
+        createPortal(
+          <div
+            className={`fixed inset-0 z-[100] lg:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+            aria-hidden={!open}
+            inert={!open}
+          >
             <button
-              className="grid size-11 place-items-center rounded-xl text-muted hover:bg-paper hover:text-brand"
+              className={`absolute inset-0 bg-ink/40 backdrop-blur-[2px] transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0"}`}
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Fechar menu"
+              tabIndex={open ? 0 : -1}
+            />
+            <aside
+              ref={panelRef}
+              className={`absolute inset-y-0 left-0 flex h-[100dvh] w-[min(86vw,320px)] flex-col overflow-y-auto border-r border-line bg-paper p-5 shadow-2xl transition-transform duration-200 ${open ? "translate-x-0" : "-translate-x-full"}`}
+              aria-label="Menu principal"
+              aria-modal="true"
+              role="dialog"
             >
-              <X className="size-5" />
-            </button>
-          </div>
-          <nav className="mt-8 space-y-1" aria-label="Navegação principal">
-            {links.map(({ href, label, icon: Icon }) => {
-              const active = pathname.startsWith(href);
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  aria-current={active ? "page" : undefined}
-                  className={`flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold ${active ? "bg-paper text-brand shadow-quiet" : "text-muted hover:bg-paper hover:text-brand"}`}
+              <div className="flex items-center justify-between">
+                <BrandLogo href="/inicio" />
+                <button
+                  className="grid size-11 place-items-center rounded-xl text-muted hover:bg-paper hover:text-brand"
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label="Fechar menu"
                 >
-                  <Icon className="size-5" /> {label}
+                  <X className="size-5" />
+                </button>
+              </div>
+              <nav className="mt-8 space-y-1" aria-label="Navegação principal">
+                {links.map(({ href, label, icon: Icon }) => {
+                  const active = pathname.startsWith(href);
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      aria-current={active ? "page" : undefined}
+                      className={`flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold ${active ? "bg-paper text-brand shadow-quiet" : "text-muted hover:bg-paper hover:text-brand"}`}
+                    >
+                      <Icon className="size-5" /> {label}
+                    </Link>
+                  );
+                })}
+              </nav>
+              <div className="mt-auto space-y-1 border-t border-line pt-4">
+                <Link
+                  href={`/perfil/${username ?? "me"}`}
+                  className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-muted hover:bg-paper hover:text-brand"
+                >
+                  <UserRound className="size-5" /> Meu perfil
                 </Link>
-              );
-            })}
-          </nav>
-          <div className="mt-auto space-y-1 border-t border-line pt-4">
-            <Link
-              href={`/perfil/${username ?? "me"}`}
-              className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-muted hover:bg-paper hover:text-brand"
-            >
-              <UserRound className="size-5" /> Meu perfil
-            </Link>
-            <Link
-              href="/notificacoes"
-              className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-muted hover:bg-paper hover:text-brand"
-            >
-              <Bell className="size-5" /> Notificações
-            </Link>
-            <Link
-              href="/configuracoes"
-              className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-muted hover:bg-paper hover:text-brand"
-            >
-              <Settings className="size-5" /> Configurações
-            </Link>
-            {role && ["STAFF", "ADMIN"].includes(role) && (
-              <Link
-                href="/admin"
-                className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-brand hover:bg-paper"
-              >
-                <ShieldCheck className="size-5" /> Administração
-              </Link>
-            )}
-          </div>
-        </aside>
-      </div>
+                <Link
+                  href="/notificacoes"
+                  className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-muted hover:bg-paper hover:text-brand"
+                >
+                  <Bell className="size-5" /> Notificações
+                </Link>
+                <Link
+                  href="/configuracoes"
+                  className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-muted hover:bg-paper hover:text-brand"
+                >
+                  <Settings className="size-5" /> Configurações
+                </Link>
+                {role && ["STAFF", "ADMIN"].includes(role) && (
+                  <Link
+                    href="/admin"
+                    className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-brand hover:bg-paper"
+                  >
+                    <ShieldCheck className="size-5" /> Administração
+                  </Link>
+                )}
+              </div>
+            </aside>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }
