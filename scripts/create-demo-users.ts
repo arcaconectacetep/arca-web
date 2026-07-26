@@ -9,7 +9,7 @@ const required = (name: string) => {
 };
 
 const supabaseUrl = required("NEXT_PUBLIC_SUPABASE_URL");
-const secretKey = required("SUPABASE_SERVICE_ROLE_KEY");
+const secretKey = required("SUPABASE_SECRET_KEY");
 const password = required("DEMO_USER_PASSWORD");
 
 if (password.length < 12) {

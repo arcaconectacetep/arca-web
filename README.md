@@ -32,8 +32,8 @@ A aplicação abre em `http://localhost:3000`.
 
 ```dotenv
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SECRET_KEY=
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 IMG_CHEST_API_KEY=
 DIRECT_CONNECTION_STRING=
@@ -44,7 +44,7 @@ DEMO_STAFF_EMAIL=staff.demo@example.com
 DEMO_ADMIN_EMAIL=admin.demo@example.com
 ```
 
-`SUPABASE_SERVICE_ROLE_KEY`, `IMG_CHEST_API_KEY`, `DIRECT_CONNECTION_STRING` e `DEMO_USER_PASSWORD` são segredos exclusivamente locais/servidor. Nunca use prefixo `NEXT_PUBLIC_` neles. A Vercel não precisa das variáveis `DIRECT_CONNECTION_STRING` ou `DEMO_*` para executar a aplicação. Gere o token do ImgChest em Profile → Security → Personal Access Tokens.
+`SUPABASE_SECRET_KEY`, `IMG_CHEST_API_KEY`, `DIRECT_CONNECTION_STRING` e `DEMO_USER_PASSWORD` são segredos exclusivamente locais/servidor. Nunca use prefixo `NEXT_PUBLIC_` neles. A Vercel não precisa das variáveis `DIRECT_CONNECTION_STRING` ou `DEMO_*` para executar a aplicação. Gere o token do ImgChest em Profile → Security → Personal Access Tokens.
 
 ## Supabase: migrations e seed
 
