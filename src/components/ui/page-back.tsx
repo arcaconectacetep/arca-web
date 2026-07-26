@@ -28,8 +28,10 @@ export function PageBack({
   }
 
   return (
-    <button className="btn-ghost -ml-3 mb-4" type="button" onClick={goBack}>
-      <ArrowLeft className="size-4" /> {label}
-    </button>
+    <div className="sticky top-16 z-10 -mx-1 mb-3 bg-canvas/95 py-1 backdrop-blur lg:static lg:mx-0 lg:mb-4 lg:bg-transparent lg:py-0 lg:backdrop-blur-none">
+      <button className="btn-ghost" type="button" onClick={goBack}>
+        <ArrowLeft className="size-4" /> {label}
+      </button>
+    </div>
   );
 }

@@ -15,13 +15,18 @@ export function Avatar({
     .join("")
     .toUpperCase();
   return url ? (
-    <Image
-      src={url}
-      alt={`Foto de ${name || "usuário"}`}
-      width={size}
-      height={size}
-      className="shrink-0 rounded-full object-cover ring-1 ring-line"
-    />
+    <span
+      className="relative block aspect-square shrink-0 overflow-hidden rounded-full bg-paper ring-1 ring-line"
+      style={{ width: size, height: size }}
+    >
+      <Image
+        src={url}
+        alt={`Foto de ${name || "usuário"}`}
+        fill
+        sizes={`${size}px`}
+        className="object-cover"
+      />
+    </span>
   ) : (
     <span
       aria-hidden

@@ -18,3 +18,6 @@
 - Sidebar: superfície `paper` opaca sobre o canvas, borda à direita e sombra lateral mínima para preservar profundidade sem fragmentar o app.
 - Retorno: páginas de detalhe, perfil e configuração começam com botão contextual de voltar; usa histórico interno e fallback seguro para a área de origem.
 - Configurações: ordem foto → informações públicas → acessibilidade → segurança → sessão; cada grupo usa card de 20–24px, ícone em superfície `brand-soft` e uma única ação principal.
+- Avatar: sempre renderizado dentro de um contêiner quadrado com recorte circular; nunca depende da proporção intrínseca da imagem remota.
+- Perfil mobile: identidade em pilha (avatar, nome e metadados), ação de edição junto ao avatar e estatísticas em uma única superfície dividida.
+- Retorno mobile: permanece abaixo do cabeçalho durante a rolagem, sobre uma superfície opaca, sem ser recortado pelo header fixo.
