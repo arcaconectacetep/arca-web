@@ -31,6 +31,7 @@ import { CheckboxField } from "@/components/ui/checkbox-field";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { SelectField } from "@/components/ui/select-field";
 import { Turnstile } from "@/components/security/turnstile";
+import { colorModeOptions, fontFamilyOptions, fontScaleOptions, shiftOptions, themeOptions } from "@/lib/appearance-options";
 
 type SettingsProfile = {
   id: string;
@@ -256,7 +257,7 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
             </label>
             <label>
               <span className="label">Turno</span>
-              <SelectField name="shift" defaultValue={profile.shift ?? ""} options={["", "Matutino", "Vespertino", "Noturno", "Integral"].map((value) => ({ value, label: value || "Não informado" }))} />
+              <SelectField name="shift" defaultValue={profile.shift ?? ""} options={[...shiftOptions]} />
             </label>
             <label className="sm:col-span-2">
               <span className="label">Biografia</span>
@@ -309,19 +310,19 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <label>
               <span className="label">Tema visual</span>
-              <SelectField name="theme" defaultValue={profile.theme} options={[{ value: "DEFAULT", label: "Azul" }, { value: "BLUE", label: "Azul profundo" }, { value: "AURORA", label: "Aurora" }, { value: "NEUTRAL", label: "Neutro" }, { value: "FOREST", label: "Floresta" }, { value: "OCEAN", label: "Oceano" }, { value: "WINE", label: "Vinho" }]} />
+              <SelectField name="theme" defaultValue={profile.theme} options={[...themeOptions]} />
             </label>
             <label>
               <span className="label">Modo de cor</span>
-              <SelectField name="colorMode" defaultValue={profile.color_mode} options={[{ value: "SYSTEM", label: "Usar configuração do sistema" }, { value: "LIGHT", label: "Claro" }, { value: "DARK", label: "Escuro" }]} />
+              <SelectField name="colorMode" defaultValue={profile.color_mode} options={[...colorModeOptions]} />
             </label>
             <label>
               <span className="label">Fonte</span>
-              <SelectField name="fontFamily" defaultValue={profile.font_family} options={[{ value: "INTER", label: "Inter" }, { value: "SOURCE_SANS", label: "Source Sans 3" }, { value: "ATKINSON", label: "Atkinson Hyperlegible" }]} />
+              <SelectField name="fontFamily" defaultValue={profile.font_family} options={[...fontFamilyOptions]} />
             </label>
             <label>
               <span className="label">Tamanho da fonte</span>
-              <SelectField name="fontScale" defaultValue={String(profile.font_scale)} options={[{ value: "1", label: "100% — Padrão" }, { value: "1.15", label: "115% — Confortável" }, { value: "1.3", label: "130% — Ampliada" }]} />
+              <SelectField name="fontScale" defaultValue={String(profile.font_scale)} options={[...fontScaleOptions]} />
             </label>
             <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-xl border border-line bg-canvas p-4">
               <CheckboxField name="highContrast" value="on" defaultChecked={profile.high_contrast} />

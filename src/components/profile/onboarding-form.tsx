@@ -9,6 +9,7 @@ import { updateProfile } from "@/app/actions";
 import { z } from "zod";
 import { SelectField } from "@/components/ui/select-field";
 import { CheckboxField } from "@/components/ui/checkbox-field";
+import { colorModeOptions, fontFamilyOptions, fontScaleOptions, shiftOptions, themeOptions } from "@/lib/appearance-options";
 type Values = z.infer<typeof profileSchema>;
 export function OnboardingForm({
   courses,
@@ -29,6 +30,8 @@ export function OnboardingForm({
     defaultValues: {
       fullName: name,
       theme: "DEFAULT",
+      colorMode: "SYSTEM",
+      fontFamily: "INTER",
       highContrast: false,
       reducedMotion: false,
       fontScale: 1,
@@ -70,6 +73,7 @@ export function OnboardingForm({
       <label>
         <span className="label">Curso</span>
         <Controller control={control} name="courseId" render={({ field }) => <SelectField value={field.value ?? ""} onValueChange={field.onChange} options={[{ value: "", label: "Selecione" }, ...courses.map((course) => ({ value: course.id, label: course.name }))]} />} />
+        <small className="text-danger">{errors.courseId?.message}</small>
       </label>
       <label>
         <span className="label">Turma (opcional)</span>
@@ -77,16 +81,21 @@ export function OnboardingForm({
       </label>
       <label>
         <span className="label">Turno (opcional)</span>
-        <Controller control={control} name="shift" render={({ field }) => <SelectField value={field.value ?? ""} onValueChange={field.onChange} options={["", "Matutino", "Vespertino", "Noturno", "Integral"].map((value) => ({ value, label: value || "Selecione" }))} />} />
-      </label>
-      <label>
-        <span className="label">Tema visual</span>
-        <Controller control={control} name="theme" render={({ field }) => <SelectField value={field.value} onValueChange={field.onChange} options={[{ value: "DEFAULT", label: "Azul" }, { value: "AURORA", label: "Aurora" }, { value: "NEUTRAL", label: "Neutro" }]} />} />
+        <Controller control={control} name="shift" render={({ field }) => <SelectField value={field.value ?? ""} onValueChange={field.onChange} options={shiftOptions.map((option) => ({ ...option, label: option.value ? option.label : "Selecione" }))} />} />
       </label>
       <label className="md:col-span-2">
         <span className="label">Biografia (opcional)</span>
         <textarea className="field min-h-24 resize-y" {...register("bio")} />
       </label>
+      <fieldset className="rounded-xl bg-canvas p-4 md:col-span-2">
+        <legend className="label px-1">Aparência</legend>
+        <p className="mb-4 text-sm text-muted">Você poderá alterar estas escolhas depois nas configurações.</p>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <label><span className="label">Tema visual</span><Controller control={control} name="theme" render={({ field }) => <SelectField value={field.value} onValueChange={field.onChange} options={[...themeOptions]} />} /></label>
+          <label><span className="label">Modo de cor</span><Controller control={control} name="colorMode" render={({ field }) => <SelectField value={field.value} onValueChange={field.onChange} options={[...colorModeOptions]} />} /></label>
+          <label><span className="label">Fonte</span><Controller control={control} name="fontFamily" render={({ field }) => <SelectField value={field.value} onValueChange={field.onChange} options={[...fontFamilyOptions]} />} /></label>
+        </div>
+      </fieldset>
       <fieldset className="md:col-span-2">
         <legend className="label">Acessibilidade</legend>
         <div className="grid gap-3 sm:grid-cols-3">
@@ -100,7 +109,7 @@ export function OnboardingForm({
           </label>
           <label>
             <span className="sr-only">Tamanho da fonte</span>
-            <Controller control={control} name="fontScale" render={({ field }) => <SelectField value={String(field.value)} onValueChange={(value) => field.onChange(Number(value))} options={[{ value: "1", label: "Fonte 100%" }, { value: "1.15", label: "Fonte 115%" }, { value: "1.3", label: "Fonte 130%" }]} />} />
+            <Controller control={control} name="fontScale" render={({ field }) => <SelectField value={String(field.value)} onValueChange={(value) => field.onChange(Number(value))} options={[...fontScaleOptions]} />} />
           </label>
         </div>
       </fieldset>
@@ -109,6 +118,7 @@ export function OnboardingForm({
         <span className="text-sm">
           Li e aceito os termos de uso e a política de privacidade.
         </span>
+        <small className="text-danger">{errors.termsAccepted?.message}</small>
       </label>
       <button disabled={pending} className="btn-primary md:col-span-2">
         {pending ? "Salvando…" : "Concluir e entrar"}
