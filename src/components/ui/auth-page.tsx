@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AuthForm } from "./auth-form";
+import { BrandLogo } from "./brand-logo";
 export function AuthPage({
   mode,
   title,
@@ -12,9 +13,7 @@ export function AuthPage({
   return (
     <main id="conteudo" className="grid min-h-screen lg:grid-cols-[.9fr_1.1fr]">
       <aside className="hidden bg-brand p-12 text-white lg:flex lg:flex-col lg:justify-between">
-        <Link href="/" className="text-xl font-bold">
-          ConectaCETEP
-        </Link>
+        <BrandLogo className="text-xl" />
         <blockquote className="max-w-lg font-display text-4xl leading-tight">
           “Uma escola conectada escuta, compartilha e transforma junto.”
         </blockquote>
@@ -22,12 +21,7 @@ export function AuthPage({
       </aside>
       <section className="grid place-items-center px-5 py-12">
         <div className="w-full max-w-md">
-          <Link
-            href="/"
-            className="mb-12 inline-block font-bold text-brand lg:hidden"
-          >
-            ConectaCETEP
-          </Link>
+          <BrandLogo className="mb-12 text-brand lg:hidden" />
           <p className="eyebrow">Acesso à comunidade</p>
           <h1 className="page-title mt-2">{title}</h1>
           <p className="mb-8 mt-3 text-muted">{text}</p>

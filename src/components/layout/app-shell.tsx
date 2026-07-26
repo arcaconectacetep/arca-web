@@ -1,25 +1,10 @@
 import Link from "next/link";
-import {
-  Bell,
-  BookOpen,
-  Home,
-  LifeBuoy,
-  Lightbulb,
-  Megaphone,
-  Menu,
-  Settings,
-  ShieldCheck,
-} from "lucide-react";
+import { Bell, Menu, Settings, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/ui/avatar";
 import { UserPreferences } from "@/components/accessibility/user-preferences";
-const nav = [
-  { href: "/inicio", label: "Início", icon: Home },
-  { href: "/espaco", label: "Espaço", icon: BookOpen },
-  { href: "/mural", label: "Mural", icon: Megaphone },
-  { href: "/tendencias", label: "Tendências", icon: Lightbulb },
-  { href: "/suporte", label: "Suporte", icon: LifeBuoy },
-];
+import { BrandLogo } from "@/components/ui/brand-logo";
+import { AppNav } from "@/components/layout/app-nav";
 export async function AppShell({ children }: { children: React.ReactNode }) {
   const db = await createClient();
   const {
@@ -50,27 +35,8 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
     >
       <UserPreferences fontScale={p?.font_scale ?? 1} />
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-line bg-canvas px-5 py-7 lg:flex lg:flex-col">
-        <Link
-          href="/inicio"
-          className="mb-10 flex items-center gap-3 text-lg font-extrabold"
-        >
-          <span className="grid size-9 place-items-center rounded-xl bg-brand text-white">
-            C
-          </span>
-          ConectaCETEP
-        </Link>
-        <nav aria-label="Navegação principal" className="space-y-1">
-          {nav.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-muted hover:bg-paper hover:text-brand"
-            >
-              <Icon className="size-5" />
-              {label}
-            </Link>
-          ))}
-        </nav>
+        <BrandLogo href="/inicio" className="mb-10 text-lg" />
+        <AppNav />
         <div className="mt-auto border-t border-line pt-4">
           <Link
             href={`/perfil/${p?.username ?? "me"}`}
@@ -97,13 +63,13 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
       <div className="lg:pl-64">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-line/80 bg-canvas/95 px-4 backdrop-blur md:px-8">
-          <Link
-            href="/inicio"
-            className="flex items-center gap-2 font-bold lg:hidden"
-          >
-            <Menu className="size-5" />
-            <span>ConectaCETEP</span>
-          </Link>
+          <div className="flex items-center gap-1 lg:hidden">
+            <Menu aria-hidden className="size-5 text-muted" />
+            <BrandLogo href="/inicio" compact className="ml-1" />
+            <span className="text-sm font-bold tracking-tight">
+              ConectaCETEP
+            </span>
+          </div>
           <span className="hidden text-sm text-muted lg:block">
             CETEP · Itaberaba, Bahia
           </span>
@@ -131,26 +97,12 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
         </header>
         <main
           id="conteudo"
-          className="mx-auto min-h-[calc(100vh-4rem)] max-w-7xl px-4 py-6 pb-24 md:px-8 md:py-8 lg:pb-10"
+          className="page-enter mx-auto min-h-[calc(100vh-4rem)] max-w-7xl px-4 py-6 pb-24 md:px-8 md:py-8 lg:pb-10"
         >
           {children}
         </main>
       </div>
-      <nav
-        aria-label="Navegação móvel"
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-line bg-paper px-1 pb-[env(safe-area-inset-bottom)] lg:hidden"
-      >
-        {nav.map(({ href, label, icon: Icon }) => (
-          <Link
-            href={href}
-            key={href}
-            className="flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-semibold text-muted"
-          >
-            <Icon className="size-5" />
-            <span>{label}</span>
-          </Link>
-        ))}
-      </nav>
+      <AppNav mobile />
     </div>
   );
 }
