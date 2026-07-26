@@ -31,7 +31,7 @@ export default async function Page({
     db
       .from("posts")
       .select(
-        "*,profiles!posts_author_id_fkey(username,full_name,avatar_url,role),post_images(image_url,thumbnail_url,alt_text),post_likes(user_id),comments(id)",
+        "*,profiles!posts_author_id_fkey(username,full_name,avatar_url,role),post_images(image_url,thumbnail_url,alt_text,position),post_likes(user_id),comments(id)",
       )
       .eq("id", id)
       .is("deleted_at", null)

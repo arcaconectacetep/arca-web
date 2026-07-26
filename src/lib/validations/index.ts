@@ -113,7 +113,9 @@ export const profileSchema = z.object({
   className: z.string().trim().max(50).optional(),
   shift: z.string().trim().max(30).optional(),
   bio: z.string().trim().max(500).optional(),
-  theme: z.enum(["DEFAULT", "BLUE", "AURORA", "NEUTRAL"]),
+  theme: z.enum(["DEFAULT", "BLUE", "AURORA", "NEUTRAL", "FOREST", "OCEAN", "WINE"]),
+  colorMode: z.enum(["LIGHT", "DARK", "SYSTEM"]).default("SYSTEM"),
+  fontFamily: z.enum(["INTER", "SOURCE_SANS", "ATKINSON"]).default("INTER"),
   highContrast: z.boolean(),
   reducedMotion: z.boolean(),
   fontScale: z.union([z.literal(1), z.literal(1.15), z.literal(1.3)]),
@@ -128,7 +130,9 @@ export const publicProfileSettingsSchema = z.object({
 });
 
 export const preferenceSettingsSchema = z.object({
-  theme: z.enum(["DEFAULT", "BLUE", "AURORA", "NEUTRAL"]),
+  theme: z.enum(["DEFAULT", "BLUE", "AURORA", "NEUTRAL", "FOREST", "OCEAN", "WINE"]),
+  colorMode: z.enum(["LIGHT", "DARK", "SYSTEM"]),
+  fontFamily: z.enum(["INTER", "SOURCE_SANS", "ATKINSON"]),
   highContrast: z.boolean(),
   reducedMotion: z.boolean(),
   fontScale: z.union([z.literal(1), z.literal(1.15), z.literal(1.3)]),

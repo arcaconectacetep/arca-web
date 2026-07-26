@@ -1,6 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
@@ -114,6 +115,31 @@ export async function logout() {
   await db.auth.signOut();
   redirect("/");
 }
+export async function deleteOwnAccount(input: unknown) {
+  try {
+    const parsed = z.object({
+      password: z.string().min(1),
+      confirmation: z.literal("EXCLUIR MINHA CONTA"),
+    }).safeParse(input);
+    if (!parsed.success) return { ok: false, error: "Digite a frase de confirmação exatamente como solicitado." };
+    const { db, user, role } = await context();
+    if (!user.email) return { ok: false, error: "Esta conta não possui um e-mail válido." };
+    if (role === "ADMIN") {
+      const { count } = await db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "ADMIN").is("suspended_at", null);
+      if ((count ?? 0) <= 1) return { ok: false, error: "Transfira a administração antes de excluir o último ADMIN." };
+    }
+    const { error: passwordError } = await db.auth.signInWithPassword({ email: user.email, password: parsed.data.password });
+    if (passwordError) return { ok: false, error: "Senha incorreta." };
+    const admin = createAdminClient();
+    const { error } = await admin.auth.admin.deleteUser(user.id);
+    if (error) return { ok: false, error: "Não foi possível excluir a conta. Confirme que as migrations estão atualizadas." };
+    await admin.from("audit_logs").insert({ actor_id: null, action: "ACCOUNT_SELF_DELETED", resource_type: "profile", resource_id: user.id, metadata: { self_service: true } });
+    await db.auth.signOut();
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: safe(error) };
+  }
+}
 export async function recoverPassword(form: FormData) {
   const captchaToken = String(form.get("captchaToken") ?? "");
   if (!captchaToken || captchaToken.length > 2048)
@@ -172,6 +198,8 @@ export async function updateProfile(input: unknown) {
         shift: data.shift || null,
         bio: data.bio || null,
         theme: data.theme,
+        color_mode: data.colorMode,
+        font_family: data.fontFamily,
         high_contrast: data.highContrast,
         reduced_motion: data.reducedMotion,
         font_scale: data.fontScale,
@@ -226,6 +254,8 @@ export async function updatePreferences(input: unknown) {
       .from("profiles")
       .update({
         theme: data.theme,
+        color_mode: data.colorMode,
+        font_family: data.fontFamily,
         high_contrast: data.highContrast,
         reduced_motion: data.reducedMotion,
         font_scale: data.fontScale,

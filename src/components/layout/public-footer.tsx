@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
+import { CookieSettingsButton } from "@/components/privacy/cookie-settings-button";
 
 export function PublicFooter({ authenticated = false }: { authenticated?: boolean }) {
   return (
@@ -29,6 +30,7 @@ export function PublicFooter({ authenticated = false }: { authenticated?: boolea
           <Link className="hover:text-brand" href="/privacidade">
             Privacidade
           </Link>
+          <CookieSettingsButton />
         </nav>
       </div>
       <div className="border-t border-line/70">

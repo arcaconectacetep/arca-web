@@ -43,6 +43,7 @@ export interface Post {
     image_url: string;
     thumbnail_url: string | null;
     alt_text: string;
+    position?: number;
   }[];
   post_likes: { user_id: string }[];
   comments: { id: string }[];

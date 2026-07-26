@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
@@ -30,6 +29,7 @@ import {
 import { Avatar } from "@/components/ui/avatar";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import type { Post } from "@/types/database";
+import { MediaGallery } from "@/components/feed/media-gallery";
 
 const labels: Record<string, string> = {
   GENERAL: "Geral",
@@ -307,26 +307,7 @@ export function PostCard({
       </div>
 
       {post.post_images.length > 0 && (
-        <Link
-          href={postHref}
-          className={`grid gap-1 ${post.post_images.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
-          aria-label="Abrir imagens da publicação"
-        >
-          {post.post_images.map((image, index) => (
-            <div
-              key={image.image_url}
-              className="relative aspect-[16/10] overflow-hidden bg-brand-soft"
-            >
-              <Image
-                src={image.image_url}
-                fill
-                sizes="(max-width: 768px) 100vw, 680px"
-                alt={image.alt_text || `Imagem ${index + 1} da publicação`}
-                className="object-cover transition-transform duration-200 hover:scale-[1.015]"
-              />
-            </div>
-          ))}
-        </Link>
+        <MediaGallery images={post.post_images} />
       )}
 
       <footer className="flex items-center border-t border-line px-3 py-2">

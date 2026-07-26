@@ -72,6 +72,18 @@ const sections: LegalSection[] = [
     ),
   },
   {
+    id: "cookies",
+    title: "Cookies e preferências do navegador",
+    content: (
+      <p>
+        Utilizamos recursos essenciais para manter a sessão, aplicar proteção
+        contra abuso e registrar sua escolha de consentimento. Preferências de
+        aparência podem ser mantidas no navegador quando autorizadas. O
+        protótipo não utiliza cookies de publicidade ou rastreamento comercial.
+      </p>
+    ),
+  },
+  {
     id: "cuidados",
     title: "Cuidados ao publicar",
     content: (

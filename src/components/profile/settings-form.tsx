@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 import {
   removeAvatar,
+  deleteOwnAccount,
   updatePreferences,
   updatePublicProfile,
   updatePassword,
@@ -25,6 +26,7 @@ import {
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { prepareImageForUpload } from "@/lib/prepare-image";
 import { LogoutButton } from "@/components/profile/logout-button";
+import { CookieSettingsButton } from "@/components/privacy/cookie-settings-button";
 
 type SettingsProfile = {
   id: string;
@@ -35,6 +37,8 @@ type SettingsProfile = {
   class_name: string | null;
   shift: string | null;
   theme: string;
+  color_mode: string;
+  font_family: string;
   high_contrast: boolean;
   reduced_motion: boolean;
   font_scale: number;
@@ -70,6 +74,7 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
   const [publicPending, startPublic] = useTransition();
   const [preferencesPending, startPreferences] = useTransition();
   const [passwordPending, startPassword] = useTransition();
+  const [deletePending, startDelete] = useTransition();
 
   function upload(file?: File) {
     if (!file) return;
@@ -295,6 +300,8 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
             startPreferences(async () => {
               const result = await updatePreferences({
                 theme: String(form.get("theme")),
+                colorMode: String(form.get("colorMode")),
+                fontFamily: String(form.get("fontFamily")),
                 highContrast: form.get("highContrast") === "on",
                 reducedMotion: form.get("reducedMotion") === "on",
                 fontScale: Number(form.get("fontScale")),
@@ -325,6 +332,25 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
                 <option value="BLUE">Azul profundo</option>
                 <option value="AURORA">Aurora</option>
                 <option value="NEUTRAL">Neutro</option>
+                <option value="FOREST">Floresta</option>
+                <option value="OCEAN">Oceano</option>
+                <option value="WINE">Vinho</option>
+              </select>
+            </label>
+            <label>
+              <span className="label">Modo de cor</span>
+              <select className="field" name="colorMode" defaultValue={profile.color_mode}>
+                <option value="SYSTEM">Usar configuração do sistema</option>
+                <option value="LIGHT">Claro</option>
+                <option value="DARK">Escuro</option>
+              </select>
+            </label>
+            <label>
+              <span className="label">Fonte</span>
+              <select className="field" name="fontFamily" defaultValue={profile.font_family}>
+                <option value="INTER">Inter</option>
+                <option value="SOURCE_SANS">Source Sans 3</option>
+                <option value="ATKINSON">Atkinson Hyperlegible</option>
               </select>
             </label>
             <label>
@@ -450,7 +476,27 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
           text="Encerre o acesso ao ConectaCETEP neste dispositivo."
         />
         <LogoutButton />
+        <CookieSettingsButton className="btn-secondary mt-5" />
       </section>
+
+      <form
+        className="card border border-danger/25 p-5 sm:p-6"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const form = new FormData(event.currentTarget);
+          if (!window.confirm("Última confirmação: excluir sua conta e todos os dados vinculados? Esta ação não pode ser desfeita.")) return;
+          startDelete(async () => {
+            const result = await deleteOwnAccount({ password: String(form.get("deletePassword")), confirmation: String(form.get("confirmation")) });
+            if (!result.ok) return void toast.error(result.error);
+            window.location.assign("/");
+          });
+        }}
+      >
+        <SectionHeading icon={Trash2} title="Excluir minha conta" text="Remove permanentemente seu perfil, publicações, comentários e solicitações de suporte." />
+        <div className="mt-5 rounded-xl bg-danger/5 p-4 text-sm leading-6 text-danger"><b>Esta ação não pode ser desfeita.</b> Se precisar apenas interromper o acesso, saia da conta. Administradores devem garantir que exista outro ADMIN ativo.</div>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2"><label><span className="label">Senha atual</span><input className="field" type="password" name="deletePassword" autoComplete="current-password" required /></label><label><span className="label">Digite EXCLUIR MINHA CONTA</span><input className="field" name="confirmation" required autoComplete="off" /></label></div>
+        <button className="btn mt-5 bg-danger text-white hover:bg-danger/90" disabled={deletePending}>{deletePending ? <LoadingSpinner label="Excluindo conta" /> : <Trash2 className="size-4" />}{deletePending ? "Excluindo…" : "Excluir permanentemente"}</button>
+      </form>
     </div>
   );
 }

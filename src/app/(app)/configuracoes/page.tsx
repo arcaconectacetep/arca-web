@@ -9,7 +9,7 @@ export default async function Page() {
   const { data: p } = await db
     .from("profiles")
     .select(
-      "id,username,full_name,avatar_url,bio,class_name,shift,theme,high_contrast,reduced_motion,font_scale",
+      "id,username,full_name,avatar_url,bio,class_name,shift,theme,color_mode,font_family,high_contrast,reduced_motion,font_scale",
     )
     .eq("id", user!.id)
     .single();

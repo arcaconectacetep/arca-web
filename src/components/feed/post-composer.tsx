@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
-import { ImagePlus, Send, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, GripVertical, ImagePlus, Send, X } from "lucide-react";
 import { toast } from "sonner";
 import { createPost } from "@/app/actions";
 import type { Role, Section } from "@/types/database";
@@ -19,6 +19,11 @@ export function PostComposer({
   const [images, setImages] = useState<Array<{ file: File; preview: string }>>(
     [],
   );
+  const [dragging, setDragging] = useState<number | null>(null);
+  function move(from: number, to: number) {
+    if (to < 0 || to >= images.length || from === to) return;
+    setImages((current) => { const next = [...current]; const [item] = next.splice(from, 1); next.splice(to, 0, item); return next; });
+  }
   function choose(files: FileList | null) {
     if (!files) return;
     const next = [...images];
@@ -105,7 +110,12 @@ export function PostComposer({
           {images.map((x, i) => (
             <div
               key={x.preview}
-              className="relative aspect-square overflow-hidden rounded-xl"
+              draggable
+              onDragStart={() => setDragging(i)}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={() => { if (dragging !== null) move(dragging, i); setDragging(null); }}
+              onDragEnd={() => setDragging(null)}
+              className={`relative aspect-square overflow-hidden rounded-xl ring-2 transition-[opacity,box-shadow] ${dragging === i ? "opacity-50 ring-brand" : "ring-transparent"}`}
             >
               <Image
                 src={x.preview}
@@ -122,6 +132,9 @@ export function PostComposer({
               >
                 <X className="size-4" />
               </button>
+              <span className="absolute left-1 top-1 grid size-9 cursor-grab place-items-center rounded-full bg-ink/80 text-white" aria-hidden><GripVertical className="size-4" /></span>
+              <div className="absolute bottom-1 left-1 flex gap-1"><button type="button" className="grid size-9 place-items-center rounded-full bg-ink/80 text-white disabled:opacity-40" disabled={i === 0} onClick={() => move(i, i - 1)} aria-label={`Mover imagem ${i + 1} para a esquerda`}><ArrowLeft className="size-4" /></button><button type="button" className="grid size-9 place-items-center rounded-full bg-ink/80 text-white disabled:opacity-40" disabled={i === images.length - 1} onClick={() => move(i, i + 1)} aria-label={`Mover imagem ${i + 1} para a direita`}><ArrowRight className="size-4" /></button></div>
+              <span className="sr-only">Imagem {i + 1} de {images.length}</span>
             </div>
           ))}
         </div>

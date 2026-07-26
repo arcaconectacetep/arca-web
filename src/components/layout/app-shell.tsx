@@ -16,7 +16,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
     ? await db
         .from("profiles")
         .select(
-          "username,full_name,avatar_url,role,theme,high_contrast,reduced_motion,font_scale",
+          "username,full_name,avatar_url,role,theme,color_mode,font_family,high_contrast,reduced_motion,font_scale",
         )
         .eq("id", user.id)
         .single()
@@ -35,7 +35,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       data-motion={p?.reduced_motion}
       className="min-h-screen"
     >
-      <UserPreferences fontScale={p?.font_scale ?? 1} />
+      <UserPreferences fontScale={p?.font_scale ?? 1} colorMode={p?.color_mode ?? "SYSTEM"} fontFamily={p?.font_family ?? "INTER"} />
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-line bg-paper px-5 py-7 shadow-[4px_0_24px_-20px_hsl(var(--ink)/.35)] lg:flex lg:flex-col">
         <BrandLogo href="/inicio" className="mb-10 text-lg" />
         <AppNav />

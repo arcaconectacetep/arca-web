@@ -55,6 +55,7 @@ export const auditActionLabels: Record<string, string> = {
   USER_SUSPENDED: "Usuário suspenso",
   USER_RESTORED: "Usuário reativado",
   USER_DELETED: "Usuário excluído",
+  ACCOUNT_SELF_DELETED: "Conta excluída pelo titular",
   POST_HIDDEN: "Publicação ocultada",
   POST_RESTORED: "Publicação restaurada",
   SUPPORT_STATUS_UPDATED: "Status de suporte atualizado",
