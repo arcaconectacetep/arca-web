@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { addSupportAlertNote } from "@/app/actions";
 import { AlertStatus } from "@/components/admin/admin-actions";
 import { createClient } from "@/lib/supabase/server";
+import { PageBack } from "@/components/ui/page-back";
 
 export default async function Page({
   params,
@@ -21,6 +22,7 @@ export default async function Page({
   if (!alert) notFound();
   return (
     <div className="max-w-4xl">
+      <PageBack fallback="/admin/alertas" label="Voltar aos alertas" />
       <p className="eyebrow">Atendimento confidencial</p>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
         <h1 className="page-title font-mono">{alert.protocol}</h1>

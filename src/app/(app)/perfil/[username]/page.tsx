@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/ui/avatar";
+import { PageBack } from "@/components/ui/page-back";
 export default async function Page({
   params,
 }: {
@@ -36,6 +37,7 @@ export default async function Page({
     : { count: 0 };
   return (
     <div className="mx-auto max-w-4xl">
+      <PageBack />
       <section className="card overflow-hidden">
         <div className="h-28 bg-brand-soft">
           <div className="h-full w-1/3 bg-brand/10" />

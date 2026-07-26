@@ -35,7 +35,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       className="min-h-screen"
     >
       <UserPreferences fontScale={p?.font_scale ?? 1} />
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-line bg-canvas px-5 py-7 lg:flex lg:flex-col">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-line bg-paper px-5 py-7 shadow-[4px_0_24px_-20px_hsl(var(--ink)/.35)] lg:flex lg:flex-col">
         <BrandLogo href="/inicio" className="mb-10 text-lg" />
         <AppNav />
         <div className="mt-auto border-t border-line pt-4">

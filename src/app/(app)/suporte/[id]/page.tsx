@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { PageBack } from "@/components/ui/page-back";
 export default async function Page({
   params,
 }: {
@@ -19,6 +20,7 @@ export default async function Page({
   if (!a) notFound();
   return (
     <div className="mx-auto max-w-3xl">
+      <PageBack fallback="/suporte" label="Voltar aos protocolos" />
       <p className="eyebrow">Acompanhamento</p>
       <h1 className="page-title mt-2 font-mono">{a.protocol}</h1>
       <div className="card mt-7 p-6">

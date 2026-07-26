@@ -15,3 +15,5 @@
 - Navegação mobile: menu lateral de até 320px com backdrop, fechamento por rota e scroll da página bloqueado enquanto aberto.
 - Descoberta do feed: busca e categoria em uma barra compacta; paginação server-side de 10 itens preserva filtros e informa página atual/total.
 - Segurança de autenticação: Turnstile em superfície inset, antes da ação principal; formulário falha fechado se a Site Key estiver ausente.
+- Sidebar: superfície `paper` opaca sobre o canvas, borda à direita e sombra lateral mínima para preservar profundidade sem fragmentar o app.
+- Retorno: páginas de detalhe, perfil e configuração começam com botão contextual de voltar; usa histórico interno e fallback seguro para a área de origem.

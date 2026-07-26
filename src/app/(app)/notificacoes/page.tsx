@@ -4,6 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { createClient } from "@/lib/supabase/server";
 import { markNotificationAsRead } from "@/app/actions";
+import { PageBack } from "@/components/ui/page-back";
 export default async function Page() {
   const db = await createClient();
   const {
@@ -17,6 +18,7 @@ export default async function Page() {
     .limit(50);
   return (
     <div className="mx-auto max-w-3xl">
+      <PageBack />
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow">Central</p>

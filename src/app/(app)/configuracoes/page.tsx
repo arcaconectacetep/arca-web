@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { SettingsForm } from "@/components/profile/settings-form";
+import { PageBack } from "@/components/ui/page-back";
 export default async function Page() {
   const db = await createClient();
   const {
@@ -12,6 +13,7 @@ export default async function Page() {
     .single();
   return (
     <div className="mx-auto max-w-3xl">
+      <PageBack />
       <p className="eyebrow">Preferências</p>
       <h1 className="page-title mb-7 mt-2">Configurações</h1>
       {p && <SettingsForm profile={p} />}

@@ -94,7 +94,7 @@ O script usa exclusivamente a Supabase Admin API no servidor, confirma os e-mail
 
 ## ImgChest
 
-A integração está isolada em `src/services/imgchest.ts`. Ela usa o endpoint oficial `POST https://api.imgchest.com/v1/post`, autenticação Bearer e multipart `images[]`. O servidor revalida MIME e tamanho, normaliza `data.images[0]` e aceita somente URLs `https://cdn.imgchest.com/files/`. Avatares aceitam 5 MB e posts, 10 MB por imagem, até quatro.
+A integração está isolada em `src/services/imgchest.ts`. Ela usa o endpoint oficial `POST https://api.imgchest.com/v1/post`, autenticação Bearer e multipart `images[]`. O servidor revalida MIME e tamanho, normaliza `data.images[0]` e aceita somente URLs `https://cdn.imgchest.com/files/`. Avatares aceitam 5 MB e posts, 10 MB por imagem, até quatro. Arquivos acima de 4 MB são otimizados no navegador antes do envio para respeitar o limite de payload das Vercel Functions; o arquivo original nunca é convertido para base64 nem persistido localmente.
 
 ## Scripts
 

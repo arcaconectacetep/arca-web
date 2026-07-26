@@ -107,7 +107,7 @@ export function MobileMenu({
         />
         <aside
           ref={panelRef}
-          className={`absolute inset-y-0 left-0 flex w-[min(86vw,320px)] flex-col bg-canvas p-5 shadow-2xl transition-transform duration-200 ${open ? "translate-x-0" : "-translate-x-full"}`}
+          className={`absolute inset-y-0 left-0 flex w-[min(86vw,320px)] flex-col bg-paper p-5 shadow-2xl transition-transform duration-200 ${open ? "translate-x-0" : "-translate-x-full"}`}
           aria-label="Menu principal"
           aria-modal="true"
           role="dialog"

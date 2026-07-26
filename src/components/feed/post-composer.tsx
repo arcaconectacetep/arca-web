@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { createPost } from "@/app/actions";
 import type { Role, Section } from "@/types/database";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { prepareImageForUpload } from "@/lib/prepare-image";
 export function PostComposer({
   section = "FEED",
   role,
@@ -36,11 +37,20 @@ export function PostComposer({
   }
   async function upload(x: { file: File }) {
     const fd = new FormData();
-    fd.set("file", x.file);
+    fd.set("file", await prepareImageForUpload(x.file));
     fd.set("kind", "post");
     const r = await fetch("/api/upload", { method: "POST", body: fd });
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error);
+    const j = (await r.json().catch(() => null)) as {
+      error?: string;
+      imageUrl?: string;
+    } | null;
+    if (!r.ok || !j?.imageUrl)
+      throw new Error(
+        j?.error ??
+          (r.status === 413
+            ? "A imagem excedeu o limite do servidor."
+            : "Não foi possível enviar a imagem."),
+      );
     return { ...j, altText: "Imagem da publicação" };
   }
   function submit(data: FormData) {
