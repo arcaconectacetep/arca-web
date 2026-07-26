@@ -119,3 +119,14 @@ export const profileSchema = z.object({
   fontScale: z.union([z.literal(1), z.literal(1.15), z.literal(1.3)]),
   termsAccepted: z.literal(true),
 });
+
+export const accountSettingsSchema = z.object({
+  fullName: z.string().trim().min(3).max(100),
+  bio: z.string().trim().max(500).optional(),
+  className: z.string().trim().max(50).optional(),
+  shift: z.string().trim().max(30).optional(),
+  theme: z.enum(["DEFAULT", "BLUE", "AURORA", "NEUTRAL"]),
+  highContrast: z.boolean(),
+  reducedMotion: z.boolean(),
+  fontScale: z.union([z.literal(1), z.literal(1.15), z.literal(1.3)]),
+});

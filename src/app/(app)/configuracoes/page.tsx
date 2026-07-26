@@ -8,7 +8,9 @@ export default async function Page() {
   } = await db.auth.getUser();
   const { data: p } = await db
     .from("profiles")
-    .select("id,avatar_url,theme,high_contrast,reduced_motion,font_scale")
+    .select(
+      "id,username,full_name,avatar_url,bio,class_name,shift,theme,high_contrast,reduced_motion,font_scale",
+    )
     .eq("id", user!.id)
     .single();
   return (

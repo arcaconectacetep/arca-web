@@ -1,66 +1,140 @@
 "use client";
+
 import { useState, useTransition } from "react";
 import Image from "next/image";
-import { Camera, Upload } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  Accessibility,
+  Camera,
+  Eye,
+  EyeOff,
+  LogOut,
+  Save,
+  ShieldCheck,
+  Trash2,
+  Upload,
+  UserRound,
+} from "lucide-react";
 import { toast } from "sonner";
-import { logout, updatePassword } from "@/app/actions";
+import {
+  logout,
+  removeAvatar,
+  updateAccountSettings,
+  updatePassword,
+} from "@/app/actions";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { prepareImageForUpload } from "@/lib/prepare-image";
-export function SettingsForm({
-  profile,
+
+type SettingsProfile = {
+  id: string;
+  username: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  class_name: string | null;
+  shift: string | null;
+  theme: string;
+  high_contrast: boolean;
+  reduced_motion: boolean;
+  font_scale: number;
+};
+
+function SectionHeading({
+  icon: Icon,
+  title,
+  text,
 }: {
-  profile: {
-    id: string;
-    avatar_url: string | null;
-    theme: string;
-    high_contrast: boolean;
-    reduced_motion: boolean;
-    font_scale: number;
-  };
+  icon: typeof UserRound;
+  title: string;
+  text: string;
 }) {
-  const [pending, start] = useTransition();
+  return (
+    <div className="flex gap-3">
+      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">
+        <Icon className="size-5" />
+      </span>
+      <div>
+        <h2 className="text-xl font-bold">{title}</h2>
+        <p className="mt-0.5 text-sm leading-6 text-muted">{text}</p>
+      </div>
+    </div>
+  );
+}
+
+export function SettingsForm({ profile }: { profile: SettingsProfile }) {
+  const router = useRouter();
   const [avatar, setAvatar] = useState(profile.avatar_url);
+  const [showPasswords, setShowPasswords] = useState(false);
+  const [avatarPending, startAvatar] = useTransition();
+  const [profilePending, startProfile] = useTransition();
+  const [passwordPending, startPassword] = useTransition();
+
   function upload(file?: File) {
     if (!file) return;
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      toast.error("Escolha uma imagem JPEG, PNG ou WebP.");
-      return;
-    }
-    if (file.size <= 0 || file.size > 5 * 1024 * 1024) {
-      toast.error("A imagem deve ter no máximo 5 MB.");
-      return;
-    }
-    start(async () => {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type))
+      return toast.error("Escolha uma imagem JPEG, PNG ou WebP.");
+    if (file.size <= 0 || file.size > 5 * 1024 * 1024)
+      return toast.error("A imagem deve ter no máximo 5 MB.");
+    startAvatar(async () => {
       try {
-        const fd = new FormData();
-        fd.set("file", await prepareImageForUpload(file, 1200));
-        fd.set("kind", "avatar");
-        const res = await fetch("/api/upload", { method: "POST", body: fd });
-        const result = (await res.json().catch(() => null)) as {
+        const form = new FormData();
+        form.set("file", await prepareImageForUpload(file, 1200));
+        form.set("kind", "avatar");
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: form,
+        });
+        const result = (await response.json().catch(() => null)) as {
           error?: string;
           imageUrl?: string;
         } | null;
-        if (!res.ok || !result?.imageUrl)
+        if (!response.ok || !result?.imageUrl)
           throw new Error(
             result?.error ??
-              (res.status === 413
+              (response.status === 413
                 ? "A imagem excedeu o limite do servidor."
                 : "Não foi possível enviar a imagem."),
           );
         setAvatar(result.imageUrl);
-        toast.success("Avatar atualizado.");
-      } catch (e) {
-        toast.error(e instanceof Error ? e.message : "Falha no upload.");
+        toast.success("Imagem do perfil atualizada.");
+        router.refresh();
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Falha no upload.",
+        );
       }
     });
   }
+
+  function remove() {
+    if (
+      !window.confirm(
+        "Remover sua foto de perfil? Seu avatar voltará a mostrar as iniciais.",
+      )
+    )
+      return;
+    startAvatar(async () => {
+      const result = await removeAvatar();
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      setAvatar(null);
+      toast.success("Foto de perfil removida.");
+      router.refresh();
+    });
+  }
+
   return (
-    <div className="space-y-5">
-      <section className="card p-6">
-        <h2 className="section-title">Imagem do perfil</h2>
-        <p className="mt-1 text-sm text-muted">JPEG, PNG ou WebP, até 5 MB.</p>
-        <div className="mt-5 flex flex-wrap items-center gap-5">
-          <div className="relative grid size-24 place-items-center overflow-hidden rounded-full bg-brand-soft text-brand ring-4 ring-paper shadow-quiet">
+    <div className="space-y-6">
+      <section className="card p-5 sm:p-6">
+        <SectionHeading
+          icon={Camera}
+          title="Foto do perfil"
+          text="Aparece nas suas publicações, comentários e perfil público."
+        />
+        <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-center">
+          <div className="relative grid size-24 shrink-0 place-items-center overflow-hidden rounded-full bg-brand-soft text-brand ring-4 ring-paper shadow-quiet">
             {avatar ? (
               <Image
                 src={avatar}
@@ -70,65 +144,294 @@ export function SettingsForm({
                 className="object-cover"
               />
             ) : (
-              <Camera className="size-8" aria-hidden />
+              <UserRound className="size-9" aria-hidden />
             )}
-            {pending && (
+            {avatarPending && (
               <span className="absolute inset-0 grid place-items-center bg-ink/55 text-white">
-                <LoadingSpinner label="Enviando avatar" className="size-6" />
+                <LoadingSpinner label="Atualizando avatar" className="size-6" />
               </span>
             )}
           </div>
-          <label
-            className={`btn-secondary cursor-pointer ${pending ? "pointer-events-none opacity-50" : ""}`}
-          >
-            {pending ? (
-              <LoadingSpinner label="Enviando avatar" />
+          <div>
+            <p className="text-sm text-muted">
+              JPEG, PNG ou WebP, até 5 MB. Imagens grandes são otimizadas
+              automaticamente.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <label
+                className={`btn-secondary cursor-pointer ${avatarPending ? "pointer-events-none opacity-50" : ""}`}
+              >
+                {avatarPending ? (
+                  <LoadingSpinner />
+                ) : (
+                  <Upload className="size-4" />
+                )}
+                {avatar ? "Trocar foto" : "Escolher foto"}
+                <input
+                  type="file"
+                  className="sr-only"
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={avatarPending}
+                  onChange={(event) => upload(event.target.files?.[0])}
+                />
+              </label>
+              {avatar && (
+                <button
+                  className="btn-ghost text-danger hover:bg-danger/5 hover:text-danger"
+                  type="button"
+                  disabled={avatarPending}
+                  onClick={remove}
+                >
+                  <Trash2 className="size-4" />
+                  Remover foto
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          const form = new FormData(event.currentTarget);
+          startProfile(async () => {
+            const result = await updateAccountSettings({
+              fullName: String(form.get("fullName")),
+              bio: String(form.get("bio")),
+              className: String(form.get("className")),
+              shift: String(form.get("shift")),
+              theme: String(form.get("theme")),
+              highContrast: form.get("highContrast") === "on",
+              reducedMotion: form.get("reducedMotion") === "on",
+              fontScale: Number(form.get("fontScale")),
+            });
+            if (!result.ok) {
+              toast.error(result.error);
+              return;
+            }
+            toast.success("Perfil e preferências atualizados.");
+            router.refresh();
+          });
+        }}
+        className="space-y-6"
+      >
+        <section className="card p-5 sm:p-6">
+          <SectionHeading
+            icon={UserRound}
+            title="Informações públicas"
+            text="Controle como você é apresentado à comunidade escolar."
+          />
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
+            <label>
+              <span className="label">Nome completo</span>
+              <input
+                className="field"
+                name="fullName"
+                required
+                minLength={3}
+                maxLength={100}
+                defaultValue={profile.full_name ?? ""}
+              />
+            </label>
+            <label>
+              <span className="label">Username</span>
+              <div className="field flex items-center text-muted">
+                <span>@{profile.username}</span>
+              </div>
+              <small className="mt-1 block text-muted">
+                O username não pode ser alterado aqui.
+              </small>
+            </label>
+            <label>
+              <span className="label">Turma</span>
+              <input
+                className="field"
+                name="className"
+                maxLength={50}
+                defaultValue={profile.class_name ?? ""}
+                placeholder="Ex.: 3º INFO A"
+              />
+            </label>
+            <label>
+              <span className="label">Turno</span>
+              <select
+                className="field"
+                name="shift"
+                defaultValue={profile.shift ?? ""}
+              >
+                <option value="">Não informado</option>
+                <option>Matutino</option>
+                <option>Vespertino</option>
+                <option>Noturno</option>
+                <option>Integral</option>
+              </select>
+            </label>
+            <label className="sm:col-span-2">
+              <span className="label">Biografia</span>
+              <textarea
+                className="field min-h-28 resize-y"
+                name="bio"
+                maxLength={500}
+                defaultValue={profile.bio ?? ""}
+                placeholder="Conte um pouco sobre seus interesses e projetos."
+              />
+              <small className="mt-1 block text-muted">
+                Até 500 caracteres. Não inclua dados pessoais sensíveis.
+              </small>
+            </label>
+          </div>
+        </section>
+
+        <section className="card p-5 sm:p-6">
+          <SectionHeading
+            icon={Accessibility}
+            title="Aparência e acessibilidade"
+            text="Essas preferências acompanham sua conta em qualquer dispositivo."
+          />
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
+            <label>
+              <span className="label">Tema visual</span>
+              <select
+                className="field"
+                name="theme"
+                defaultValue={profile.theme}
+              >
+                <option value="DEFAULT">Azul</option>
+                <option value="BLUE">Azul profundo</option>
+                <option value="AURORA">Aurora</option>
+                <option value="NEUTRAL">Neutro</option>
+              </select>
+            </label>
+            <label>
+              <span className="label">Tamanho da fonte</span>
+              <select
+                className="field"
+                name="fontScale"
+                defaultValue={profile.font_scale}
+              >
+                <option value="1">100% — Padrão</option>
+                <option value="1.15">115% — Confortável</option>
+                <option value="1.3">130% — Ampliada</option>
+              </select>
+            </label>
+            <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-xl border border-line bg-canvas p-4">
+              <input
+                className="size-4 accent-brand"
+                type="checkbox"
+                name="highContrast"
+                defaultChecked={profile.high_contrast}
+              />
+              <span>
+                <b className="block text-sm">Alto contraste</b>
+                <small className="text-muted">
+                  Reforça textos, bordas e foco.
+                </small>
+              </span>
+            </label>
+            <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-xl border border-line bg-canvas p-4">
+              <input
+                className="size-4 accent-brand"
+                type="checkbox"
+                name="reducedMotion"
+                defaultChecked={profile.reduced_motion}
+              />
+              <span>
+                <b className="block text-sm">Reduzir movimento</b>
+                <small className="text-muted">
+                  Remove deslocamentos e animações.
+                </small>
+              </span>
+            </label>
+          </div>
+          <button className="btn-primary mt-6" disabled={profilePending}>
+            {profilePending ? (
+              <LoadingSpinner label="Salvando preferências" />
             ) : (
-              <Upload className="size-4" />
+              <Save className="size-4" />
             )}
-            {pending
-              ? "Enviando…"
-              : avatar
-                ? "Trocar imagem"
-                : "Escolher imagem"}
+            {profilePending ? "Salvando…" : "Salvar alterações"}
+          </button>
+        </section>
+      </form>
+
+      <form
+        action={(form) =>
+          startPassword(async () => {
+            const result = await updatePassword(form);
+            if (!result.ok) {
+              toast.error(result.error);
+              return;
+            }
+            toast.success("Senha alterada com segurança.");
+            setShowPasswords(false);
+          })
+        }
+        className="card p-5 sm:p-6"
+      >
+        <SectionHeading
+          icon={ShieldCheck}
+          title="Segurança"
+          text="Use uma senha diferente das utilizadas em outros serviços."
+        />
+        <div className="mt-6 grid gap-5 sm:grid-cols-2">
+          <label>
+            <span className="label">Nova senha</span>
             <input
-              type="file"
-              className="sr-only"
-              accept="image/jpeg,image/png,image/webp"
-              disabled={pending}
-              onChange={(e) => upload(e.target.files?.[0])}
+              className="field"
+              name="password"
+              type={showPasswords ? "text" : "password"}
+              minLength={8}
+              autoComplete="new-password"
+              required
+            />
+          </label>
+          <label>
+            <span className="label">Confirmar nova senha</span>
+            <input
+              className="field"
+              name="confirmPassword"
+              type={showPasswords ? "text" : "password"}
+              minLength={8}
+              autoComplete="new-password"
+              required
             />
           </label>
         </div>
-      </section>
-      <form
-        action={async (fd) => {
-          const r = await updatePassword(fd);
-          if (r.ok) toast.success("Senha alterada.");
-          else toast.error(r.error);
-        }}
-        className="card p-6"
-      >
-        <h2 className="section-title">Segurança</h2>
-        <label className="mt-4 block">
-          <span className="label">Nova senha</span>
+        <label className="mt-3 inline-flex min-h-11 cursor-pointer items-center gap-2 text-sm font-semibold text-muted">
           <input
-            className="field"
-            name="password"
-            type="password"
-            minLength={8}
-            required
+            type="checkbox"
+            checked={showPasswords}
+            onChange={(event) => setShowPasswords(event.target.checked)}
           />
+          {showPasswords ? (
+            <EyeOff className="size-4" />
+          ) : (
+            <Eye className="size-4" />
+          )}
+          Mostrar senhas
         </label>
-        <button className="btn-primary mt-4">Alterar senha</button>
+        <div>
+          <button className="btn-secondary mt-3" disabled={passwordPending}>
+            {passwordPending && <LoadingSpinner label="Alterando senha" />}
+            Alterar senha
+          </button>
+        </div>
       </form>
-      <form action={logout} className="card p-6">
-        <h2 className="section-title">Sessão</h2>
-        <p className="mt-1 text-sm text-muted">
-          Encerre seu acesso neste dispositivo.
-        </p>
-        <button className="btn-secondary mt-4">Sair da conta</button>
-      </form>
+
+      <section className="card border border-danger/15 p-5 sm:p-6">
+        <SectionHeading
+          icon={LogOut}
+          title="Sessão"
+          text="Encerre o acesso ao ConectaCETEP neste dispositivo."
+        />
+        <form action={logout}>
+          <button className="btn-ghost mt-5 text-danger hover:bg-danger/5 hover:text-danger">
+            <LogOut className="size-4" />
+            Sair da conta
+          </button>
+        </form>
+      </section>
     </div>
   );
 }

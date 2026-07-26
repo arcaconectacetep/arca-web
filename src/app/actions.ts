@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
+  accountSettingsSchema,
   commentSchema,
   loginSchema,
   postSchema,
@@ -188,6 +189,52 @@ export async function updateProfile(input: unknown) {
     return { ok: true };
   } catch (e) {
     return { ok: false, error: safe(e) };
+  }
+}
+
+export async function updateAccountSettings(input: unknown) {
+  try {
+    const { db, user } = await context();
+    const data = accountSettingsSchema.parse(input);
+    const { error } = await db
+      .from("profiles")
+      .update({
+        full_name: data.fullName,
+        bio: data.bio || null,
+        class_name: data.className || null,
+        shift: data.shift || null,
+        theme: data.theme,
+        high_contrast: data.highContrast,
+        reduced_motion: data.reducedMotion,
+        font_scale: data.fontScale,
+      })
+      .eq("id", user.id);
+    if (error)
+      return { ok: false, error: "Não foi possível atualizar o perfil." };
+    revalidatePath("/configuracoes");
+    revalidatePath("/perfil/[username]", "page");
+    revalidatePath("/inicio");
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: safe(error) };
+  }
+}
+
+export async function removeAvatar() {
+  try {
+    const { db, user } = await context();
+    const { error } = await db
+      .from("profiles")
+      .update({ avatar_url: null })
+      .eq("id", user.id);
+    if (error)
+      return { ok: false, error: "Não foi possível remover a imagem." };
+    revalidatePath("/configuracoes");
+    revalidatePath("/perfil/[username]", "page");
+    revalidatePath("/inicio");
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: safe(error) };
   }
 }
 export async function createPost(input: unknown) {

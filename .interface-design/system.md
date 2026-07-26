@@ -17,3 +17,4 @@
 - Segurança de autenticação: Turnstile em superfície inset, antes da ação principal; formulário falha fechado se a Site Key estiver ausente.
 - Sidebar: superfície `paper` opaca sobre o canvas, borda à direita e sombra lateral mínima para preservar profundidade sem fragmentar o app.
 - Retorno: páginas de detalhe, perfil e configuração começam com botão contextual de voltar; usa histórico interno e fallback seguro para a área de origem.
+- Configurações: ordem foto → informações públicas → acessibilidade → segurança → sessão; cada grupo usa card de 20–24px, ícone em superfície `brand-soft` e uma única ação principal.
