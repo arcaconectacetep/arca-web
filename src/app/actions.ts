@@ -4,11 +4,12 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
-  accountSettingsSchema,
   commentSchema,
   loginSchema,
   postSchema,
   profileSchema,
+  preferenceSettingsSchema,
+  publicProfileSettingsSchema,
   recoverPasswordSchema,
   resetPasswordSchema,
   signupSchema,
@@ -193,10 +194,10 @@ export async function updateProfile(input: unknown) {
   }
 }
 
-export async function updateAccountSettings(input: unknown) {
+export async function updatePublicProfile(input: unknown) {
   try {
     const { db, user } = await context();
-    const data = accountSettingsSchema.parse(input);
+    const data = publicProfileSettingsSchema.parse(input);
     const { error } = await db
       .from("profiles")
       .update({
@@ -204,16 +205,34 @@ export async function updateAccountSettings(input: unknown) {
         bio: data.bio || null,
         class_name: data.className || null,
         shift: data.shift || null,
-        theme: data.theme,
-        high_contrast: data.highContrast,
-        reduced_motion: data.reducedMotion,
-        font_scale: data.fontScale,
       })
       .eq("id", user.id);
     if (error)
       return { ok: false, error: "Não foi possível atualizar o perfil." };
     revalidatePath("/configuracoes");
     revalidatePath("/perfil/[username]", "page");
+    revalidatePath("/inicio");
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: safe(error) };
+  }
+}
+
+export async function updatePreferences(input: unknown) {
+  try {
+    const { db, user } = await context();
+    const data = preferenceSettingsSchema.parse(input);
+    const { error } = await db
+      .from("profiles")
+      .update({
+        theme: data.theme,
+        high_contrast: data.highContrast,
+        reduced_motion: data.reducedMotion,
+        font_scale: data.fontScale,
+      })
+      .eq("id", user.id);
+    if (error) return { ok: false, error: "Não foi possível salvar as preferências." };
+    revalidatePath("/configuracoes");
     revalidatePath("/inicio");
     return { ok: true };
   } catch (error) {

@@ -18,7 +18,8 @@ import {
 import { toast } from "sonner";
 import {
   removeAvatar,
-  updateAccountSettings,
+  updatePreferences,
+  updatePublicProfile,
   updatePassword,
 } from "@/app/actions";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
@@ -66,7 +67,8 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
   const [avatar, setAvatar] = useState(profile.avatar_url);
   const [showPasswords, setShowPasswords] = useState(false);
   const [avatarPending, startAvatar] = useTransition();
-  const [profilePending, startProfile] = useTransition();
+  const [publicPending, startPublic] = useTransition();
+  const [preferencesPending, startPreferences] = useTransition();
   const [passwordPending, startPassword] = useTransition();
 
   function upload(file?: File) {
@@ -191,32 +193,30 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
         </div>
       </section>
 
-      <form
+      <div
+        className="space-y-6"
+      >
+        <form
         onSubmit={(event) => {
           event.preventDefault();
           const form = new FormData(event.currentTarget);
-          startProfile(async () => {
-            const result = await updateAccountSettings({
+          startPublic(async () => {
+            const result = await updatePublicProfile({
               fullName: String(form.get("fullName")),
               bio: String(form.get("bio")),
               className: String(form.get("className")),
               shift: String(form.get("shift")),
-              theme: String(form.get("theme")),
-              highContrast: form.get("highContrast") === "on",
-              reducedMotion: form.get("reducedMotion") === "on",
-              fontScale: Number(form.get("fontScale")),
             });
             if (!result.ok) {
               toast.error(result.error);
               return;
             }
-            toast.success("Perfil e preferências atualizados.");
+            toast.success("Informações públicas atualizadas.");
             router.refresh();
           });
         }}
-        className="space-y-6"
+        className="card p-5 sm:p-6"
       >
-        <section className="card p-5 sm:p-6">
           <SectionHeading
             icon={UserRound}
             title="Informações públicas"
@@ -281,9 +281,33 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
               </small>
             </label>
           </div>
-        </section>
+          <button className="btn-primary mt-6" disabled={publicPending}>
+            {publicPending ? <LoadingSpinner label="Salvando informações" /> : <Save className="size-4" />}
+            {publicPending ? "Salvando…" : "Salvar informações públicas"}
+          </button>
+        </form>
 
-        <section className="card p-5 sm:p-6">
+        <form
+          className="card p-5 sm:p-6"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const form = new FormData(event.currentTarget);
+            startPreferences(async () => {
+              const result = await updatePreferences({
+                theme: String(form.get("theme")),
+                highContrast: form.get("highContrast") === "on",
+                reducedMotion: form.get("reducedMotion") === "on",
+                fontScale: Number(form.get("fontScale")),
+              });
+              if (!result.ok) {
+                toast.error(result.error);
+                return;
+              }
+              toast.success("Preferências salvas.");
+              router.refresh();
+            });
+          }}
+        >
           <SectionHeading
             icon={Accessibility}
             title="Aparência e acessibilidade"
@@ -344,16 +368,16 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
               </span>
             </label>
           </div>
-          <button className="btn-primary mt-6" disabled={profilePending}>
-            {profilePending ? (
+          <button className="btn-primary mt-6" disabled={preferencesPending}>
+            {preferencesPending ? (
               <LoadingSpinner label="Salvando preferências" />
             ) : (
               <Save className="size-4" />
             )}
-            {profilePending ? "Salvando…" : "Salvar alterações"}
+            {preferencesPending ? "Salvando…" : "Salvar preferências"}
           </button>
-        </section>
-      </form>
+        </form>
+      </div>
 
       <form
         action={(form) =>

@@ -24,3 +24,6 @@
 - Rodapé público: uma única composição compartilhada, com identidade, localização, links institucionais e estado de acesso adequado à sessão.
 - Perfil: banner azul sólido; avatar atravessa a divisão em moldura branca de 6px e a ação de edição permanece no conteúdo, fora do banner.
 - Administração: navegação em superfície própria com estado ativo; métricas gerais em faixa compacta e filas de risco separadas abaixo; valores de banco nunca aparecem sem rótulo humano.
+- Datas: toda data absoluta é exibida em `America/Sao_Paulo`; instantes continuam armazenados como `timestamptz`.
+- Transição de rota: entrada de 220ms por opacidade e deslocamento vertical de 4px; sem movimento quando a preferência reduzida está ativa.
+- Configurações: informações públicas e preferências têm formulários e ações independentes, com botão dentro do respectivo card.

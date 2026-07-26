@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { AlertTriangle, FileText, LifeBuoy, MessageSquare, Users } from "lucide-react";
 import { auditActionLabels, labelFor } from "@/lib/labels";
+import { formatAppDateTime } from "@/lib/date";
 export default async function Page() {
   const db = await createClient();
   const [users, posts, comments, alerts, review, urgent, hidden, activity] =
@@ -63,7 +64,7 @@ export default async function Page() {
                   <b>{labelFor(auditActionLabels, a.action)}</b>
                 </span>
                 <time className="text-muted">
-                  {new Date(a.created_at).toLocaleString("pt-BR")}
+                  {formatAppDateTime(a.created_at)}
                 </time>
               </div>
             ))

@@ -1,12 +1,11 @@
 import { notFound } from "next/navigation";
 import { CalendarDays, FileText, Heart, Pencil } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/ui/avatar";
 import { PageBack } from "@/components/ui/page-back";
 import { labelFor, roleLabels } from "@/lib/labels";
+import { formatAppMonthYear } from "@/lib/date";
 
 export default async function Page({
   params,
@@ -77,9 +76,7 @@ export default async function Page({
             <span className="flex items-center gap-1">
               <CalendarDays className="size-4" />
               Desde{" "}
-              {format(new Date(p.created_at), "MMMM 'de' yyyy", {
-                locale: ptBR,
-              })}
+              {formatAppMonthYear(p.created_at)}
             </span>
           </div>
         </div>

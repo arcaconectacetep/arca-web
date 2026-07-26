@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
-import { format } from "date-fns";
 import { CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PageBack } from "@/components/ui/page-back";
 import { alertCategoryLabels, alertStatusLabels, alertUrgencyLabels, labelFor } from "@/lib/labels";
+import { formatAppDateTime } from "@/lib/date";
 export default async function Page({
   params,
 }: {
@@ -54,7 +54,7 @@ export default async function Page({
               Enviado em
             </dt>
             <dd className="mt-1">
-              {format(new Date(a.created_at), "dd/MM/yyyy 'às' HH:mm")}
+              {formatAppDateTime(a.created_at)}
             </dd>
           </div>
         </dl>
@@ -71,7 +71,7 @@ export default async function Page({
                   {e.new_status ? labelFor(alertStatusLabels, e.new_status) : "Solicitação criada"}
                 </b>
                 <time className="text-xs text-muted">
-                  {format(new Date(e.created_at), "dd/MM/yyyy HH:mm")}
+                  {formatAppDateTime(e.created_at)}
                 </time>
               </li>
             ))}

@@ -120,11 +120,14 @@ export const profileSchema = z.object({
   termsAccepted: z.literal(true),
 });
 
-export const accountSettingsSchema = z.object({
+export const publicProfileSettingsSchema = z.object({
   fullName: z.string().trim().min(3).max(100),
   bio: z.string().trim().max(500).optional(),
   className: z.string().trim().max(50).optional(),
   shift: z.string().trim().max(30).optional(),
+});
+
+export const preferenceSettingsSchema = z.object({
   theme: z.enum(["DEFAULT", "BLUE", "AURORA", "NEUTRAL"]),
   highContrast: z.boolean(),
   reducedMotion: z.boolean(),

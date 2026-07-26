@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { auditActionLabels, auditResourceLabels, labelFor } from "@/lib/labels";
+import { formatAppDateTime } from "@/lib/date";
 export default async function Page() {
   const db = await createClient();
   const {
@@ -37,7 +38,7 @@ export default async function Page() {
             {data?.map((l) => (
               <tr key={l.id}>
                 <td className="p-4">
-                  {new Date(l.created_at).toLocaleString("pt-BR")}
+                  {formatAppDateTime(l.created_at)}
                 </td>
                 <td className="font-bold">{labelFor(auditActionLabels, l.action)}</td>
                 <td>@{l.profiles?.[0]?.username}</td>

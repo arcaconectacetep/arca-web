@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
-import { format } from "date-fns";
 import { addSupportAlertNote } from "@/app/actions";
 import { AlertStatus } from "@/components/admin/admin-actions";
 import { createClient } from "@/lib/supabase/server";
 import { PageBack } from "@/components/ui/page-back";
 import { alertCategoryLabels, alertStatusLabels, alertUrgencyLabels, labelFor } from "@/lib/labels";
+import { formatAppDateTime } from "@/lib/date";
 
 export default async function Page({
   params,
@@ -55,7 +55,7 @@ export default async function Page({
               <dt className="text-xs font-bold text-muted">DATA DO FATO</dt>
               <dd>
                 {alert.happened_at
-                  ? format(new Date(alert.happened_at), "dd/MM/yyyy HH:mm")
+                  ? formatAppDateTime(alert.happened_at)
                   : "Não informada"}
               </dd>
             </div>
@@ -98,7 +98,7 @@ export default async function Page({
                   <p>{note.content}</p>
                   <small className="mt-2 block text-muted">
                     {note.profiles?.[0]?.full_name} ·{" "}
-                    {format(new Date(note.created_at), "dd/MM HH:mm")}
+                    {formatAppDateTime(note.created_at)}
                   </small>
                 </div>
               ),
@@ -123,7 +123,7 @@ export default async function Page({
                   {event.previous_status ? labelFor(alertStatusLabels, event.previous_status) : "—"} → {event.new_status ? labelFor(alertStatusLabels, event.new_status) : "—"}
                 </span>
                 <time className="block text-xs text-muted">
-                  {format(new Date(event.created_at), "dd/MM/yyyy HH:mm")}
+                  {formatAppDateTime(event.created_at)}
                 </time>
               </li>
             ),
