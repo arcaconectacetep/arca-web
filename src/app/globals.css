@@ -15,6 +15,17 @@
   --danger: 0 67% 44%;
 }
 
+[data-color-mode="light"] {
+  --canvas: 214 32% 97%;
+  --paper: 0 0% 100%;
+  --ink: 219 45% 15%;
+  --muted: 216 13% 43%;
+  --line: 216 25% 88%;
+  --success: 153 54% 31%;
+  --warning: 37 93% 39%;
+  --danger: 0 67% 44%;
+}
+
 [data-theme="AURORA"] {
   --brand: 184 69% 25%;
   --brand-soft: 174 45% 91%;

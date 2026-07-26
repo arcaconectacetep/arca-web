@@ -52,6 +52,12 @@ DEMO_ADMIN_EMAIL=admin.demo@example.com
 
 Crie um widget Turnstile para os domínios local e de produção e salve apenas a Site Key em `NEXT_PUBLIC_TURNSTILE_SITE_KEY`. No Supabase Dashboard, acesse Authentication → Bot and Abuse Protection, escolha Cloudflare Turnstile e configure a Secret Key diretamente no Supabase. A Secret Key do Turnstile não é necessária na aplicação nem na Vercel: login, cadastro e recuperação encaminham o token ao Supabase, que realiza a validação.
 
+## Templates de e-mail
+
+Os arquivos em `supabase/templates/` trazem a identidade ConectaARCA e funcionam mesmo com o serviço de e-mail padrão do Supabase. Em Authentication → Email Templates, copie o conteúdo correspondente para Confirm signup, Reset password, Magic Link, Invite user e Change email. Os templates usam somente `{{ .ConfirmationURL }}` e não carregam imagens ou CSS externos.
+
+Personalizar o template não altera remetente, limite ou entregabilidade. Para produção, configure posteriormente um SMTP transacional e um domínio institucional verificado.
+
 ## Supabase: migrations e seed
 
 Crie um projeto Supabase e configure as variáveis. Aplique as migrations remotas exatamente com:
@@ -160,4 +166,4 @@ Importe o repositório na Vercel, configure todas as variáveis, use `npm run bu
 
 ## Privacidade e limitações do protótipo
 
-Não use dados reais sensíveis na demonstração. Alertas não aceitam anexos nem aparecem no feed; notas internas são restritas por RLS. Imagens públicas são processadas por um serviço externo. O MVP não inclui chat, seguidores, PWA, documentos, WhatsApp ou SMS. Infinite scroll e exclusão remota de imagens do ImgChest ficam fora do escopo do protótipo.
+Não use dados reais sensíveis na demonstração. Alertas não aceitam anexos nem aparecem no feed; notas internas são restritas por RLS. Imagens públicas são processadas por um serviço externo. Ao trocar/remover avatar ou retirar mídia de um post, o sistema solicita a exclusão do arquivo antigo ao ImgChest e avisa quando o provedor não confirma. A limpeza integral de arquivos após exclusão de conta ainda exige rotina operacional. O MVP não inclui chat, seguidores, PWA, documentos, WhatsApp ou SMS.

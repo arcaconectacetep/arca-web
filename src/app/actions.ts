@@ -17,6 +17,7 @@ import {
   supportSchema,
 } from "@/lib/validations";
 import type { ActionResult, Role } from "@/types/database";
+import { deleteImageFromImgChest, getImgChestImageIdFromUrl } from "@/services/imgchest";
 async function context() {
   const db = await createClient();
   const {
@@ -282,16 +283,21 @@ export async function updatePreferences(input: unknown) {
 export async function removeAvatar() {
   try {
     const { db, user } = await context();
+    const { data: current } = await db.from("profiles").select("avatar_url").eq("id", user.id).single();
     const { error } = await db
       .from("profiles")
       .update({ avatar_url: null })
       .eq("id", user.id);
     if (error)
       return { ok: false, error: "Não foi possível remover a imagem." };
+    const imageId = getImgChestImageIdFromUrl(current?.avatar_url);
+    const cleaned = imageId
+      ? await deleteImageFromImgChest(imageId).catch(() => false)
+      : true;
     revalidatePath("/configuracoes");
     revalidatePath("/perfil/[username]", "page");
     revalidatePath("/inicio");
-    return { ok: true };
+    return { ok: true, data: { cleanupWarning: !cleaned } };
   } catch (error) {
     return { ok: false, error: safe(error) };
   }
@@ -396,13 +402,19 @@ export async function replacePostImages(postId: string, input: unknown) {
     const images = postSchema.shape.images.parse(input);
     const { data: post } = await db
       .from("posts")
-      .select("author_id")
+      .select("author_id,post_images(imgchest_image_id,image_url)")
       .eq("id", id)
       .is("deleted_at", null)
       .maybeSingle();
+    const postWithImages = post as
+      | {
+          author_id: string;
+          post_images: Array<{ imgchest_image_id: string | null; image_url: string }>;
+        }
+      | null;
     if (
-      !post ||
-      (post.author_id !== user.id &&
+      !postWithImages ||
+      (postWithImages.author_id !== user.id &&
         !(role === "STAFF" || role === "ADMIN"))
     )
       return { ok: false, error: "Sem permissão para alterar estas imagens." };
@@ -413,8 +425,13 @@ export async function replacePostImages(postId: string, input: unknown) {
     });
     if (error)
       return { ok: false, error: "Não foi possível atualizar as imagens." };
+    const keptIds = new Set(images.map((image) => image.imageId).filter(Boolean));
+    const removedIds = (postWithImages.post_images ?? [])
+      .map((image) => image.imgchest_image_id ?? getImgChestImageIdFromUrl(image.image_url))
+      .filter((imageId): imageId is string => Boolean(imageId) && !keptIds.has(imageId));
+    const cleanup = await Promise.all(removedIds.map((imageId) => deleteImageFromImgChest(imageId).catch(() => false)));
     revalidatePostViews();
-    return { ok: true };
+    return { ok: true, data: { cleanupWarning: cleanup.some((result) => !result) } };
   } catch (error) {
     return { ok: false, error: safe(error) };
   }

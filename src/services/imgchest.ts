@@ -70,3 +70,21 @@ export async function uploadImageToImgChest(
     imageId: image.id,
   };
 }
+
+export function getImgChestImageIdFromUrl(url?: string | null) {
+  if (!url) return undefined;
+  const match = /^https:\/\/cdn\.imgchest\.com\/files\/(?:thumb\/)?([a-zA-Z0-9]+)(?:\.[a-zA-Z0-9]+)?$/.exec(url);
+  return match?.[1];
+}
+
+export async function deleteImageFromImgChest(imageId: string): Promise<boolean> {
+  if (!/^[a-zA-Z0-9]+$/.test(imageId)) return false;
+  const key = process.env.IMG_CHEST_API_KEY;
+  if (!key) return false;
+  const response = await fetch(`https://api.imgchest.com/v1/file/${imageId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${key}`, Accept: "application/json" },
+    cache: "no-store",
+  });
+  return response.ok || response.status === 404;
+}

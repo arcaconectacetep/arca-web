@@ -24,6 +24,7 @@ export function OnboardingForm({
     register,
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<Values>({
     resolver: zodResolver(profileSchema),
@@ -38,6 +39,20 @@ export function OnboardingForm({
       termsAccepted: undefined,
     },
   });
+  const [theme, colorMode, fontFamily, highContrast, reducedMotion, fontScale] = watch([
+    "theme",
+    "colorMode",
+    "fontFamily",
+    "highContrast",
+    "reducedMotion",
+    "fontScale",
+  ]);
+  const previewFont =
+    fontFamily === "SOURCE_SANS"
+      ? "var(--font-source-sans), sans-serif"
+      : fontFamily === "ATKINSON"
+        ? "var(--font-atkinson), sans-serif"
+        : "var(--font-inter), sans-serif";
   const onSubmit = handleSubmit((data) =>
     start(async () => {
       const r = await updateProfile(data);
@@ -94,6 +109,22 @@ export function OnboardingForm({
           <label><span className="label">Tema visual</span><Controller control={control} name="theme" render={({ field }) => <SelectField value={field.value} onValueChange={field.onChange} options={[...themeOptions]} />} /></label>
           <label><span className="label">Modo de cor</span><Controller control={control} name="colorMode" render={({ field }) => <SelectField value={field.value} onValueChange={field.onChange} options={[...colorModeOptions]} />} /></label>
           <label><span className="label">Fonte</span><Controller control={control} name="fontFamily" render={({ field }) => <SelectField value={field.value} onValueChange={field.onChange} options={[...fontFamilyOptions]} />} /></label>
+        </div>
+        <div
+          className="mt-4 overflow-hidden rounded-xl bg-canvas p-4 text-ink shadow-quiet"
+          data-theme={theme}
+          data-color-mode={colorMode === "SYSTEM" ? undefined : colorMode.toLowerCase()}
+          data-contrast={highContrast}
+          data-motion={reducedMotion}
+          style={{ fontFamily: previewFont, fontSize: `${fontScale}rem` }}
+          aria-live="polite"
+        >
+          <p className="eyebrow">Prévia das suas escolhas</p>
+          <div className="mt-3 rounded-xl bg-paper p-4 shadow-quiet">
+            <h3 className="font-bold">Bem-vindo ao ConectaARCA</h3>
+            <p className="mt-1 text-sm leading-6 text-muted">Esta é uma amostra de texto, superfície, contraste e cor de destaque.</p>
+            <span className="badge mt-3">Comunidade escolar</span>
+          </div>
         </div>
       </fieldset>
       <fieldset className="md:col-span-2">

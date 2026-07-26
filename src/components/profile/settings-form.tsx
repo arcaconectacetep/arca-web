@@ -102,6 +102,7 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
         const result = (await response.json().catch(() => null)) as {
           error?: string;
           imageUrl?: string;
+          cleanupWarning?: boolean;
         } | null;
         if (!response.ok || !result?.imageUrl)
           throw new Error(
@@ -111,7 +112,9 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
                 : "Não foi possível enviar a imagem."),
           );
         setAvatar(result.imageUrl);
-        toast.success("Imagem do perfil atualizada.");
+        if (result.cleanupWarning)
+          toast.warning("Foto atualizada, mas o provedor não confirmou a exclusão do arquivo anterior.");
+        else toast.success("Imagem do perfil atualizada.");
         router.refresh();
       } catch (error) {
         toast.error(
@@ -129,7 +132,9 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
         return;
       }
       setAvatar(null);
-      toast.success("Foto de perfil removida.");
+      if (result.data?.cleanupWarning)
+        toast.warning("Foto removida do perfil, mas o provedor não confirmou a exclusão do arquivo antigo.");
+      else toast.success("Foto de perfil removida.");
       router.refresh();
     });
   }

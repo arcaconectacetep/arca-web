@@ -107,7 +107,9 @@ export function PostMediaEditor({
         toast.error(result.error);
         return;
       }
-      toast.success("Imagens atualizadas.");
+      if (result.data?.cleanupWarning)
+        toast.warning("Publicação atualizada, mas uma imagem antiga não pôde ser removida do provedor.");
+      else toast.success("Imagens atualizadas.");
       onOpenChange(false);
       router.refresh();
     });
