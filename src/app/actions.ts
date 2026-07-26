@@ -120,16 +120,29 @@ export async function deleteOwnAccount(input: unknown) {
     const parsed = z.object({
       password: z.string().min(1),
       confirmation: z.literal("EXCLUIR MINHA CONTA"),
+      captchaToken: z.string().min(1).max(2048),
     }).safeParse(input);
-    if (!parsed.success) return { ok: false, error: "Digite a frase de confirmação exatamente como solicitado." };
+    if (!parsed.success) return { ok: false, error: "Revise a frase de confirmação e conclua a verificação de segurança." };
     const { db, user, role } = await context();
     if (!user.email) return { ok: false, error: "Esta conta não possui um e-mail válido." };
     if (role === "ADMIN") {
       const { count } = await db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "ADMIN").is("suspended_at", null);
       if ((count ?? 0) <= 1) return { ok: false, error: "Transfira a administração antes de excluir o último ADMIN." };
     }
-    const { error: passwordError } = await db.auth.signInWithPassword({ email: user.email, password: parsed.data.password });
-    if (passwordError) return { ok: false, error: "Senha incorreta." };
+    const { error: passwordError } = await db.auth.signInWithPassword({
+      email: user.email,
+      password: parsed.data.password,
+      options: { captchaToken: parsed.data.captchaToken },
+    });
+    if (passwordError) {
+      const captchaRejected = /captcha|verification|challenge/i.test(passwordError.message);
+      return {
+        ok: false,
+        error: captchaRejected
+          ? "A verificação de segurança expirou. Conclua-a novamente."
+          : "Senha incorreta.",
+      };
+    }
     const admin = createAdminClient();
     const { error } = await admin.auth.admin.deleteUser(user.id);
     if (error) return { ok: false, error: "Não foi possível excluir a conta. Confirme que as migrations estão atualizadas." };
