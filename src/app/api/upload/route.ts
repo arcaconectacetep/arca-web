@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   ImgChestUploadError,
   deleteImageFromImgChest,
+  deletePostFromImgChest,
   getImgChestImageIdFromUrl,
   uploadImageToImgChest,
 } from "@/services/imgchest";
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
   const { data: profile } = await supabase
     .from("profiles")
-    .select("suspended_at,avatar_url")
+    .select("suspended_at,avatar_url,avatar_imgchest_post_id")
     .eq("id", user.id)
     .single();
   if (!profile || profile.suspended_at)
@@ -39,7 +40,10 @@ export async function POST(request: Request) {
     if (kind === "avatar") {
       const { error } = await supabase
         .from("profiles")
-        .update({ avatar_url: result.imageUrl })
+        .update({
+          avatar_url: result.imageUrl,
+          avatar_imgchest_post_id: result.postId ?? null,
+        })
         .eq("id", user.id);
       if (error)
         return NextResponse.json(
@@ -50,7 +54,9 @@ export async function POST(request: Request) {
           { status: 500 },
         );
       const previousImageId = getImgChestImageIdFromUrl(profile.avatar_url);
-      if (previousImageId && previousImageId !== result.imageId)
+      if (profile.avatar_imgchest_post_id && profile.avatar_imgchest_post_id !== result.postId)
+        cleanupWarning = !(await deletePostFromImgChest(profile.avatar_imgchest_post_id).catch(() => false));
+      else if (previousImageId && previousImageId !== result.imageId)
         cleanupWarning = !(await deleteImageFromImgChest(previousImageId).catch(() => false));
     }
     return NextResponse.json({ ...result, cleanupWarning });

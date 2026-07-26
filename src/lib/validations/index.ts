@@ -74,6 +74,7 @@ export const postSchema = z.object({
         imageUrl: z.string().url(),
         thumbnailUrl: z.string().url().optional(),
         imageId: z.string().optional(),
+        postId: z.string().optional(),
         altText: z.string().max(200),
       }),
     )

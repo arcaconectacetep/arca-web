@@ -73,6 +73,7 @@ export function PostMediaEditor({
           imageUrl?: string;
           thumbnailUrl?: string;
           imageId?: string;
+          postId?: string;
         } | null;
         if (!response.ok || !uploaded?.imageUrl)
           throw new Error(uploaded?.error ?? "Não foi possível enviar a imagem.");
@@ -82,6 +83,7 @@ export function PostMediaEditor({
             image_url: uploaded.imageUrl!,
             thumbnail_url: uploaded.thumbnailUrl ?? null,
             imgchest_image_id: uploaded.imageId ?? null,
+            imgchest_post_id: uploaded.postId ?? null,
             alt_text: "Imagem da publicação",
             localKey: uploaded.imageId ?? uploaded.imageUrl!,
           },
@@ -100,6 +102,7 @@ export function PostMediaEditor({
           imageUrl: item.image_url,
           thumbnailUrl: item.thumbnail_url || undefined,
           imageId: item.imgchest_image_id || undefined,
+          postId: item.imgchest_post_id || undefined,
           altText: item.alt_text,
         })),
       );

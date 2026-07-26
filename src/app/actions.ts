@@ -17,7 +17,7 @@ import {
   supportSchema,
 } from "@/lib/validations";
 import type { ActionResult, Role } from "@/types/database";
-import { deleteImageFromImgChest, getImgChestImageIdFromUrl } from "@/services/imgchest";
+import { deleteImageFromImgChest, deletePostFromImgChest, getImgChestImageIdFromUrl } from "@/services/imgchest";
 async function context() {
   const db = await createClient();
   const {
@@ -283,21 +283,25 @@ export async function updatePreferences(input: unknown) {
 export async function removeAvatar() {
   try {
     const { db, user } = await context();
-    const { data: current } = await db.from("profiles").select("avatar_url").eq("id", user.id).single();
+    const { data: current } = await db.from("profiles").select("avatar_url,avatar_imgchest_post_id").eq("id", user.id).single();
     // A identidade vem da sessao validada acima. A escrita administrativa evita
     // que uma politica RLS desatualizada deixe o botao de remocao inoperante,
     // sem permitir que o cliente escolha qual perfil sera alterado.
     const admin = createAdminClient();
     const { data: updated, error } = await admin
       .from("profiles")
-      .update({ avatar_url: null })
+      .update({ avatar_url: null, avatar_imgchest_post_id: null })
       .eq("id", user.id)
       .select("id")
       .maybeSingle();
     if (error || !updated)
       return { ok: false, error: "Não foi possível remover a imagem." };
-    const imageId = getImgChestImageIdFromUrl(current?.avatar_url);
-    if (imageId) await deleteImageFromImgChest(imageId).catch(() => false);
+    if (current?.avatar_imgchest_post_id)
+      await deletePostFromImgChest(current.avatar_imgchest_post_id).catch(() => false);
+    else {
+      const imageId = getImgChestImageIdFromUrl(current?.avatar_url);
+      if (imageId) await deleteImageFromImgChest(imageId).catch(() => false);
+    }
     revalidatePath("/configuracoes");
     revalidatePath("/perfil/[username]", "page");
     revalidatePath("/inicio");
@@ -338,6 +342,7 @@ export async function createPost(input: unknown) {
           image_url: i.imageUrl,
           thumbnail_url: i.thumbnailUrl,
           imgchest_image_id: i.imageId,
+          imgchest_post_id: i.postId,
           alt_text: i.altText,
           position: n,
         })),
@@ -406,14 +411,14 @@ export async function replacePostImages(postId: string, input: unknown) {
     const images = postSchema.shape.images.parse(input);
     const { data: post } = await db
       .from("posts")
-      .select("author_id,post_images(imgchest_image_id,image_url)")
+      .select("author_id,post_images(imgchest_image_id,imgchest_post_id,image_url)")
       .eq("id", id)
       .is("deleted_at", null)
       .maybeSingle();
     const postWithImages = post as
       | {
           author_id: string;
-          post_images: Array<{ imgchest_image_id: string | null; image_url: string }>;
+          post_images: Array<{ imgchest_image_id: string | null; imgchest_post_id: string | null; image_url: string }>;
         }
       | null;
     if (
@@ -430,10 +435,14 @@ export async function replacePostImages(postId: string, input: unknown) {
     if (error)
       return { ok: false, error: "Não foi possível atualizar as imagens." };
     const keptIds = new Set(images.map((image) => image.imageId).filter(Boolean));
-    const removedIds = (postWithImages.post_images ?? [])
-      .map((image) => image.imgchest_image_id ?? getImgChestImageIdFromUrl(image.image_url))
-      .filter((imageId): imageId is string => Boolean(imageId) && !keptIds.has(imageId));
-    const cleanup = await Promise.all(removedIds.map((imageId) => deleteImageFromImgChest(imageId).catch(() => false)));
+    const removedImages = (postWithImages.post_images ?? [])
+      .filter((image) => {
+        const imageId = image.imgchest_image_id ?? getImgChestImageIdFromUrl(image.image_url);
+        return Boolean(imageId) && !keptIds.has(imageId);
+      });
+    const cleanup = await Promise.all(removedImages.map((image) => image.imgchest_post_id
+      ? deletePostFromImgChest(image.imgchest_post_id).catch(() => false)
+      : deleteImageFromImgChest(image.imgchest_image_id ?? getImgChestImageIdFromUrl(image.image_url)!).catch(() => false)));
     revalidatePostViews();
     return { ok: true, data: { cleanupWarning: cleanup.some((result) => !result) } };
   } catch (error) {

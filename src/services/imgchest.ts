@@ -1,7 +1,10 @@
 import "server-only";
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
 type ImgChestResponse = {
-  data?: { images?: Array<{ id: string; link: string; thumbnail?: string }> };
+  data?: {
+    id?: string;
+    images?: Array<{ id: string; link: string; thumbnail?: string }>;
+  };
 };
 
 type ImgChestErrorResponse = {
@@ -22,7 +25,7 @@ export class ImgChestUploadError extends Error {
 export async function uploadImageToImgChest(
   file: File,
   maxBytes = 10 * 1024 * 1024,
-): Promise<{ imageUrl: string; thumbnailUrl?: string; imageId?: string }> {
+): Promise<{ imageUrl: string; thumbnailUrl?: string; imageId?: string; postId?: string }> {
   if (!ALLOWED.has(file.type))
     throw new ImgChestUploadError("Formato de imagem não permitido.", 415);
   if (file.size <= 0 || file.size > maxBytes)
@@ -68,6 +71,7 @@ export async function uploadImageToImgChest(
     imageUrl: image.link,
     thumbnailUrl: image.thumbnail,
     imageId: image.id,
+    postId: json.data?.id,
   };
 }
 
@@ -82,6 +86,18 @@ export async function deleteImageFromImgChest(imageId: string): Promise<boolean>
   const key = process.env.IMG_CHEST_API_KEY;
   if (!key) return false;
   const response = await fetch(`https://api.imgchest.com/v1/file/${imageId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${key}`, Accept: "application/json" },
+    cache: "no-store",
+  });
+  return response.ok || response.status === 404;
+}
+
+export async function deletePostFromImgChest(postId: string): Promise<boolean> {
+  if (!/^[a-zA-Z0-9]+$/.test(postId)) return false;
+  const key = process.env.IMG_CHEST_API_KEY;
+  if (!key) return false;
+  const response = await fetch(`https://api.imgchest.com/v1/post/${postId}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${key}`, Accept: "application/json" },
     cache: "no-store",
