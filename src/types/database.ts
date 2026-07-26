@@ -42,6 +42,7 @@ export interface Post {
   post_images: {
     image_url: string;
     thumbnail_url: string | null;
+    imgchest_image_id?: string | null;
     alt_text: string;
     position?: number;
   }[];

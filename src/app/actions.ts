@@ -380,6 +380,36 @@ export async function updatePost(id: string, input: unknown) {
     return { ok: false, error: safe(e) };
   }
 }
+export async function replacePostImages(postId: string, input: unknown) {
+  try {
+    const { db, user, role } = await context();
+    const id = z.string().uuid().parse(postId);
+    const images = postSchema.shape.images.parse(input);
+    const { data: post } = await db
+      .from("posts")
+      .select("author_id")
+      .eq("id", id)
+      .is("deleted_at", null)
+      .maybeSingle();
+    if (
+      !post ||
+      (post.author_id !== user.id &&
+        !(role === "STAFF" || role === "ADMIN"))
+    )
+      return { ok: false, error: "Sem permissão para alterar estas imagens." };
+
+    const { error } = await db.rpc("replace_post_images", {
+      p_post_id: id,
+      p_images: images,
+    });
+    if (error)
+      return { ok: false, error: "Não foi possível atualizar as imagens." };
+    revalidatePostViews();
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: safe(error) };
+  }
+}
 export async function deletePost(id: string) {
   try {
     const { db, user } = await context();

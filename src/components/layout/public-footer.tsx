@@ -26,6 +26,7 @@ export function PublicFooter({ authenticated = false }: { authenticated?: boolea
           </Link>
           <Link className="hover:text-brand" href="/sobre">Sobre</Link>
           <Link className="hover:text-brand" href="/proposta">Proposta</Link>
+          <Link className="hover:text-brand" href="/governanca">Governança</Link>
           <Link className="hover:text-brand" href="/termos">
             Termos de Uso
           </Link>

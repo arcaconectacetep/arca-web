@@ -6,7 +6,7 @@ Rede social acadêmica responsiva para estudantes, professores e gestores da Edu
 
 - Landing page, cadastro, login, recuperação e redefinição de senha com Supabase Auth.
 - Onboarding obrigatório com curso, username único, tema e preferências de acessibilidade.
-- Feed com busca, filtros e paginação server-side de 10 itens, publicações fixadas, categorias, imagens, curtidas e comentários.
+- Feed com busca, filtros e paginação server-side de 10 itens, publicações fixadas, categorias, imagens reordenáveis e editáveis, curtidas e comentários.
 - Espaço Pedagógico, Mural e Tendências com pontuação `curtidas + comentários × 2`.
 - Canal de suporte privado em três etapas, confirmação final, protocolo, histórico e limite de 3 envios/hora.
 - Notificações internas e painel administrativo para usuários, posts, alertas e auditoria.
@@ -104,6 +104,7 @@ npm run lint
 npm run typecheck
 npm run build
 npm run demo:users
+npm run validate:rls
 npm start
 ```
 
@@ -115,9 +116,17 @@ npm run dev
 
 Abra `http://localhost:3000` e siga [docs/VALIDATION_CHECKLIST.md](docs/VALIDATION_CHECKLIST.md), registrando os resultados de cada item.
 
+Para validar automaticamente as políticas críticas contra o Supabase configurado, sem desativar o Turnstile:
+
+```bash
+npm run validate:rls
+```
+
+O script cria contas temporárias por meio da Admin API, autentica por link de uso único, verifica isolamento dos alertas, notas internas, privilégios e suspensão, e remove os dados temporários ao terminar.
+
 ## Rotas
 
-Públicas: `/`, `/login`, `/cadastro`, `/recuperar-senha`, `/redefinir-senha`, `/termos`, `/privacidade`.
+Públicas: `/`, `/sobre`, `/proposta`, `/governanca`, `/login`, `/cadastro`, `/recuperar-senha`, `/redefinir-senha`, `/termos`, `/privacidade`.
 
 Autenticadas: `/onboarding`, `/inicio`, `/espaco`, `/mural`, `/tendencias`, `/publicacao/[id]`, `/suporte`, `/suporte/novo`, `/suporte/[id]`, `/notificacoes`, `/perfil/[username]`, `/configuracoes`.
 
@@ -139,7 +148,9 @@ Equipe: `/admin`, `/admin/usuarios`, `/admin/publicacoes`, `/admin/alertas`, `/a
 - `supabase/migrations`: schema, RLS e gatilhos versionados.
 - `supabase/seed.sql`: cursos iniciais.
 - `scripts/create-demo-users.ts`: provisionamento seguro das quatro contas de demonstração.
+- `scripts/validate-rls.ts`: prova automatizada de políticas críticas em um Supabase real.
 - `docs/VALIDATION_CHECKLIST.md`: roteiro manual de segurança, permissões, fluxos e responsividade.
+- `docs/ACCESSIBILITY_AUDIT.md`: escopo revisado e testes assistivos que ainda exigem dispositivos reais.
 
 ## Deploy na Vercel
 

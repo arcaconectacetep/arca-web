@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "demo:users": "tsx --env-file=.env.local scripts/create-demo-users.ts"
+    "demo:users": "tsx --env-file=.env.local scripts/create-demo-users.ts",
+    "validate:rls": "tsx --env-file=.env.local scripts/validate-rls.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "3.10.0",

@@ -11,6 +11,7 @@ import {
   Heart,
   MessageCircle,
   MoreHorizontal,
+  Images,
   Pencil,
   Pin,
   Send,
@@ -30,6 +31,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import type { Post } from "@/types/database";
 import { MediaGallery } from "@/components/feed/media-gallery";
+import { PostMediaEditor } from "@/components/feed/post-media-editor";
 
 const labels: Record<string, string> = {
   GENERAL: "Geral",
@@ -53,6 +55,7 @@ export function PostCard({
 }) {
   const router = useRouter();
   const reportDialog = useRef<HTMLDialogElement>(null);
+  const mediaDialog = useRef<HTMLDialogElement>(null);
   const [commentOpen, setCommentOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [removed, setRemoved] = useState(false);
@@ -189,6 +192,13 @@ export function PostCard({
                     onClick={() => setEditing(true)}
                   >
                     <Pencil className="size-4" /> Editar
+                  </button>
+                  <button
+                    className="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-left text-sm font-semibold hover:bg-canvas"
+                    type="button"
+                    onClick={() => mediaDialog.current?.showModal()}
+                  >
+                    <Images className="size-4" /> Gerenciar imagens
                   </button>
                   <button
                     className="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-left text-sm font-semibold text-danger hover:bg-danger/5"
@@ -460,6 +470,13 @@ export function PostCard({
           </div>
         </form>
       </dialog>
+      {ownPost && (
+        <PostMediaEditor
+          postId={post.id}
+          initialImages={post.post_images}
+          dialogRef={mediaDialog}
+        />
+      )}
     </article>
   );
 }
