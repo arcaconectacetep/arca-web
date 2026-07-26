@@ -1,0 +1,3 @@
+insert into public.courses(slug,name,description) values
+('informatica','Informática','Desenvolvimento, suporte e sistemas.'),('redes','Redes de Computadores','Infraestrutura e conectividade.'),('administracao','Administração','Gestão e negócios.'),('logistica','Logística','Operações e cadeia de suprimentos.'),('seguranca-trabalho','Segurança do Trabalho','Prevenção e ambientes seguros.'),('secretariado','Secretariado','Organização e comunicação.'),('enfermagem','Enfermagem','Cuidado, saúde e comunidade.') on conflict do nothing;
+-- As publicações dependem de usuários reais. Após criar as contas, execute o bloco documentado no README.
