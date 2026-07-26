@@ -24,6 +24,8 @@ export function PublicFooter({ authenticated = false }: { authenticated?: boolea
           <Link className="hover:text-brand" href={authenticated ? "/inicio" : "/login"}>
             {authenticated ? "Acessar plataforma" : "Entrar"}
           </Link>
+          <Link className="hover:text-brand" href="/sobre">Sobre</Link>
+          <Link className="hover:text-brand" href="/proposta">Proposta</Link>
           <Link className="hover:text-brand" href="/termos">
             Termos de Uso
           </Link>

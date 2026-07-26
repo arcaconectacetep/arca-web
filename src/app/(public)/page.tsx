@@ -9,11 +9,13 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
-import { BrandLogo } from "@/components/ui/brand-logo";
 import { PublicFooter } from "@/components/layout/public-footer";
+import { PublicHeader } from "@/components/layout/public-header";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
+  title: "ARCA — Rede acadêmica e tecnologia social",
+  description: "Conheça o ConectaCETEP, tecnologia social criada pelo curso técnico em Informática para conectar aprendizagem, comunicação e acolhimento no Piemonte do Paraguaçu.",
   alternates: { canonical: "/" },
 };
 
@@ -78,32 +80,12 @@ export default async function Landing() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <header className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5">
-        <BrandLogo className="text-[15px] sm:text-base" />
-        <nav className="flex items-center gap-2">
-          {user ? (
-            <Link className="btn-primary" href="/inicio">
-              <span className="hidden sm:inline">Acessar plataforma</span>
-              <span className="sm:hidden">Abrir</span>
-              <ArrowRight className="size-4" />
-            </Link>
-          ) : (
-            <>
-              <Link className="btn-ghost hidden sm:inline-flex" href="/login">
-                Entrar
-              </Link>
-              <Link className="btn-primary" href="/cadastro">
-                Criar conta
-              </Link>
-            </>
-          )}
-        </nav>
-      </header>
+      <PublicHeader authenticated={Boolean(user)} />
       <main id="conteudo">
         <section className="border-y border-line bg-paper">
           <div className="mx-auto grid max-w-7xl lg:grid-cols-[1.15fr_.85fr]">
             <div className="px-5 py-20 sm:py-28 lg:py-32 lg:pr-16">
-              <p className="eyebrow mb-5">Comunidade acadêmica · Itaberaba</p>
+              <p className="eyebrow mb-5">Método ARCA · Itaberaba, Bahia</p>
               <h1 className="reveal max-w-3xl font-display text-5xl font-bold leading-[.98] md:text-7xl">
                 Informação, aprendizado e acolhimento em um só espaço.
               </h1>
@@ -111,6 +93,9 @@ export default async function Landing() {
                 O ConectaCETEP conecta estudantes, professores e projetos,
                 fortalecendo a comunicação, a inclusão e o cuidado dentro da
                 comunidade escolar.
+              </p>
+              <p className="mt-4 max-w-2xl text-sm font-semibold leading-6 text-ink/75">
+                Uma tecnologia social desenvolvida a partir do curso técnico em Informática para a Educação Profissional e Tecnológica.
               </p>
               <div className="reveal reveal-delay-2 mt-9 flex flex-wrap gap-3">
                 {user ? (
@@ -145,6 +130,31 @@ export default async function Landing() {
                 ))}
               </div>
             </div>
+          </div>
+        </section>
+        <section className="mx-auto max-w-7xl px-5 py-20 sm:py-24">
+          <div className="grid gap-10 lg:grid-cols-[.75fr_1.25fr] lg:gap-20">
+            <div>
+              <p className="eyebrow">A estrutura do projeto</p>
+              <h2 className="page-title mt-3">ARCA é método, território e proteção.</h2>
+              <p className="mt-5 leading-7 text-muted">
+                O nome organiza a proposta que sustenta o ConectaCETEP: usar conhecimento técnico para aproximar pessoas, circular saberes e fortalecer uma rede de cuidado no Piemonte do Paraguaçu.
+              </p>
+              <Link className="btn-secondary mt-6" href="/sobre">Conhecer a história <ArrowRight className="size-4" /></Link>
+            </div>
+            <dl className="border-t border-line">
+              {[
+                ["A", "Arquitetura", "Organiza informação, serviços e responsabilidades em uma plataforma comum."],
+                ["R", "Redes", "Conecta cursos, estudantes, professores, gestão e projetos da escola."],
+                ["C", "Conectividade", "Reduz a fragmentação da comunicação e aproxima o cotidiano juvenil da aprendizagem."],
+                ["A", "Aparato socioemocional", "Oferece acolhimento privado, protocolo e encaminhamento responsável."],
+              ].map(([letter, title, text]) => (
+                <div className="grid grid-cols-[44px_1fr] gap-4 border-b border-line py-5" key={title}>
+                  <dt className="text-2xl font-black text-brand">{letter}</dt>
+                  <dd><strong className="block">{title}</strong><p className="mt-1 text-sm leading-6 text-muted">{text}</p></dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </section>
         <section className="border-t border-line bg-paper">
@@ -187,6 +197,12 @@ export default async function Landing() {
                 informações sensíveis fora de espaços públicos.
               </p>
             </div>
+          </div>
+        </section>
+        <section className="border-b border-line bg-paper">
+          <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-14 sm:flex-row sm:items-center sm:justify-between">
+            <div><p className="eyebrow">Pesquisa e inovação pública</p><h2 className="section-title mt-2">Da sala de aula para o território.</h2><p className="mt-2 max-w-2xl text-muted">Pesquisa-ação, desenvolvimento ágil e recursos da própria escola transformados em um protótipo funcional de baixo custo.</p></div>
+            <Link className="btn-primary shrink-0" href="/proposta">Ver a proposta <ArrowRight className="size-4" /></Link>
           </div>
         </section>
       </main>
