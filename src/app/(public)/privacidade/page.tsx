@@ -56,7 +56,9 @@ const sections: LegalSection[] = [
       <p>
         Avatares e imagens de publicações são hospedados no ImgChest e apenas
         suas URLs ficam registradas no banco. O canal de suporte não aceita
-        imagens ou anexos.
+        imagens ou anexos. Fotografias institucionais usadas nas páginas
+        públicas são ilustrações geradas por inteligência artificial e não
+        retratam pessoas vinculadas ao projeto.
       </p>
     ),
   },

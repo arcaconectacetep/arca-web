@@ -13,6 +13,7 @@ import {
 import { PublicFooter } from "@/components/layout/public-footer";
 import { PublicHeader } from "@/components/layout/public-header";
 import { createClient } from "@/lib/supabase/server";
+import { IllustrativeCaption } from "@/components/ui/illustrative-caption";
 
 export const metadata: Metadata = {
   title: "ARCA — Rede acadêmica e tecnologia social",
@@ -144,7 +145,7 @@ export default async function Landing() {
               className="object-cover"
             />
           </div>
-          <figcaption className="mt-3 flex flex-col gap-1 text-xs text-muted sm:flex-row sm:justify-between"><span>Conhecimento técnico construído em equipe e conectado à comunidade escolar.</span><span>Imagem representativa do projeto ARCA.</span></figcaption>
+          <IllustrativeCaption description="Cena representativa de colaboração técnica em ambiente escolar." />
         </figure>
         <section className="mx-auto max-w-7xl px-5 py-20 sm:py-24">
           <div className="grid gap-10 lg:grid-cols-[.75fr_1.25fr] lg:gap-20">

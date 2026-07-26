@@ -4,6 +4,7 @@ import { BookOpen, MapPin, Network, School, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PublicHeader } from "@/components/layout/public-header";
 import { PublicFooter } from "@/components/layout/public-footer";
+import { IllustrativeCaption } from "@/components/ui/illustrative-caption";
 
 export const metadata: Metadata = {
   title: "Sobre o projeto ARCA",
@@ -28,7 +29,7 @@ export default async function Page() {
         <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-brand-soft">
           <Image src="/images/institutional/arca-comunidade.webp" fill priority sizes="(max-width: 1024px) 100vw, 984px" alt="Estudantes em ambiente escolar analisam juntos um projeto, com participação de um estudante cadeirante" className="object-cover" />
         </div>
-        <figcaption className="mt-2 text-xs text-muted">Inclusão significa participar da construção, da aprendizagem e das decisões.</figcaption>
+        <IllustrativeCaption description="Cena representativa de inclusão e participação estudantil." />
       </figure>
       <section className="mx-auto grid max-w-5xl gap-12 px-5 py-16 lg:grid-cols-[.7fr_1.3fr]">
         <div><MapPin className="size-7 text-brand" /><h2 className="section-title mt-4">De onde partimos</h2></div>
