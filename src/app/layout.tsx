@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Atkinson_Hyperlegible, Inter, Source_Sans_3 } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { SplashScreen } from "@/components/layout/splash-screen";
 import { CookiePreferences } from "@/components/privacy/cookie-preferences";
+import { ScrollToTop } from "@/components/layout/scroll-to-top";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -66,6 +68,9 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={`${inter.variable} ${sourceSans.variable} ${atkinson.variable}`}>
         <SplashScreen />
+        <Suspense fallback={null}>
+          <ScrollToTop />
+        </Suspense>
         <a href="#conteudo" className="skip-link">
           Pular para o conteúdo
         </a>

@@ -31,3 +31,4 @@
 - Mídia: até quatro imagens ordenáveis por arraste e controles de teclado; visualizador em tela cheia com navegação por setas e movimento reduzido respeitado.
 - Aparência: modo claro/escuro/sistema é independente da cor de destaque; fontes disponíveis Inter, Source Sans 3 e Atkinson Hyperlegible.
 - Splash ARCA: órbita institucional ligada ao carregamento real, uma vez por sessão de aba, com saída de 220ms.
+- Navegação entre páginas: rota e filtros novos iniciam no topo com scroll nativo suave; âncoras são preservadas e movimento reduzido usa deslocamento imediato.
