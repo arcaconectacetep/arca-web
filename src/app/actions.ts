@@ -46,6 +46,38 @@ function revalidatePostViews() {
   revalidatePath("/tendencias");
   revalidatePath("/publicacao/[id]", "page");
 }
+
+async function getUserImgChestPostIds(
+  admin: ReturnType<typeof createAdminClient>,
+  userId: string,
+) {
+  const [profileResult, postsResult] = await Promise.all([
+    admin
+      .from("profiles")
+      .select("avatar_imgchest_post_id")
+      .eq("id", userId)
+      .maybeSingle(),
+    admin
+      .from("posts")
+      .select("post_images(imgchest_post_id)")
+      .eq("author_id", userId),
+  ]);
+  const ids = new Set<string>();
+  if (profileResult.data?.avatar_imgchest_post_id)
+    ids.add(profileResult.data.avatar_imgchest_post_id);
+  for (const post of postsResult.data ?? [])
+    for (const image of post.post_images ?? [])
+      if (image.imgchest_post_id) ids.add(image.imgchest_post_id);
+  return [...ids];
+}
+
+async function cleanupImgChestPosts(postIds: string[]) {
+  await Promise.all(
+    postIds.map((postId) =>
+      deletePostFromImgChest(postId).catch(() => false),
+    ),
+  );
+}
 export async function login(form: FormData) {
   const captchaToken = String(form.get("captchaToken") ?? "");
   if (!captchaToken || captchaToken.length > 2048)
@@ -141,8 +173,10 @@ export async function deleteOwnAccount(input: unknown) {
       };
     }
     const admin = createAdminClient();
+    const imgChestPostIds = await getUserImgChestPostIds(admin, user.id);
     const { error } = await admin.auth.admin.deleteUser(user.id);
     if (error) return { ok: false, error: "Não foi possível excluir a conta. Confirme que as migrations estão atualizadas." };
+    await cleanupImgChestPosts(imgChestPostIds);
     await admin.from("audit_logs").insert({ actor_id: null, action: "ACCOUNT_SELF_DELETED", resource_type: "profile", resource_id: user.id, metadata: { self_service: true } });
     await db.auth.signOut();
     return { ok: true };
@@ -798,6 +832,7 @@ export async function deleteUser(id: string) {
         };
     }
     const admin = createAdminClient();
+    const imgChestPostIds = await getUserImgChestPostIds(admin, id);
     const { error } = await admin.auth.admin.deleteUser(id);
     if (error)
       return {
@@ -805,6 +840,7 @@ export async function deleteUser(id: string) {
         error:
           "Não foi possível excluir a conta da autenticação. Verifique a migration de exclusão e a SUPABASE_SECRET_KEY.",
       };
+    await cleanupImgChestPosts(imgChestPostIds);
     await db.from("audit_logs").insert({
       actor_id: user.id,
       action: "USER_DELETED",
