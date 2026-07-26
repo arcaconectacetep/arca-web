@@ -132,9 +132,7 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
         return;
       }
       setAvatar(null);
-      if (result.data?.cleanupWarning)
-        toast.warning("Foto removida do perfil, mas o provedor não confirmou a exclusão do arquivo antigo.");
-      else toast.success("Foto de perfil removida.");
+      toast.success("Foto de perfil removida.");
       router.refresh();
     });
   }

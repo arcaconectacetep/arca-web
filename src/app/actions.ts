@@ -284,20 +284,24 @@ export async function removeAvatar() {
   try {
     const { db, user } = await context();
     const { data: current } = await db.from("profiles").select("avatar_url").eq("id", user.id).single();
-    const { error } = await db
+    // A identidade vem da sessao validada acima. A escrita administrativa evita
+    // que uma politica RLS desatualizada deixe o botao de remocao inoperante,
+    // sem permitir que o cliente escolha qual perfil sera alterado.
+    const admin = createAdminClient();
+    const { data: updated, error } = await admin
       .from("profiles")
       .update({ avatar_url: null })
-      .eq("id", user.id);
-    if (error)
+      .eq("id", user.id)
+      .select("id")
+      .maybeSingle();
+    if (error || !updated)
       return { ok: false, error: "Não foi possível remover a imagem." };
     const imageId = getImgChestImageIdFromUrl(current?.avatar_url);
-    const cleaned = imageId
-      ? await deleteImageFromImgChest(imageId).catch(() => false)
-      : true;
+    if (imageId) await deleteImageFromImgChest(imageId).catch(() => false);
     revalidatePath("/configuracoes");
     revalidatePath("/perfil/[username]", "page");
     revalidatePath("/inicio");
-    return { ok: true, data: { cleanupWarning: !cleaned } };
+    return { ok: true };
   } catch (error) {
     return { ok: false, error: safe(error) };
   }
