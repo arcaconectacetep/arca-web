@@ -17,11 +17,13 @@ function notify(result: { ok: boolean; error?: string }, success: string) {
   if (result.ok) toast.success(success);
   else toast.error(result.error ?? "Não foi possível concluir a ação.");
 }
-export function RoleSelect({ id, value }: { id: string; value: Role }) {
+export function RoleSelect({ id, value, locked = false }: { id: string; value: Role; locked?: boolean }) {
   const [p, start] = useTransition();
   return (
     <select
-      disabled={p}
+      disabled={p || locked}
+      aria-label="Papel do usuário"
+      title={locked ? "Seu próprio papel deve ser alterado por outro administrador" : undefined}
       value={value}
       onChange={(e) =>
         start(async () => {
@@ -37,12 +39,12 @@ export function RoleSelect({ id, value }: { id: string; value: Role }) {
     </select>
   );
 }
-export function DeleteUserButton({ id, name }: { id: string; name: string }) {
+export function DeleteUserButton({ id, name, disabled = false }: { id: string; name: string; disabled?: boolean }) {
   const [pending, start] = useTransition();
   return (
     <button
       type="button"
-      disabled={pending}
+      disabled={pending || disabled}
       className="btn-ghost text-danger hover:bg-danger/5 hover:text-danger"
       onClick={() => {
         const confirmed = window.confirm(
@@ -63,14 +65,16 @@ export function DeleteUserButton({ id, name }: { id: string; name: string }) {
 export function UserToggle({
   id,
   suspended,
+  disabled = false,
 }: {
   id: string;
   suspended: boolean;
+  disabled?: boolean;
 }) {
   const [p, start] = useTransition();
   return (
     <button
-      disabled={p}
+      disabled={p || disabled}
       className={suspended ? "btn-secondary" : "btn-ghost text-danger"}
       onClick={() =>
         confirm(suspended ? "Reativar usuário?" : "Suspender usuário?") &&

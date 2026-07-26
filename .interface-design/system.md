@@ -27,3 +27,4 @@
 - Datas: toda data absoluta é exibida em `America/Sao_Paulo`; instantes continuam armazenados como `timestamptz`.
 - Transição de rota: entrada de 220ms por opacidade e deslocamento vertical de 4px; sem movimento quando a preferência reduzida está ativa.
 - Configurações: informações públicas e preferências têm formulários e ações independentes, com botão dentro do respectivo card.
+- Listagens administrativas: 20 itens por página, total explícito e cartões mobile sem rolagem horizontal; filtros persistem durante a paginação.
