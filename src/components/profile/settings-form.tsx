@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -27,6 +27,9 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { prepareImageForUpload } from "@/lib/prepare-image";
 import { LogoutButton } from "@/components/profile/logout-button";
 import { CookieSettingsButton } from "@/components/privacy/cookie-settings-button";
+import { CheckboxField } from "@/components/ui/checkbox-field";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { SelectField } from "@/components/ui/select-field";
 
 type SettingsProfile = {
   id: string;
@@ -75,6 +78,7 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
   const [preferencesPending, startPreferences] = useTransition();
   const [passwordPending, startPassword] = useTransition();
   const [deletePending, startDelete] = useTransition();
+  const deleteForm = useRef<HTMLFormElement>(null);
 
   function upload(file?: File) {
     if (!file) return;
@@ -114,12 +118,6 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
   }
 
   function remove() {
-    if (
-      !window.confirm(
-        "Remover sua foto de perfil? Seu avatar voltará a mostrar as iniciais.",
-      )
-    )
-      return;
     startAvatar(async () => {
       const result = await removeAvatar();
       if (!result.ok) {
@@ -183,15 +181,10 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
                 />
               </label>
               {avatar && (
-                <button
-                  className="btn-ghost text-danger hover:bg-danger/5 hover:text-danger"
-                  type="button"
-                  disabled={avatarPending}
-                  onClick={remove}
-                >
+                <ConfirmDialog destructive disabled={avatarPending} title="Remover foto de perfil?" description="Seu avatar voltará a mostrar as iniciais do seu nome." confirmLabel="Remover foto" onConfirm={remove} trigger={<button className="btn-ghost text-danger hover:bg-danger/5 hover:text-danger" type="button">
                   <Trash2 className="size-4" />
                   Remover foto
-                </button>
+                </button>} />
               )}
             </div>
           </div>
@@ -260,17 +253,7 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
             </label>
             <label>
               <span className="label">Turno</span>
-              <select
-                className="field"
-                name="shift"
-                defaultValue={profile.shift ?? ""}
-              >
-                <option value="">Não informado</option>
-                <option>Matutino</option>
-                <option>Vespertino</option>
-                <option>Noturno</option>
-                <option>Integral</option>
-              </select>
+              <SelectField name="shift" defaultValue={profile.shift ?? ""} options={["", "Matutino", "Vespertino", "Noturno", "Integral"].map((value) => ({ value, label: value || "Não informado" }))} />
             </label>
             <label className="sm:col-span-2">
               <span className="label">Biografia</span>
@@ -323,55 +306,22 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             <label>
               <span className="label">Tema visual</span>
-              <select
-                className="field"
-                name="theme"
-                defaultValue={profile.theme}
-              >
-                <option value="DEFAULT">Azul</option>
-                <option value="BLUE">Azul profundo</option>
-                <option value="AURORA">Aurora</option>
-                <option value="NEUTRAL">Neutro</option>
-                <option value="FOREST">Floresta</option>
-                <option value="OCEAN">Oceano</option>
-                <option value="WINE">Vinho</option>
-              </select>
+              <SelectField name="theme" defaultValue={profile.theme} options={[{ value: "DEFAULT", label: "Azul" }, { value: "BLUE", label: "Azul profundo" }, { value: "AURORA", label: "Aurora" }, { value: "NEUTRAL", label: "Neutro" }, { value: "FOREST", label: "Floresta" }, { value: "OCEAN", label: "Oceano" }, { value: "WINE", label: "Vinho" }]} />
             </label>
             <label>
               <span className="label">Modo de cor</span>
-              <select className="field" name="colorMode" defaultValue={profile.color_mode}>
-                <option value="SYSTEM">Usar configuração do sistema</option>
-                <option value="LIGHT">Claro</option>
-                <option value="DARK">Escuro</option>
-              </select>
+              <SelectField name="colorMode" defaultValue={profile.color_mode} options={[{ value: "SYSTEM", label: "Usar configuração do sistema" }, { value: "LIGHT", label: "Claro" }, { value: "DARK", label: "Escuro" }]} />
             </label>
             <label>
               <span className="label">Fonte</span>
-              <select className="field" name="fontFamily" defaultValue={profile.font_family}>
-                <option value="INTER">Inter</option>
-                <option value="SOURCE_SANS">Source Sans 3</option>
-                <option value="ATKINSON">Atkinson Hyperlegible</option>
-              </select>
+              <SelectField name="fontFamily" defaultValue={profile.font_family} options={[{ value: "INTER", label: "Inter" }, { value: "SOURCE_SANS", label: "Source Sans 3" }, { value: "ATKINSON", label: "Atkinson Hyperlegible" }]} />
             </label>
             <label>
               <span className="label">Tamanho da fonte</span>
-              <select
-                className="field"
-                name="fontScale"
-                defaultValue={profile.font_scale}
-              >
-                <option value="1">100% — Padrão</option>
-                <option value="1.15">115% — Confortável</option>
-                <option value="1.3">130% — Ampliada</option>
-              </select>
+              <SelectField name="fontScale" defaultValue={String(profile.font_scale)} options={[{ value: "1", label: "100% — Padrão" }, { value: "1.15", label: "115% — Confortável" }, { value: "1.3", label: "130% — Ampliada" }]} />
             </label>
             <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-xl border border-line bg-canvas p-4">
-              <input
-                className="size-4 accent-brand"
-                type="checkbox"
-                name="highContrast"
-                defaultChecked={profile.high_contrast}
-              />
+              <CheckboxField name="highContrast" value="on" defaultChecked={profile.high_contrast} />
               <span>
                 <b className="block text-sm">Alto contraste</b>
                 <small className="text-muted">
@@ -380,12 +330,7 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
               </span>
             </label>
             <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-xl border border-line bg-canvas p-4">
-              <input
-                className="size-4 accent-brand"
-                type="checkbox"
-                name="reducedMotion"
-                defaultChecked={profile.reduced_motion}
-              />
+              <CheckboxField name="reducedMotion" value="on" defaultChecked={profile.reduced_motion} />
               <span>
                 <b className="block text-sm">Reduzir movimento</b>
                 <small className="text-muted">
@@ -449,11 +394,7 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
           </label>
         </div>
         <label className="mt-3 inline-flex min-h-11 cursor-pointer items-center gap-2 text-sm font-semibold text-muted">
-          <input
-            type="checkbox"
-            checked={showPasswords}
-            onChange={(event) => setShowPasswords(event.target.checked)}
-          />
+          <CheckboxField checked={showPasswords} onCheckedChange={(checked) => setShowPasswords(checked === true)} />
           {showPasswords ? (
             <EyeOff className="size-4" />
           ) : (
@@ -480,11 +421,11 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
       </section>
 
       <form
+        ref={deleteForm}
         className="card border border-danger/25 p-5 sm:p-6"
         onSubmit={(event) => {
           event.preventDefault();
           const form = new FormData(event.currentTarget);
-          if (!window.confirm("Última confirmação: excluir sua conta e todos os dados vinculados? Esta ação não pode ser desfeita.")) return;
           startDelete(async () => {
             const result = await deleteOwnAccount({ password: String(form.get("deletePassword")), confirmation: String(form.get("confirmation")) });
             if (!result.ok) return void toast.error(result.error);
@@ -495,7 +436,7 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
         <SectionHeading icon={Trash2} title="Excluir minha conta" text="Remove permanentemente seu perfil, publicações, comentários e solicitações de suporte." />
         <div className="mt-5 rounded-xl bg-danger/5 p-4 text-sm leading-6 text-danger"><b>Esta ação não pode ser desfeita.</b> Se precisar apenas interromper o acesso, saia da conta. Administradores devem garantir que exista outro ADMIN ativo.</div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2"><label><span className="label">Senha atual</span><input className="field" type="password" name="deletePassword" autoComplete="current-password" required /></label><label><span className="label">Digite EXCLUIR MINHA CONTA</span><input className="field" name="confirmation" required autoComplete="off" /></label></div>
-        <button className="btn mt-5 bg-danger text-white hover:bg-danger/90" disabled={deletePending}>{deletePending ? <LoadingSpinner label="Excluindo conta" /> : <Trash2 className="size-4" />}{deletePending ? "Excluindo…" : "Excluir permanentemente"}</button>
+        <ConfirmDialog destructive disabled={deletePending} title="Excluir permanentemente sua conta?" description="Seu perfil, publicações, comentários e solicitações vinculadas serão removidos. Esta ação não pode ser desfeita." confirmLabel="Excluir minha conta" onConfirm={() => deleteForm.current?.requestSubmit()} trigger={<button type="button" className="btn-danger mt-5">{deletePending ? <LoadingSpinner label="Excluindo conta" /> : <Trash2 className="size-4" />}{deletePending ? "Excluindo…" : "Excluir permanentemente"}</button>} />
       </form>
     </div>
   );

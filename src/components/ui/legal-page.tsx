@@ -4,6 +4,8 @@ import Link from "next/link";
 import { BrandLogo } from "./brand-logo";
 import { PublicFooter } from "@/components/layout/public-footer";
 import { createClient } from "@/lib/supabase/server";
+import * as Accordion from "@radix-ui/react-accordion";
+import { ChevronDown } from "lucide-react";
 
 export type LegalSection = {
   id: string;
@@ -76,9 +78,8 @@ export async function LegalPage({
                 ))}
               </ul>
             </nav>
-            <details className="mt-6 rounded-xl bg-paper p-4 shadow-quiet lg:hidden">
-              <summary className="cursor-pointer text-sm font-bold">Nesta página</summary>
-              <ul className="mt-3 space-y-1 border-t border-line pt-3">
+            <Accordion.Root type="single" collapsible className="mt-6 rounded-xl bg-paper p-4 shadow-quiet lg:hidden">
+              <Accordion.Item value="contents"><Accordion.Header><Accordion.Trigger className="flex min-h-11 w-full items-center justify-between text-left text-sm font-bold">Nesta página<ChevronDown className="size-4 transition-transform duration-200 [[data-state=open]>&]:rotate-180" /></Accordion.Trigger></Accordion.Header><Accordion.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down motion-reduce:animate-none"><ul className="mt-3 space-y-1 border-t border-line pt-3">
                 {sections.map((section) => (
                   <li key={section.id}>
                     <a className="block min-h-11 py-2.5 text-sm text-muted" href={`#${section.id}`}>
@@ -86,8 +87,8 @@ export async function LegalPage({
                     </a>
                   </li>
                 ))}
-              </ul>
-            </details>
+              </ul></Accordion.Content></Accordion.Item>
+            </Accordion.Root>
           </aside>
 
           <article className="min-w-0">

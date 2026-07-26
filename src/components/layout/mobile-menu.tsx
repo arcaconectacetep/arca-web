@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -36,97 +36,33 @@ export function MobileMenu({
   role?: Role;
 }) {
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const panelRef = useRef<HTMLElement>(null);
-
-  useEffect(() => setMounted(true), []);
   useEffect(() => setOpen(false), [pathname]);
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    if (open) {
-      const firstFocusable =
-        panelRef.current?.querySelector<HTMLElement>("button, a[href]");
-      firstFocusable?.focus();
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setOpen(false);
-        triggerRef.current?.focus();
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const focusable = Array.from(
-        panelRef.current?.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), a[href]:not([tabindex="-1"])',
-        ) ?? [],
-      );
-      if (!focusable.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    }
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [open]);
 
   return (
-    <>
+    <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Trigger asChild>
       <button
-        ref={triggerRef}
         className="grid size-11 place-items-center rounded-xl text-muted hover:bg-paper hover:text-brand lg:hidden"
         type="button"
-        onClick={() => setOpen(true)}
         aria-label="Abrir menu"
-        aria-expanded={open}
       >
         <Menu className="size-5" />
       </button>
-      {mounted &&
-        createPortal(
-          <div
-            className={`fixed inset-0 z-[100] lg:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
-            aria-hidden={!open}
-            inert={!open}
-          >
-            <button
-              className={`absolute inset-0 bg-ink/40 backdrop-blur-[2px] transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0"}`}
-              type="button"
-              onClick={() => setOpen(false)}
-              aria-label="Fechar menu"
-              tabIndex={open ? 0 : -1}
-            />
-            <aside
-              ref={panelRef}
-              className={`absolute inset-y-0 left-0 flex h-[100dvh] w-[min(86vw,320px)] flex-col overflow-y-auto border-r border-line bg-paper p-5 shadow-2xl transition-transform duration-200 ${open ? "translate-x-0" : "-translate-x-full"}`}
-              aria-label="Menu principal"
-              aria-modal="true"
-              role="dialog"
-            >
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-[100] bg-ink/40 backdrop-blur-[2px] data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out data-[state=open]:fade-in lg:hidden motion-reduce:animate-none" />
+        <Dialog.Content className="fixed inset-y-0 left-0 z-[101] flex h-[100dvh] w-[min(86vw,320px)] flex-col overflow-y-auto border-r border-line bg-paper p-5 text-ink shadow-2xl outline-none data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left lg:hidden motion-reduce:animate-none" aria-describedby={undefined}>
+              <Dialog.Title className="sr-only">Menu principal</Dialog.Title>
               <div className="flex items-center justify-between">
                 <BrandLogo href="/inicio" />
-                <button
+                <Dialog.Close
                   className="grid size-11 place-items-center rounded-xl text-muted hover:bg-paper hover:text-brand"
                   type="button"
-                  onClick={() => setOpen(false)}
                   aria-label="Fechar menu"
                 >
                   <X className="size-5" />
-                </button>
+                </Dialog.Close>
               </div>
               <nav className="mt-8 space-y-1" aria-label="Navegação principal">
                 {links.map(({ href, label, icon: Icon }) => {
@@ -171,10 +107,8 @@ export function MobileMenu({
                   </Link>
                 )}
               </div>
-            </aside>
-          </div>,
-          document.body,
-        )}
-    </>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

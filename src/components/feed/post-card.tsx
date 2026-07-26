@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
@@ -32,6 +32,10 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import type { Post } from "@/types/database";
 import { MediaGallery } from "@/components/feed/media-gallery";
 import { PostMediaEditor } from "@/components/feed/post-media-editor";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Dialog, DialogContent } from "@/components/ui/radix-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { SelectField } from "@/components/ui/select-field";
 
 const labels: Record<string, string> = {
   GENERAL: "Geral",
@@ -54,8 +58,8 @@ export function PostCard({
   detail?: boolean;
 }) {
   const router = useRouter();
-  const reportDialog = useRef<HTMLDialogElement>(null);
-  const mediaDialog = useRef<HTMLDialogElement>(null);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [mediaOpen, setMediaOpen] = useState(false);
   const [commentOpen, setCommentOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [removed, setRemoved] = useState(false);
@@ -85,12 +89,6 @@ export function PostCard({
   }
 
   function handleDelete() {
-    if (
-      !window.confirm(
-        "Excluir esta publicação? Ela deixará de aparecer para a comunidade.",
-      )
-    )
-      return;
     startAction(async () => {
       const result = await deletePost(post.id);
       if (!result.ok) {
@@ -172,8 +170,9 @@ export function PostCard({
           <span className="badge hidden sm:inline-flex">
             {labels[post.type]}
           </span>
-          <details className="group relative">
-            <summary
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+            <button
               className="grid size-10 cursor-pointer list-none place-items-center rounded-xl text-muted hover:bg-brand-soft hover:text-brand"
               aria-label="Ações da publicação"
             >
@@ -182,43 +181,35 @@ export function PostCard({
               ) : (
                 <MoreHorizontal className="size-5" />
               )}
-            </summary>
-            <div className="absolute right-0 top-11 z-10 w-44 rounded-xl border border-line bg-paper p-1.5 shadow-lift">
+            </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
               {ownPost ? (
                 <>
-                  <button
-                    className="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-left text-sm font-semibold hover:bg-canvas"
-                    type="button"
+                  <DropdownMenuItem
                     onClick={() => setEditing(true)}
                   >
                     <Pencil className="size-4" /> Editar
-                  </button>
-                  <button
-                    className="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-left text-sm font-semibold hover:bg-canvas"
-                    type="button"
-                    onClick={() => mediaDialog.current?.showModal()}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setMediaOpen(true)}
                   >
                     <Images className="size-4" /> Gerenciar imagens
-                  </button>
-                  <button
-                    className="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-left text-sm font-semibold text-danger hover:bg-danger/5"
-                    type="button"
-                    onClick={handleDelete}
-                  >
+                  </DropdownMenuItem>
+                  <ConfirmDialog destructive title="Excluir publicação?" description="Ela deixará de aparecer para a comunidade. Esta ação não pode ser desfeita pelo autor." confirmLabel="Excluir" onConfirm={handleDelete} trigger={<DropdownMenuItem className="text-danger data-[highlighted]:bg-danger/5" onSelect={(event) => event.preventDefault()}>
                     <Trash2 className="size-4" /> Excluir
-                  </button>
+                  </DropdownMenuItem>} />
                 </>
               ) : (
-                <button
-                  className="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-left text-sm font-semibold text-danger hover:bg-danger/5"
-                  type="button"
-                  onClick={() => reportDialog.current?.showModal()}
+                <DropdownMenuItem
+                  className="text-danger data-[highlighted]:bg-danger/5"
+                  onClick={() => setReportOpen(true)}
                 >
                   <Flag className="size-4" /> Denunciar
-                </button>
+                </DropdownMenuItem>
               )}
-            </div>
-          </details>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </header>
 
         <div className="mt-3 sm:hidden">
@@ -267,13 +258,7 @@ export function PostCard({
             </label>
             <label>
               <span className="label">Categoria</span>
-              <select className="field" name="type" defaultValue={post.type}>
-                {Object.entries(labels).map(([value, label]) => (
-                  <option value={value} key={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
+              <SelectField name="type" defaultValue={post.type} options={Object.entries(labels).map(([value, label]) => ({ value, label }))} />
             </label>
             <div className="flex justify-end gap-2">
               <button
@@ -387,30 +372,8 @@ export function PostCard({
           </button>
         </form>
       )}
-      <dialog
-        ref={reportDialog}
-        className="w-[calc(100%_-_2rem)] max-w-md rounded-2xl bg-paper p-0 text-ink shadow-2xl backdrop:bg-ink/45 backdrop:backdrop-blur-[2px]"
-      >
-        <div className="border-b border-line p-5">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="eyebrow">Moderação</p>
-              <h2 className="mt-1 text-xl font-bold">Denunciar publicação</h2>
-            </div>
-            <button
-              className="grid size-10 place-items-center rounded-xl text-muted hover:bg-canvas"
-              type="button"
-              onClick={() => reportDialog.current?.close()}
-              aria-label="Fechar denúncia"
-            >
-              <X className="size-5" />
-            </button>
-          </div>
-          <p className="mt-3 text-sm leading-6 text-muted">
-            A equipe analisará a publicação. Use este recurso apenas quando
-            houver violação das regras da comunidade.
-          </p>
-        </div>
+      <Dialog open={reportOpen} onOpenChange={setReportOpen}>
+        <DialogContent title="Denunciar publicação" description="A equipe analisará a publicação. Use este recurso apenas quando houver violação das regras da comunidade.">
         <form
           className="space-y-4 p-5"
           action={(form) =>
@@ -424,25 +387,14 @@ export function PostCard({
                 toast.error(result.error);
                 return;
               }
-              reportDialog.current?.close();
+              setReportOpen(false);
               toast.success("Denúncia enviada para análise.");
             })
           }
         >
           <label>
             <span className="label">Motivo</span>
-            <select className="field" name="reason" required defaultValue="">
-              <option value="" disabled>
-                Selecione um motivo
-              </option>
-              <option value="OFFENSIVE">Conteúdo ofensivo</option>
-              <option value="DISCRIMINATION">
-                Preconceito ou discriminação
-              </option>
-              <option value="MISINFORMATION">Informação enganosa</option>
-              <option value="PRIVACY">Exposição de dados pessoais</option>
-              <option value="OTHER">Outro motivo</option>
-            </select>
+            <SelectField name="reason" required defaultValue="" placeholder="Selecione um motivo" options={[{ value: "", label: "Selecione um motivo" }, { value: "OFFENSIVE", label: "Conteúdo ofensivo" }, { value: "DISCRIMINATION", label: "Preconceito ou discriminação" }, { value: "MISINFORMATION", label: "Informação enganosa" }, { value: "PRIVACY", label: "Exposição de dados pessoais" }, { value: "OTHER", label: "Outro motivo" }]} />
           </label>
           <label>
             <span className="label">
@@ -460,7 +412,7 @@ export function PostCard({
             <button
               className="btn-ghost"
               type="button"
-              onClick={() => reportDialog.current?.close()}
+              onClick={() => setReportOpen(false)}
             >
               Cancelar
             </button>
@@ -469,12 +421,14 @@ export function PostCard({
             </button>
           </div>
         </form>
-      </dialog>
+        </DialogContent>
+      </Dialog>
       {ownPost && (
         <PostMediaEditor
           postId={post.id}
           initialImages={post.post_images}
-          dialogRef={mediaDialog}
+          open={mediaOpen}
+          onOpenChange={setMediaOpen}
         />
       )}
     </article>

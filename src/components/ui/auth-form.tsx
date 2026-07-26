@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Eye, EyeOff, LoaderCircle, MailCheck } from "lucide-react";
-import { useForm, type Resolver } from "react-hook-form";
+import { Controller, useForm, type Resolver } from "react-hook-form";
 import { z } from "zod";
 import { login, recoverPassword, signUp, updatePassword } from "@/app/actions";
 import { Turnstile } from "@/components/security/turnstile";
+import { CheckboxField } from "@/components/ui/checkbox-field";
 import {
   loginSchema,
   recoverPasswordSchema,
@@ -139,6 +140,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const [captchaNonce, setCaptchaNonce] = useState(0);
   const {
     register,
+    control,
     handleSubmit,
     watch,
     formState: { errors },
@@ -293,15 +295,15 @@ export function AuthForm({ mode }: { mode: Mode }) {
       {mode === "signup" && (
         <div>
           <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3.5 text-sm leading-6 text-muted transition-colors hover:bg-canvas">
-            <input
-              {...register("acceptTerms")}
-              type="checkbox"
-              className="mt-1 size-4 shrink-0 accent-brand"
+            <Controller control={control} name="acceptTerms" render={({ field }) => <CheckboxField
+              checked={field.value === true}
+              onCheckedChange={(checked) => field.onChange(checked === true)}
+              className="mt-1"
               aria-invalid={Boolean(errors.acceptTerms)}
               aria-describedby={
                 errors.acceptTerms ? "acceptTerms-error" : undefined
               }
-            />
+            />} />
             <span>
               Li e aceito os{" "}
               <Link

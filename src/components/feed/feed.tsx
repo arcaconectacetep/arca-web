@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PostComposer } from "./post-composer";
 import { PostCard } from "./post-card";
 import type { Post, PostType, Section } from "@/types/database";
+import { SelectField } from "@/components/ui/select-field";
 
 const PAGE_SIZE = 10;
 const categories: Array<{ value: PostType | ""; label: string }> = [
@@ -127,17 +128,7 @@ export async function Feed({
         <label className="relative">
           <span className="sr-only">Filtrar por categoria</span>
           <SlidersHorizontal className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
-          <select
-            className="field pl-10"
-            name="categoria"
-            defaultValue={validType}
-          >
-            {categories.map((category) => (
-              <option key={category.value} value={category.value}>
-                {category.label}
-              </option>
-            ))}
-          </select>
+          <SelectField className="pl-10" name="categoria" defaultValue={validType} options={categories} />
         </label>
         <button className="btn-primary" type="submit">
           Aplicar

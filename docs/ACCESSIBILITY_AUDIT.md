@@ -7,7 +7,7 @@ Data da revisão: 26 de julho de 2026.
 - Estrutura semântica, link de salto e títulos de página.
 - Rótulos de formulários e nomes acessíveis de botões com ícone.
 - Estados de foco visível e áreas de toque.
-- Diálogos nativos para ações sensíveis e edição de mídia.
+- Diálogos, alertas, menus, selects, checkboxes, accordions e drawer mobile construídos com primitives Radix UI, incluindo foco preso, retorno de foco, `Esc` e navegação por teclado.
 - Texto alternativo editável para imagens de publicações.
 - Preferências de alto contraste, escala de fonte (100%, 115% e 130%) e movimento reduzido.
 - Layouts responsivos sem dependência de informação transmitida apenas por cor.

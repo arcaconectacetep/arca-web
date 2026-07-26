@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import { createComment, deleteComment, updateComment } from "@/app/actions";
 import { Avatar } from "@/components/ui/avatar";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export type PostComment = {
   id: string;
@@ -73,8 +75,9 @@ function CommentItem({
             </time>
           </div>
           {own && (
-            <details className="relative">
-              <summary
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+              <button
                 className="grid size-9 cursor-pointer list-none place-items-center rounded-lg text-muted hover:bg-canvas"
                 aria-label="Ações do comentário"
               >
@@ -83,21 +86,16 @@ function CommentItem({
                 ) : (
                   <MoreHorizontal className="size-4" />
                 )}
-              </summary>
-              <div className="absolute right-0 top-9 z-10 w-40 rounded-xl border border-line bg-paper p-1 shadow-lift">
-                <button
-                  className="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-sm font-semibold hover:bg-canvas"
-                  type="button"
+              </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuItem
                   onClick={() => setEditing(true)}
                 >
                   <Pencil className="size-4" />
                   Editar
-                </button>
-                <button
-                  className="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-sm font-semibold text-danger hover:bg-danger/5"
-                  type="button"
-                  onClick={() => {
-                    if (!window.confirm("Excluir este comentário?")) return;
+                </DropdownMenuItem>
+                <ConfirmDialog destructive title="Excluir comentário?" description="O comentário deixará de aparecer na conversa. Esta ação não pode ser desfeita." confirmLabel="Excluir" onConfirm={() => {
                     startTransition(async () => {
                       const result = await deleteComment(comment.id);
                       if (!result.ok) {
@@ -108,13 +106,12 @@ function CommentItem({
                       toast.success("Comentário excluído.");
                       router.refresh();
                     });
-                  }}
-                >
+                  }} trigger={<DropdownMenuItem className="text-danger data-[highlighted]:bg-danger/5" onSelect={(event) => event.preventDefault()}>
                   <Trash2 className="size-4" />
                   Excluir
-                </button>
-              </div>
-            </details>
+                </DropdownMenuItem>} />
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
         {editing ? (

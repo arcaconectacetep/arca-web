@@ -1,25 +1,28 @@
 "use client";
 
 import Image from "next/image";
-import { type RefObject, useEffect, useState, useTransition } from "react";
-import { ArrowLeft, ArrowRight, GripVertical, ImagePlus, Save, Trash2, X } from "lucide-react";
+import { useEffect, useState, useTransition } from "react";
+import { ArrowLeft, ArrowRight, GripVertical, ImagePlus, Save, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { replacePostImages } from "@/app/actions";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { prepareImageForUpload } from "@/lib/prepare-image";
 import type { Post } from "@/types/database";
+import { Dialog, DialogContent } from "@/components/ui/radix-dialog";
 
 type StoredMedia = Post["post_images"][number] & { localKey: string };
 
 export function PostMediaEditor({
   postId,
   initialImages,
-  dialogRef,
+  open,
+  onOpenChange,
 }: {
   postId: string;
   initialImages: Post["post_images"];
-  dialogRef: RefObject<HTMLDialogElement | null>;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
   const router = useRouter();
   const [items, setItems] = useState<StoredMedia[]>([]);
@@ -105,26 +108,14 @@ export function PostMediaEditor({
         return;
       }
       toast.success("Imagens atualizadas.");
-      dialogRef.current?.close();
+      onOpenChange(false);
       router.refresh();
     });
   }
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto rounded-2xl bg-paper p-0 text-ink shadow-2xl backdrop:bg-ink/45"
-      onClose={() => setItems(initialImages.map((image, index) => ({ ...image, localKey: image.imgchest_image_id ?? `${image.image_url}-${index}` })))}
-    >
-      <header className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-line bg-paper p-5">
-        <div>
-          <p className="eyebrow">Mídia da publicação</p>
-          <h2 className="mt-1 text-xl font-bold">Organizar imagens</h2>
-          <p className="mt-1 text-sm text-muted">Altere a ordem, a descrição ou remova imagens.</p>
-        </div>
-        <button type="button" className="btn-ghost shrink-0" onClick={() => dialogRef.current?.close()} aria-label="Fechar editor de imagens"><X className="size-5" /></button>
-      </header>
-
+    <Dialog open={open} onOpenChange={(nextOpen) => { onOpenChange(nextOpen); if (!nextOpen) setItems(initialImages.map((image, index) => ({ ...image, localKey: image.imgchest_image_id ?? `${image.image_url}-${index}` }))); }}>
+      <DialogContent className="max-w-3xl" title="Organizar imagens" description="Altere a ordem, a descrição ou remova imagens.">
       <div className="space-y-4 p-5">
         {items.length === 0 ? (
           <div className="rounded-xl border border-dashed border-line p-8 text-center text-sm text-muted">Esta publicação ainda não tem imagens.</div>
@@ -167,6 +158,7 @@ export function PostMediaEditor({
           <button type="button" className="btn-primary sm:ml-auto" disabled={pending} onClick={save}>{pending ? <LoadingSpinner label="Salvando imagens" /> : <Save className="size-4" />}{pending ? "Salvando…" : "Salvar imagens"}</button>
         </div>
       </div>
-    </dialog>
+      </DialogContent>
+    </Dialog>
   );
 }

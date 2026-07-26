@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { createSupportAlert } from "@/app/actions";
 import { alertUrgencyLabels, labelFor } from "@/lib/labels";
+import { CheckboxField } from "@/components/ui/checkbox-field";
 const categories = [
   ["BULLYING", "Bullying"],
   ["CYBERBULLYING", "Cyberbullying"],
@@ -147,13 +148,7 @@ export function SupportForm() {
             </label>
           </div>
           <label className="flex gap-3">
-            <input
-              type="checkbox"
-              checked={data.allowContact}
-              onChange={(e) =>
-                setData({ ...data, allowContact: e.target.checked })
-              }
-            />
+            <CheckboxField checked={data.allowContact} onCheckedChange={(checked) => setData({ ...data, allowContact: checked === true })} />
             <span>Aceito que a gestão entre em contato comigo.</span>
           </label>
         </div>

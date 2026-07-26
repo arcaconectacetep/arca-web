@@ -7,6 +7,8 @@ import { createPost } from "@/app/actions";
 import type { Role, Section } from "@/types/database";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { prepareImageForUpload } from "@/lib/prepare-image";
+import { SelectField } from "@/components/ui/select-field";
+import { CheckboxField } from "@/components/ui/checkbox-field";
 export function PostComposer({
   section = "FEED",
   role,
@@ -151,24 +153,15 @@ export function PostComposer({
             onChange={(e) => choose(e.target.files)}
           />
         </label>
-        <select name="type" aria-label="Categoria" className="field w-auto">
-          <option value="GENERAL">Geral</option>
-          <option value="PEDAGOGICAL">Pedagógico</option>
-          <option value="ANNOUNCEMENT">Comunicado</option>
-          <option value="HEALTH">Saúde</option>
-          <option value="SAFETY">Segurança</option>
-          <option value="OPPORTUNITY">Oportunidade</option>
-          <option value="CULTURE">Cultura</option>
-          <option value="ENTREPRENEURSHIP">Empreendedorismo</option>
-        </select>
+        <SelectField name="type" aria-label="Categoria" className="w-auto" defaultValue="GENERAL" options={Object.entries({ GENERAL: "Geral", PEDAGOGICAL: "Pedagógico", ANNOUNCEMENT: "Comunicado", HEALTH: "Saúde", SAFETY: "Segurança", OPPORTUNITY: "Oportunidade", CULTURE: "Cultura", ENTREPRENEURSHIP: "Empreendedorismo" }).map(([value, label]) => ({ value, label }))} />
         {role !== "STUDENT" && (
           <label className="flex min-h-11 items-center gap-2 px-2 text-sm">
-            <input name="official" type="checkbox" /> Oficial
+            <CheckboxField name="official" value="on" /> Oficial
           </label>
         )}
         {role !== "STUDENT" && (
           <label className="flex min-h-11 items-center gap-2 px-2 text-sm">
-            <input name="pinned" type="checkbox" /> Fixar
+            <CheckboxField name="pinned" value="on" /> Fixar
           </label>
         )}
         <button disabled={pending} className="btn-primary ml-auto">

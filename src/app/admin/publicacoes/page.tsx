@@ -3,6 +3,7 @@ import { PostToggle } from "@/components/admin/admin-actions";
 import { labelFor, postSectionLabels } from "@/lib/labels";
 import { AdminPagination } from "@/components/admin/admin-pagination";
 import { Search } from "lucide-react";
+import { SelectField } from "@/components/ui/select-field";
 
 const PAGE_SIZE = 20;
 export default async function Page({ searchParams }: { searchParams: Promise<{ q?: string; secao?: string; pagina?: string }> }) {
@@ -30,7 +31,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
       <p className="mt-3 text-sm text-muted"><strong className="text-ink tabular-nums">{count ?? 0}</strong> {count === 1 ? "publicação encontrada" : "publicações encontradas"}</p>
       <form role="search" className="card mt-6 grid gap-2 p-3 sm:grid-cols-[minmax(0,1fr)_220px_auto]">
         <label className="relative"><span className="sr-only">Buscar publicações</span><Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted" /><input className="field pl-10" name="q" defaultValue={search} placeholder="Buscar por título ou conteúdo" /></label>
-        <label><span className="sr-only">Filtrar por área</span><select className="field" name="secao" defaultValue={section}><option value="">Todas as áreas</option>{Object.entries(postSectionLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+        <label><span className="sr-only">Filtrar por área</span><SelectField name="secao" defaultValue={section} options={[{ value: "", label: "Todas as áreas" }, ...Object.entries(postSectionLabels).map(([value, label]) => ({ value, label }))]} /></label>
         <button className="btn-primary" type="submit">Filtrar</button>
       </form>
       <div className="mt-6 space-y-3">

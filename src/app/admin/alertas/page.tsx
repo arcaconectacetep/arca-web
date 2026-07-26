@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AlertStatus } from "@/components/admin/admin-actions";
 import { alertCategoryLabels, alertStatusLabels, alertUrgencyLabels, labelFor } from "@/lib/labels";
+import { SelectField } from "@/components/ui/select-field";
 export default async function Page({
   searchParams,
 }: {
@@ -24,18 +25,8 @@ export default async function Page({
       <p className="eyebrow">Acolhimento privado</p>
       <h1 className="page-title mt-2">Solicitações de suporte</h1>
       <form className="mt-6 flex flex-col gap-2 sm:flex-row">
-        <select className="field sm:w-auto" name="status">
-          <option value="">Todos os status</option>
-          {Object.entries(alertStatusLabels).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
-          ))}
-        </select>
-        <select className="field sm:w-auto" name="urgency">
-          <option value="">Todas urgências</option>
-          {Object.entries(alertUrgencyLabels).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
-          ))}
-        </select>
+        <SelectField className="sm:w-auto" name="status" defaultValue={s.status ?? ""} options={[{ value: "", label: "Todos os status" }, ...Object.entries(alertStatusLabels).map(([value, label]) => ({ value, label }))]} />
+        <SelectField className="sm:w-auto" name="urgency" defaultValue={s.urgency ?? ""} options={[{ value: "", label: "Todas urgências" }, ...Object.entries(alertUrgencyLabels).map(([value, label]) => ({ value, label }))]} />
         <button className="btn-primary">Filtrar</button>
       </form>
       <div className="mt-5 space-y-3">

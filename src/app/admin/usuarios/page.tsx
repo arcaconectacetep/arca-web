@@ -4,6 +4,7 @@ import { DeleteUserButton, RoleSelect, UserToggle } from "@/components/admin/adm
 import { roleLabels } from "@/lib/labels";
 import { AdminPagination } from "@/components/admin/admin-pagination";
 import { formatAppDate } from "@/lib/date";
+import { SelectField } from "@/components/ui/select-field";
 
 const PAGE_SIZE = 20;
 export default async function Page({
@@ -50,12 +51,7 @@ export default async function Page({
           placeholder="Buscar por nome ou username"
           defaultValue={q}
         />
-        <select className="field w-auto" name="role" defaultValue={role}>
-          <option value="">Todos os papéis</option>
-          {Object.entries(roleLabels).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
-          ))}
-        </select>
+        <SelectField className="w-auto" name="role" defaultValue={role} options={[{ value: "", label: "Todos os papéis" }, ...Object.entries(roleLabels).map(([value, label]) => ({ value, label }))]} />
         <button className="btn-primary">Filtrar</button>
       </form>
       {!data?.length && (

@@ -13,10 +13,11 @@ Rede social acadêmica responsiva para estudantes, professores e gestores da Edu
 - RLS em todas as tabelas, proteção Turnstile no Auth, bloqueio contra autoelevação de papel e contas suspensas.
 - Upload server-only de JPEG, PNG e WebP para o ImgChest (sem Supabase Storage ou base64).
 - Temas Azul, Aurora e Neutro; alto contraste, redução de movimento e fonte 100/115/130%.
+- Componentes interativos compostos com Radix UI: foco gerenciado, navegação por teclado, portais e confirmações acessíveis.
 
 ## Tecnologias
 
-Next.js 15 (App Router), React 19, TypeScript strict, Tailwind CSS, Supabase Auth/PostgreSQL, Zod, React Hook Form, Lucide, date-fns e Sonner.
+Next.js 15 (App Router), React 19, TypeScript strict, Tailwind CSS, Radix UI, Supabase Auth/PostgreSQL, Zod, React Hook Form, Lucide, date-fns e Sonner.
 
 ## Instalação
 
