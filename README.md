@@ -151,6 +151,7 @@ Equipe: `/admin`, `/admin/usuarios`, `/admin/publicacoes`, `/admin/alertas`, `/a
 - `scripts/validate-rls.ts`: prova automatizada de políticas críticas em um Supabase real.
 - `docs/VALIDATION_CHECKLIST.md`: roteiro manual de segurança, permissões, fluxos e responsividade.
 - `docs/ACCESSIBILITY_AUDIT.md`: escopo revisado e testes assistivos que ainda exigem dispositivos reais.
+- `docs/REAL_SUPABASE_VALIDATION.md`: evidências, cobertura e limites da validação no banco de homologação.
 
 ## Deploy na Vercel
 
