@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, Eye, EyeOff, LoaderCircle, MailCheck } from "lucide-react";
+import { Check, Eye, EyeOff, Inbox, LoaderCircle, MailCheck } from "lucide-react";
 import { Controller, useForm, type Resolver } from "react-hook-form";
 import { z } from "zod";
 import { login, recoverPassword, signUp, updatePassword } from "@/app/actions";
@@ -200,6 +200,16 @@ export function AuthForm({ mode }: { mode: Mode }) {
               ? "Se existir uma conta com esse endereço, você receberá um link seguro para criar uma nova senha."
               : "Sua nova senha já está ativa. Você pode entrar novamente com segurança."}
         </p>
+        {isRecovery && (
+          <div className="mt-4 flex gap-3 rounded-xl border border-warning/25 bg-warning/10 p-3 text-left text-sm leading-5 text-ink">
+            <Inbox className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden />
+            <p>
+              Não encontrou a mensagem na caixa principal? Verifique também as
+              pastas <strong>Spam</strong>, <strong>Lixo eletrônico</strong> e
+              <strong> Promoções</strong>.
+            </p>
+          </div>
+        )}
         <Link className="btn-primary mt-6 w-full" href="/login">
           Ir para o login
         </Link>
