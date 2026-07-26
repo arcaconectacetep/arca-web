@@ -4,8 +4,12 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
   commentSchema,
+  loginSchema,
   postSchema,
   profileSchema,
+  recoverPasswordSchema,
+  resetPasswordSchema,
+  signupSchema,
   supportSchema,
 } from "@/lib/validations";
 import type { ActionResult, Role } from "@/types/database";
@@ -30,10 +34,19 @@ const safe = (e: unknown) =>
       ? "Acesso não autorizado."
       : "Não foi possível concluir a ação.";
 export async function login(form: FormData) {
+  const parsed = loginSchema.safeParse({
+    email: form.get("email"),
+    password: form.get("password"),
+  });
+  if (!parsed.success)
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Revise os dados informados.",
+    } satisfies ActionResult;
   const db = await createClient();
   const result = await db.auth.signInWithPassword({
-    email: String(form.get("email")),
-    password: String(form.get("password")),
+    email: parsed.data.email,
+    password: parsed.data.password,
   });
   if (result.error)
     return {
@@ -43,19 +56,24 @@ export async function login(form: FormData) {
   redirect("/inicio");
 }
 export async function signUp(form: FormData) {
-  const db = await createClient();
-  const email = String(form.get("email"));
-  const password = String(form.get("password"));
-  if (password.length < 8)
+  const parsed = signupSchema.safeParse({
+    fullName: form.get("fullName"),
+    email: form.get("email"),
+    password: form.get("password"),
+    confirmPassword: form.get("confirmPassword"),
+    acceptTerms: form.get("acceptTerms") === "on",
+  });
+  if (!parsed.success)
     return {
       ok: false,
-      error: "A senha precisa ter pelo menos 8 caracteres.",
+      error: parsed.error.issues[0]?.message ?? "Revise os dados informados.",
     } satisfies ActionResult;
+  const db = await createClient();
   const { error } = await db.auth.signUp({
-    email,
-    password,
+    email: parsed.data.email,
+    password: parsed.data.password,
     options: {
-      data: { full_name: String(form.get("fullName")) },
+      data: { full_name: parsed.data.fullName },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/onboarding`,
     },
   });
@@ -72,21 +90,32 @@ export async function logout() {
   redirect("/");
 }
 export async function recoverPassword(form: FormData) {
+  const parsed = recoverPasswordSchema.safeParse({ email: form.get("email") });
+  if (!parsed.success)
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Informe um e-mail válido.",
+    } satisfies ActionResult;
   const db = await createClient();
-  await db.auth.resetPasswordForEmail(String(form.get("email")), {
+  await db.auth.resetPasswordForEmail(parsed.data.email, {
     redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/redefinir-senha`,
   });
   return { ok: true } satisfies ActionResult;
 }
 export async function updatePassword(form: FormData) {
-  const db = await createClient();
-  const p = String(form.get("password"));
-  if (p.length < 8)
+  const parsed = resetPasswordSchema.safeParse({
+    password: form.get("password"),
+    confirmPassword: form.get("confirmPassword"),
+  });
+  if (!parsed.success)
     return {
       ok: false,
-      error: "Use ao menos 8 caracteres.",
+      error: parsed.error.issues[0]?.message ?? "Revise a nova senha.",
     } satisfies ActionResult;
-  const { error } = await db.auth.updateUser({ password: p });
+  const db = await createClient();
+  const { error } = await db.auth.updateUser({
+    password: parsed.data.password,
+  });
   return error
     ? { ok: false, error: "Não foi possível alterar a senha." }
     : ({ ok: true } satisfies ActionResult);

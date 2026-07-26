@@ -1,4 +1,56 @@
 import { z } from "zod";
+
+const emailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(1, "Informe seu e-mail.")
+  .email("Digite um e-mail válido.");
+
+export const passwordSchema = z
+  .string()
+  .min(8, "Use pelo menos 8 caracteres.")
+  .regex(/[A-Za-zÀ-ÿ]/, "Inclua pelo menos uma letra.")
+  .regex(/[0-9]/, "Inclua pelo menos um número.");
+
+export const loginSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, "Informe sua senha."),
+});
+
+export const signupSchema = z
+  .object({
+    fullName: z
+      .string()
+      .trim()
+      .min(3, "Informe seu nome completo.")
+      .max(100, "Use no máximo 100 caracteres."),
+    email: emailSchema,
+    password: passwordSchema,
+    confirmPassword: z.string().min(1, "Confirme sua senha."),
+    acceptTerms: z.literal(true, {
+      errorMap: () => ({
+        message: "Aceite os Termos e a Política de Privacidade.",
+      }),
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "As senhas não coincidem.",
+  });
+
+export const recoverPasswordSchema = z.object({ email: emailSchema });
+
+export const resetPasswordSchema = z
+  .object({
+    password: passwordSchema,
+    confirmPassword: z.string().min(1, "Confirme sua nova senha."),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "As senhas não coincidem.",
+  });
+
 export const postSchema = z.object({
   title: z.string().trim().max(120).optional(),
   content: z.string().trim().min(1).max(5000),
