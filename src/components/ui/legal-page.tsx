@@ -1,7 +1,9 @@
 import type { LucideIcon } from "lucide-react";
-import { ArrowLeft, FileText, LockKeyhole, ShieldCheck } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
 import Link from "next/link";
 import { BrandLogo } from "./brand-logo";
+import { PublicFooter } from "@/components/layout/public-footer";
+import { createClient } from "@/lib/supabase/server";
 
 export type LegalSection = {
   id: string;
@@ -9,7 +11,7 @@ export type LegalSection = {
   content: React.ReactNode;
 };
 
-export function LegalPage({
+export async function LegalPage({
   eyebrow,
   title,
   description,
@@ -24,13 +26,23 @@ export function LegalPage({
   sections: LegalSection[];
   icon: LucideIcon;
 }) {
+  const db = await createClient();
+  const {
+    data: { user },
+  } = await db.auth.getUser();
+  const returnHref = user ? "/inicio" : "/cadastro";
+
   return (
     <div className="min-h-screen bg-canvas">
       <header className="border-b border-line bg-paper/90 backdrop-blur">
         <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-5">
           <BrandLogo />
-          <Link className="btn-ghost" href="/cadastro">
-            <ArrowLeft className="size-4" /> Voltar ao cadastro
+          <Link className="btn-ghost" href={returnHref}>
+            <ArrowLeft className="size-4" />
+            <span className="hidden sm:inline">
+              {user ? "Voltar ao início" : "Voltar ao cadastro"}
+            </span>
+            <span className="sm:hidden">Voltar</span>
           </Link>
         </div>
       </header>
@@ -64,6 +76,18 @@ export function LegalPage({
                 ))}
               </ul>
             </nav>
+            <details className="mt-6 rounded-xl bg-paper p-4 shadow-quiet lg:hidden">
+              <summary className="cursor-pointer text-sm font-bold">Nesta página</summary>
+              <ul className="mt-3 space-y-1 border-t border-line pt-3">
+                {sections.map((section) => (
+                  <li key={section.id}>
+                    <a className="block min-h-11 py-2.5 text-sm text-muted" href={`#${section.id}`}>
+                      {section.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
           </aside>
 
           <article className="min-w-0">
@@ -104,34 +128,22 @@ export function LegalPage({
               ))}
             </div>
 
-            <footer className="mt-4 rounded-2xl bg-brand p-6 text-white sm:flex sm:items-center sm:justify-between sm:gap-6">
-              <div className="flex gap-3">
-                <ShieldCheck className="mt-0.5 size-5 shrink-0" />
-                <div>
-                  <p className="font-bold">
-                    Transparência faz parte do cuidado.
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-white/75">
-                    Leia estes documentos antes de criar sua conta.
-                  </p>
-                </div>
-              </div>
+            <div className="mt-4 flex flex-col gap-5 border-t border-line py-8 sm:flex-row sm:items-center sm:justify-between">
+              <p className="max-w-lg text-sm leading-6 text-muted">
+                Transparência faz parte do cuidado. Consulte este documento sempre que precisar.
+              </p>
               <Link
-                className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-white px-4 text-sm font-bold text-brand sm:mt-0"
-                href="/cadastro"
+                className="btn-primary shrink-0"
+                href={returnHref}
               >
-                Continuar cadastro
+                {user ? "Acessar plataforma" : "Continuar cadastro"}
               </Link>
-            </footer>
+            </div>
           </article>
         </div>
       </main>
 
-      <footer className="border-t border-line bg-paper px-5 py-8 text-center text-sm text-muted">
-        <p className="inline-flex items-center gap-2">
-          <LockKeyhole className="size-4" /> ConectaCETEP · Itaberaba, Bahia
-        </p>
-      </footer>
+      <PublicFooter authenticated={Boolean(user)} />
     </div>
   );
 }

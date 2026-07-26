@@ -21,3 +21,5 @@
 - Avatar: sempre renderizado dentro de um contêiner quadrado com recorte circular; nunca depende da proporção intrínseca da imagem remota.
 - Perfil mobile: identidade em pilha (avatar, nome e metadados), ação de edição junto ao avatar e estatísticas em uma única superfície dividida.
 - Retorno mobile: permanece abaixo do cabeçalho durante a rolagem, sobre uma superfície opaca, sem ser recortado pelo header fixo.
+- Rodapé público: uma única composição compartilhada, com identidade, localização, links institucionais e estado de acesso adequado à sessão.
+- Perfil: banner azul sólido; avatar atravessa a divisão em moldura branca de 6px e a ação de edição permanece no conteúdo, fora do banner.

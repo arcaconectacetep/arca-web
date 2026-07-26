@@ -49,22 +49,24 @@ export default async function Page({
     <div className="mx-auto max-w-4xl">
       <PageBack />
       <section className="card overflow-hidden">
-        <div className="relative h-24 overflow-hidden bg-brand-soft sm:h-32">
-          <div className="absolute -left-10 top-1/2 h-px w-2/3 -rotate-6 bg-brand/25" />
-          <div className="absolute -right-8 bottom-5 h-20 w-20 rounded-full border border-brand/15" />
+        <div className="h-28 bg-brand sm:h-36">
+          <div className="flex h-full items-end px-5 sm:px-8">
+            <div className="relative z-10 translate-y-1/2 rounded-full bg-paper p-1.5 shadow-quiet">
+              <Avatar url={p.avatar_url} name={p.full_name} size={96} />
+            </div>
+          </div>
         </div>
-        <div className="px-5 pb-6 sm:px-8 sm:pb-8">
-          <div className="-mt-12 flex items-end justify-between gap-4">
-            <Avatar url={p.avatar_url} name={p.full_name} size={96} />
-            {user?.id === p.id && (
-              <Link href="/configuracoes" className="btn-secondary mb-1">
+        <div className="px-5 pb-6 pt-14 sm:px-8 sm:pb-8 sm:pt-16">
+          {user?.id === p.id && (
+            <div className="flex justify-end">
+              <Link href="/configuracoes" className="btn-secondary">
                 <Pencil className="size-4" />
                 <span className="hidden sm:inline">Editar perfil</span>
                 <span className="sm:hidden">Editar</span>
               </Link>
-            )}
-          </div>
-          <div className="mt-4 min-w-0">
+            </div>
+          )}
+          <div className={user?.id === p.id ? "mt-2 min-w-0" : "min-w-0"}>
             <h1 className="break-words text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
               {p.full_name}
             </h1>
