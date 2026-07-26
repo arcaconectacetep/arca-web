@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { BookOpen, MapPin, Network, School, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PublicHeader } from "@/components/layout/public-header";
@@ -23,6 +24,12 @@ export default async function Page() {
           <p className="mt-6 max-w-3xl text-lg leading-8 text-muted">O ConectaCETEP é uma tecnologia social digital desenvolvida pelo curso técnico em Informática, em Itaberaba, para integrar comunicação, aprendizagem, cultura e proteção socioemocional na Educação Profissional e Tecnológica.</p>
         </div>
       </header>
+      <figure className="mx-auto max-w-5xl px-5 pt-12">
+        <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-brand-soft">
+          <Image src="/images/institutional/arca-comunidade.webp" fill priority sizes="(max-width: 1024px) 100vw, 984px" alt="Estudantes em ambiente escolar analisam juntos um projeto, com participação de um estudante cadeirante" className="object-cover" />
+        </div>
+        <figcaption className="mt-2 text-xs text-muted">Inclusão significa participar da construção, da aprendizagem e das decisões.</figcaption>
+      </figure>
       <section className="mx-auto grid max-w-5xl gap-12 px-5 py-16 lg:grid-cols-[.7fr_1.3fr]">
         <div><MapPin className="size-7 text-brand" /><h2 className="section-title mt-4">De onde partimos</h2></div>
         <div className="space-y-5 leading-8 text-muted"><p>No Território de Identidade do Piemonte do Paraguaçu, diferentes cursos e perfis estudantis convivem com desafios comuns: informação fragmentada, isolamento digital, barreiras de acessibilidade, cyberbullying e preconceito.</p><p>O projeto nasce da ideia de que a formação técnica pode responder a essas questões com recursos da própria unidade escolar. Laboratórios, conhecimento de redes e engenharia de software tornam-se instrumentos de participação e direitos humanos.</p></div>

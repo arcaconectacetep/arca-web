@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import {
   ArrowRight,
@@ -132,6 +133,19 @@ export default async function Landing() {
             </div>
           </div>
         </section>
+        <figure className="mx-auto max-w-7xl px-5 pt-16">
+          <div className="relative aspect-[16/8] overflow-hidden rounded-2xl bg-brand-soft sm:aspect-[16/7]">
+            <Image
+              src="/images/institutional/arca-laboratorio.webp"
+              fill
+              priority
+              sizes="(max-width: 1280px) 100vw, 1240px"
+              alt="Estudantes de cursos técnicos colaboram em um projeto de redes no laboratório de informática"
+              className="object-cover"
+            />
+          </div>
+          <figcaption className="mt-3 flex flex-col gap-1 text-xs text-muted sm:flex-row sm:justify-between"><span>Conhecimento técnico construído em equipe e conectado à comunidade escolar.</span><span>Imagem representativa do projeto ARCA.</span></figcaption>
+        </figure>
         <section className="mx-auto max-w-7xl px-5 py-20 sm:py-24">
           <div className="grid gap-10 lg:grid-cols-[.75fr_1.25fr] lg:gap-20">
             <div>
