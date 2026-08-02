@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -29,6 +29,7 @@ import { LogoutButton } from "@/components/profile/logout-button";
 import { CookieSettingsButton } from "@/components/privacy/cookie-settings-button";
 import { CheckboxField } from "@/components/ui/checkbox-field";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Dialog, DialogClose, DialogContent } from "@/components/ui/radix-dialog";
 import { SelectField } from "@/components/ui/select-field";
 import { Turnstile } from "@/components/security/turnstile";
 import { colorModeOptions, fontFamilyOptions, fontScaleOptions, shiftOptions, themeOptions } from "@/lib/appearance-options";
@@ -80,9 +81,11 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
   const [preferencesPending, startPreferences] = useTransition();
   const [passwordPending, startPassword] = useTransition();
   const [deletePending, startDelete] = useTransition();
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [deleteCaptchaToken, setDeleteCaptchaToken] = useState("");
   const [deleteCaptchaNonce, setDeleteCaptchaNonce] = useState(0);
-  const deleteForm = useRef<HTMLFormElement>(null);
 
   function upload(file?: File) {
     if (!file) return;
@@ -423,34 +426,122 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
           title="Sessão"
           text="Encerre o acesso ao ConectaARCA neste dispositivo."
         />
-        <LogoutButton />
-        <CookieSettingsButton className="btn-secondary mt-5" />
+        <div className="mt-5 flex flex-wrap gap-2">
+          <LogoutButton />
+          <CookieSettingsButton className="btn-secondary" />
+        </div>
       </section>
 
-      <form
-        ref={deleteForm}
-        className="card border border-danger/25 p-5 sm:p-6"
-        onSubmit={(event) => {
-          event.preventDefault();
-          const form = new FormData(event.currentTarget);
-          startDelete(async () => {
-            const result = await deleteOwnAccount({ password: String(form.get("deletePassword")), confirmation: String(form.get("confirmation")), captchaToken: deleteCaptchaToken });
-            if (!result.ok) {
-              toast.error(result.error);
+      <section className="card border border-danger/25 p-5 sm:p-6">
+        <SectionHeading
+          icon={Trash2}
+          title="Excluir minha conta"
+          text="Remove permanentemente seu perfil, publicações, comentários e solicitações de suporte."
+        />
+        <p className="mt-5 text-sm leading-6 text-muted">
+          Esta ação não pode ser desfeita. Para continuar, confirme primeiro sua
+          senha atual.
+        </p>
+        <div className="mt-5 max-w-md">
+          <label>
+            <span className="label">Senha atual</span>
+            <input
+              className="field"
+              type="password"
+              value={deletePassword}
+              onChange={(event) => setDeletePassword(event.target.value)}
+              autoComplete="current-password"
+            />
+          </label>
+          <button
+            type="button"
+            className="btn-danger mt-4"
+            disabled={!deletePassword || deletePending}
+            onClick={() => setDeleteOpen(true)}
+          >
+            <Trash2 className="size-4" />
+            Continuar exclusão
+          </button>
+        </div>
+
+        <Dialog
+          open={deleteOpen}
+          onOpenChange={(open) => {
+            setDeleteOpen(open);
+            if (!open) {
+              setDeleteConfirmation("");
               setDeleteCaptchaToken("");
               setDeleteCaptchaNonce((value) => value + 1);
-              return;
             }
-            window.location.assign("/");
-          });
-        }}
-      >
-        <SectionHeading icon={Trash2} title="Excluir minha conta" text="Remove permanentemente seu perfil, publicações, comentários e solicitações de suporte." />
-        <div className="mt-5 rounded-xl bg-danger/5 p-4 text-sm leading-6 text-danger"><b>Esta ação não pode ser desfeita.</b> Se precisar apenas interromper o acesso, saia da conta. Excluir o único ADMIN deixará o sistema sem acesso administrativo até que outro usuário seja promovido diretamente no banco.</div>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2"><label><span className="label">Senha atual</span><input className="field" type="password" name="deletePassword" autoComplete="current-password" required /></label><label><span className="label">Digite EXCLUIR MINHA CONTA</span><input className="field" name="confirmation" required autoComplete="off" /></label></div>
-        <div className="mt-5"><Turnstile key={deleteCaptchaNonce} onToken={setDeleteCaptchaToken} /></div>
-        <ConfirmDialog destructive disabled={deletePending || !deleteCaptchaToken} title="Excluir permanentemente sua conta?" description="Seu perfil, publicações, comentários e solicitações vinculadas serão removidos. Esta ação não pode ser desfeita." confirmLabel="Excluir minha conta" onConfirm={() => deleteForm.current?.requestSubmit()} trigger={<button type="button" className="btn-danger mt-5">{deletePending ? <LoadingSpinner label="Excluindo conta" /> : <Trash2 className="size-4" />}{deletePending ? "Excluindo…" : "Excluir permanentemente"}</button>} />
-      </form>
+          }}
+        >
+          <DialogContent
+            className="max-w-md"
+            title="Confirmar exclusão da conta"
+            description="Última etapa. Confira a frase abaixo antes de excluir seus dados."
+          >
+            <form
+              className="space-y-5 p-5"
+              onSubmit={(event) => {
+                event.preventDefault();
+                startDelete(async () => {
+                  const result = await deleteOwnAccount({
+                    password: deletePassword,
+                    confirmation: deleteConfirmation,
+                    captchaToken: deleteCaptchaToken,
+                  });
+                  if (!result.ok) {
+                    toast.error(result.error);
+                    setDeleteCaptchaToken("");
+                    setDeleteCaptchaNonce((value) => value + 1);
+                    return;
+                  }
+                  window.location.assign("/");
+                });
+              }}
+            >
+              <div className="rounded-xl bg-danger/5 p-4 text-sm leading-6 text-danger">
+                Seu perfil e todo o conteúdo vinculado serão removidos de forma
+                permanente.
+              </div>
+              <label>
+                <span className="label">
+                  Digite <strong>excluir minha conta</strong>
+                </span>
+                <input
+                  className="field"
+                  value={deleteConfirmation}
+                  onChange={(event) => setDeleteConfirmation(event.target.value)}
+                  autoComplete="off"
+                  autoFocus
+                />
+              </label>
+              <Turnstile key={deleteCaptchaNonce} onToken={setDeleteCaptchaToken} />
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <DialogClose asChild>
+                  <button type="button" className="btn-ghost">Cancelar</button>
+                </DialogClose>
+                <button
+                  className="btn-danger"
+                  disabled={
+                    deletePending ||
+                    !deleteCaptchaToken ||
+                    deleteConfirmation.trim().toLocaleLowerCase("pt-BR") !==
+                      "excluir minha conta"
+                  }
+                >
+                  {deletePending ? (
+                    <LoadingSpinner label="Excluindo conta" />
+                  ) : (
+                    <Trash2 className="size-4" />
+                  )}
+                  {deletePending ? "Excluindo…" : "Excluir minha conta"}
+                </button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </section>
     </div>
   );
 }

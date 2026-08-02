@@ -223,7 +223,7 @@ button:active {
 }
 
 .splash { position: fixed; inset: 0; z-index: 100; display: grid; place-content: center; justify-items: center; gap: 28px; background: hsl(var(--canvas)); color: hsl(var(--ink)); }
-.splash-closing { animation: splash-out 220ms ease-out both; }
+.splash-closing { animation: splash-out 280ms cubic-bezier(0.23, 1, 0.32, 1) both; }
 .splash-orbit { position: relative; display: grid; width: 260px; height: 260px; place-items: center; border: 1px solid hsl(var(--brand) / .2); border-radius: 999px; animation: splash-spin 8s linear infinite; }
 .splash-brand { display: grid; justify-items: center; animation: splash-counter-spin 8s linear infinite; }
 .splash-brand strong { font-size: 40px; letter-spacing: .18em; color: hsl(var(--brand)); }

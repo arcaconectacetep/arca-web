@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PostCard } from "@/components/feed/post-card";
+import { PageBack } from "@/components/ui/page-back";
 import {
   CommentsSection,
   type PostComment,
@@ -31,7 +30,7 @@ export default async function Page({
     db
       .from("posts")
       .select(
-        "*,profiles!posts_author_id_fkey(username,full_name,avatar_url,role),post_images(image_url,thumbnail_url,imgchest_image_id,imgchest_post_id,alt_text,position),post_likes(user_id),comments(id)",
+        "*,profiles!posts_author_id_fkey(username,full_name,avatar_url,role,class_name),post_images(image_url,thumbnail_url,imgchest_image_id,imgchest_post_id,alt_text,position),post_likes(user_id),comments(id)",
       )
       .eq("id", id)
       .is("deleted_at", null)
@@ -50,9 +49,8 @@ export default async function Page({
 
   return (
     <div className="mx-auto max-w-[760px]">
-      <Link
-        className="btn-ghost mb-4 -ml-3"
-        href={
+      <PageBack
+        fallback={
           post.section === "FEED"
             ? "/inicio"
             : post.section === "PEDAGOGICAL"
@@ -61,10 +59,7 @@ export default async function Page({
                 ? "/mural"
                 : "/tendencias"
         }
-      >
-        <ArrowLeft className="size-4" />
-        Voltar
-      </Link>
+      />
       <PostCard post={post as unknown as Post} currentUser={user.id} detail />
       <CommentsSection
         postId={id}

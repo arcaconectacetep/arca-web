@@ -16,13 +16,13 @@
 - Descoberta do feed: busca e categoria em uma barra compacta; paginação server-side de 10 itens preserva filtros e informa página atual/total.
 - Segurança de autenticação: Turnstile em superfície inset, antes da ação principal; formulário falha fechado se a Site Key estiver ausente.
 - Sidebar: superfície `paper` opaca sobre o canvas, borda à direita e sombra lateral mínima para preservar profundidade sem fragmentar o app.
-- Retorno: páginas de detalhe, perfil e configuração começam com botão contextual de voltar; usa histórico interno e fallback seguro para a área de origem.
+- Retorno: páginas de detalhe e configuração começam com botão contextual de voltar; usa histórico interno e fallback seguro para a área de origem. O perfil abre direto na identidade, sem retorno órfão acima do conteúdo.
 - Configurações: ordem foto → informações públicas → acessibilidade → segurança → sessão; cada grupo usa card de 20–24px, ícone em superfície `brand-soft` e uma única ação principal.
 - Avatar: sempre renderizado dentro de um contêiner quadrado com recorte circular; nunca depende da proporção intrínseca da imagem remota.
 - Perfil mobile: identidade em pilha (avatar, nome e metadados), ação de edição junto ao avatar e estatísticas em uma única superfície dividida.
 - Retorno mobile: permanece abaixo do cabeçalho durante a rolagem, sobre uma superfície opaca, sem ser recortado pelo header fixo.
 - Rodapé público: uma única composição compartilhada, com identidade, localização, links institucionais e estado de acesso adequado à sessão.
-- Perfil: banner azul sólido; avatar atravessa a divisão em moldura branca de 6px e a ação de edição permanece no conteúdo, fora do banner.
+- Perfil: identidade começa em uma única superfície com filete azul, avatar, nome, metadados e edição no mesmo eixo; sem banner decorativo ou espaço reservado acima.
 - Administração: navegação em superfície própria com estado ativo; métricas gerais em faixa compacta e filas de risco separadas abaixo; valores de banco nunca aparecem sem rótulo humano.
 - Datas: toda data absoluta é exibida em `America/Sao_Paulo`; instantes continuam armazenados como `timestamptz`.
 - Transição de rota: entrada de 220ms por opacidade e deslocamento vertical de 4px; sem movimento quando a preferência reduzida está ativa.
@@ -30,5 +30,5 @@
 - Listagens administrativas: 20 itens por página, total explícito e cartões mobile sem rolagem horizontal; filtros persistem durante a paginação.
 - Mídia: até quatro imagens ordenáveis por arraste e controles de teclado; visualizador em tela cheia com navegação por setas e movimento reduzido respeitado.
 - Aparência: modo claro/escuro/sistema é independente da cor de destaque; fontes disponíveis Inter, Source Sans 3 e Atkinson Hyperlegible.
-- Splash ARCA: órbita institucional ligada ao carregamento real, uma vez por sessão de aba, com saída de 220ms.
+- Splash ARCA: órbita institucional ligada ao carregamento real, uma vez por sessão de aba, com mínimo visível de 1,8s e saída de 280ms.
 - Navegação entre páginas: rota e filtros novos iniciam no topo com scroll nativo suave; âncoras são preservadas e movimento reduzido usa deslocamento imediato.

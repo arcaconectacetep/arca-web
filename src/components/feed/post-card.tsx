@@ -14,14 +14,12 @@ import {
   Images,
   Pencil,
   Pin,
-  Send,
   ShieldCheck,
   Trash2,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
-  createComment,
   deletePost,
   reportPost,
   toggleLike,
@@ -60,7 +58,6 @@ export function PostCard({
   const router = useRouter();
   const [reportOpen, setReportOpen] = useState(false);
   const [mediaOpen, setMediaOpen] = useState(false);
-  const [commentOpen, setCommentOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [removed, setRemoved] = useState(false);
   const [liked, setLiked] = useState(
@@ -154,6 +151,12 @@ export function PostCard({
             <div className="flex flex-wrap gap-x-2 text-xs text-muted">
               <span>@{post.profiles.username}</span>
               <span>·</span>
+              {post.profiles.class_name && (
+                <>
+                  <span>Turma {post.profiles.class_name}</span>
+                  <span>·</span>
+                </>
+              )}
               <Link
                 href={postHref}
                 className="hover:text-brand hover:underline"
@@ -320,58 +323,15 @@ export function PostCard({
           <span className="tabular-nums">{likeCount}</span>
           <span className="sr-only">curtidas</span>
         </button>
-        <button
-          onClick={() => setCommentOpen((open) => !open)}
-          aria-expanded={commentOpen}
+        <Link
+          href={`${postHref}#comentarios`}
           className="btn-ghost"
         >
           <MessageCircle className="size-5" />
           <span className="tabular-nums">{post.comments.length}</span>
           <span className="sr-only">comentários</span>
-        </button>
-        {!detail && (
-          <Link
-            href={`${postHref}#comentarios`}
-            className="btn-ghost ml-auto text-xs"
-          >
-            Ver conversa <ArrowUpRight className="size-4" />
-          </Link>
-        )}
+        </Link>
       </footer>
-
-      {commentOpen && (
-        <form
-          action={async (form) => {
-            const result = await createComment({
-              postId: post.id,
-              content: String(form.get("content")),
-            });
-            if (!result.ok) toast.error(result.error);
-            else {
-              toast.success("Comentário publicado.");
-              setCommentOpen(false);
-              router.refresh();
-            }
-          }}
-          className="flex flex-col gap-2 border-t border-line p-3 sm:flex-row"
-        >
-          <label className="flex-1">
-            <span className="sr-only">Escreva um comentário</span>
-            <input
-              name="content"
-              className="field"
-              maxLength={1000}
-              required
-              autoFocus
-              placeholder="Escreva um comentário…"
-            />
-          </label>
-          <button className="btn-primary">
-            <Send className="size-4" />
-            Enviar
-          </button>
-        </form>
-      )}
       <Dialog open={reportOpen} onOpenChange={setReportOpen}>
         <DialogContent title="Denunciar publicação" description="A equipe analisará a publicação. Use este recurso apenas quando houver violação das regras da comunidade.">
         <form

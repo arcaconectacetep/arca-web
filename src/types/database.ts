@@ -38,7 +38,10 @@ export interface Post {
   pinned: boolean;
   official: boolean;
   created_at: string;
-  profiles: Pick<Profile, "username" | "full_name" | "avatar_url" | "role">;
+  profiles: Pick<
+    Profile,
+    "username" | "full_name" | "avatar_url" | "role" | "class_name"
+  >;
   post_images: {
     image_url: string;
     thumbnail_url: string | null;

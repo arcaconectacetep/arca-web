@@ -120,7 +120,7 @@ export default async function Page({
               <li key={event.id} className="py-3 text-sm">
                 <b>{event.event_type === "CREATED" ? "Solicitação criada" : "Status atualizado"}</b>
                 <span className="ml-2 text-muted">
-                  {event.previous_status ? labelFor(alertStatusLabels, event.previous_status) : "—"} → {event.new_status ? labelFor(alertStatusLabels, event.new_status) : "—"}
+                  {event.previous_status ? labelFor(alertStatusLabels, event.previous_status) : "Não informado"} → {event.new_status ? labelFor(alertStatusLabels, event.new_status) : "Não informado"}
                 </span>
                 <time className="block text-xs text-muted">
                   {formatAppDateTime(event.created_at)}

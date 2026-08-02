@@ -21,9 +21,9 @@ export const fontFamilyOptions = [
 ] as const;
 
 export const fontScaleOptions = [
-  { value: "1", label: "100% — Padrão" },
-  { value: "1.15", label: "115% — Confortável" },
-  { value: "1.3", label: "130% — Ampliada" },
+  { value: "1", label: "100% Padrão" },
+  { value: "1.15", label: "115% Confortável" },
+  { value: "1.3", label: "130% Ampliada" },
 ] as const;
 
 export const shiftOptions = [

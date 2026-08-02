@@ -99,7 +99,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
         </header>
         <main
           id="conteudo"
-          className="page-enter mx-auto min-h-[calc(100vh-4rem)] max-w-7xl px-4 py-6 pb-24 md:px-8 md:py-8 lg:pb-10"
+          className="page-enter mx-auto min-h-[calc(100vh-4rem)] max-w-7xl px-4 py-6 pb-24 md:px-8 lg:pb-10"
         >
           {children}
         </main>

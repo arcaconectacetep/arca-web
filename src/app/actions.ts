@@ -152,7 +152,11 @@ export async function deleteOwnAccount(input: unknown) {
   try {
     const parsed = z.object({
       password: z.string().min(1),
-      confirmation: z.literal("EXCLUIR MINHA CONTA"),
+      confirmation: z
+        .string()
+        .trim()
+        .transform((value) => value.toLocaleLowerCase("pt-BR"))
+        .refine((value) => value === "excluir minha conta"),
       captchaToken: z.string().min(1).max(2048),
     }).safeParse(input);
     if (!parsed.success) return { ok: false, error: "Revise a frase de confirmação e conclua a verificação de segurança." };

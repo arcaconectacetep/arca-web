@@ -16,7 +16,7 @@ const sections: LegalSection[] = [
     content: (
       <p>
         Coletamos dados necessários para criar sua conta e oferecer as funções
-        do protótipo: nome, e-mail, username, curso, turma opcional,
+        da plataforma: nome, e-mail, username, curso, turma opcional,
         preferências de acessibilidade e o conteúdo que você decide publicar.
       </p>
     ),
@@ -81,7 +81,7 @@ const sections: LegalSection[] = [
         Utilizamos recursos essenciais para manter a sessão, aplicar proteção
         contra abuso e registrar sua escolha de consentimento. Preferências de
         aparência podem ser mantidas no navegador quando autorizadas. O
-        protótipo não utiliza cookies de publicidade ou rastreamento comercial.
+        serviço não utiliza cookies de publicidade ou rastreamento comercial.
       </p>
     ),
   },
@@ -98,10 +98,10 @@ const sections: LegalSection[] = [
   },
   {
     id: "prototipo",
-    title: "Limitações do protótipo",
+    title: "Limitações atuais",
     content: (
       <p>
-        O ConectaARCA é um projeto acadêmico funcional e ainda não representa
+        O ConectaARCA é uma tecnologia social digital em desenvolvimento e ainda não representa
         um serviço institucional definitivo. Dados de demonstração não devem
         conter informações pessoais reais ou sensíveis.
       </p>

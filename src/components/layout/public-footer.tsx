@@ -37,9 +37,8 @@ export function PublicFooter({ authenticated = false }: { authenticated?: boolea
         </nav>
       </div>
       <div className="border-t border-line/70">
-        <div className="mx-auto flex max-w-7xl flex-col gap-1 px-5 py-5 text-xs text-muted sm:flex-row sm:justify-between">
+        <div className="mx-auto flex max-w-7xl px-5 py-5 text-xs text-muted">
           <span>© 2026 ConectaARCA</span>
-          <span>Protótipo acadêmico funcional</span>
         </div>
       </div>
     </footer>

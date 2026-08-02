@@ -16,7 +16,7 @@ import { createClient } from "@/lib/supabase/server";
 import { IllustrativeCaption } from "@/components/ui/illustrative-caption";
 
 export const metadata: Metadata = {
-  title: "ARCA — Rede acadêmica e tecnologia social",
+  title: "ARCA | Rede acadêmica e tecnologia social",
   description: "Conheça o ConectaARCA, tecnologia social criada pelo curso técnico em Informática para conectar aprendizagem, comunicação e acolhimento no Piemonte do Paraguaçu.",
   alternates: { canonical: "/" },
 };
@@ -134,7 +134,7 @@ export default async function Landing() {
             </div>
           </div>
         </section>
-        <figure className="mx-auto max-w-7xl px-5 pt-16">
+        <figure className="relative mx-auto max-w-7xl px-5 pt-16">
           <div className="relative aspect-[16/8] overflow-hidden rounded-2xl bg-brand-soft sm:aspect-[16/7]">
             <Image
               src="/images/institutional/arca-laboratorio.webp"
@@ -216,7 +216,7 @@ export default async function Landing() {
         </section>
         <section className="border-b border-line bg-paper">
           <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-14 sm:flex-row sm:items-center sm:justify-between">
-            <div><p className="eyebrow">Pesquisa e inovação pública</p><h2 className="section-title mt-2">Da sala de aula para o território.</h2><p className="mt-2 max-w-2xl text-muted">Pesquisa-ação, desenvolvimento ágil e recursos da própria escola transformados em um protótipo funcional de baixo custo.</p></div>
+            <div><p className="eyebrow">Pesquisa e inovação pública</p><h2 className="section-title mt-2">Da sala de aula para o território.</h2><p className="mt-2 max-w-2xl text-muted">Pesquisa-ação, desenvolvimento ágil e recursos da própria escola transformados em uma solução digital de baixo custo.</p></div>
             <Link className="btn-primary shrink-0" href="/proposta">Ver a proposta <ArrowRight className="size-4" /></Link>
           </div>
         </section>

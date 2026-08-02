@@ -15,7 +15,7 @@ const sections: LegalSection[] = [
     title: "Finalidade da plataforma",
     content: (
       <p>
-        O ConectaARCA é um protótipo acadêmico voltado à comunicação,
+        O ConectaARCA é uma plataforma acadêmica voltada à comunicação,
         aprendizagem e convivência da comunidade escolar. A plataforma
         não substitui canais oficiais da instituição ou serviços de emergência.
       </p>
@@ -79,7 +79,7 @@ const sections: LegalSection[] = [
     title: "Alterações destes termos",
     content: (
       <p>
-        Como este é um protótipo em evolução, estes termos podem ser
+        Como esta é uma plataforma em evolução, estes termos podem ser
         atualizados. A versão e a data mais recentes estarão sempre disponíveis
         nesta página.
       </p>

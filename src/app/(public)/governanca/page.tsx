@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Governança e transparência",
-  description: "Como o protótipo ConectaARCA organiza acesso, moderação, privacidade e responsabilidade institucional.",
+  description: "Como o ConectaARCA organiza acesso, moderação, privacidade e responsabilidade institucional.",
   alternates: { canonical: "/governanca" },
 };
 
@@ -27,7 +27,7 @@ export default async function GovernancePage() {
         <div className="mx-auto max-w-5xl px-5 py-16 sm:py-24">
           <p className="eyebrow">Governança e transparência</p>
           <h1 className="mt-4 max-w-4xl text-4xl font-bold leading-tight sm:text-6xl">Tecnologia pública exige responsabilidades claras.</h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted">Esta página documenta as regras já aplicadas pelo protótipo e distingue o que ainda depende de decisão formal da instituição antes de uso em produção.</p>
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted">Esta página documenta as regras já aplicadas pela plataforma e distingue o que ainda depende de decisão formal da instituição antes do uso oficial.</p>
         </div>
       </header>
       <section className="mx-auto max-w-5xl px-5 py-16">
@@ -38,11 +38,11 @@ export default async function GovernancePage() {
       <section className="border-y border-line bg-paper">
         <div className="mx-auto grid max-w-5xl gap-10 px-5 py-16 lg:grid-cols-[.7fr_1.3fr]">
           <div><FileClock className="size-7 text-brand" /><h2 className="section-title mt-4">Retenção e ciclo de vida</h2></div>
-          <div className="space-y-5 leading-7 text-muted"><p>Contas podem ser excluídas pelo próprio titular. A exclusão remove o perfil e os registros vinculados no banco, conforme as relações definidas no sistema. URLs de imagens já enviadas ao provedor externo podem exigir tratamento operacional separado.</p><p>Solicitações de suporte permanecem disponíveis para acompanhamento e encaminhamento. O protótipo ainda não executa descarte automático por prazo: antes de uma implantação institucional, a unidade deverá aprovar prazos de retenção, responsáveis pelo tratamento, canal de contato e procedimento de exportação ou eliminação.</p></div>
+          <div className="space-y-5 leading-7 text-muted"><p>Contas podem ser excluídas pelo próprio titular. A exclusão remove o perfil e os registros vinculados no banco, conforme as relações definidas no sistema. URLs de imagens já enviadas ao provedor externo podem exigir tratamento operacional separado.</p><p>Solicitações de suporte permanecem disponíveis para acompanhamento e encaminhamento. A plataforma ainda não executa descarte automático por prazo: antes de uma implantação institucional, a unidade deverá aprovar prazos de retenção, responsáveis pelo tratamento, canal de contato e procedimento de exportação ou eliminação.</p></div>
         </div>
       </section>
       <section className="mx-auto max-w-5xl px-5 py-16">
-        <p className="eyebrow">Limite do protótipo</p>
+        <p className="eyebrow">Limites atuais</p>
         <h2 className="section-title mt-3">Não substitui os protocolos oficiais da escola.</h2>
         <p className="mt-4 max-w-3xl leading-7 text-muted">O ConectaARCA apoia comunicação e encaminhamento. Situações de risco imediato devem ser comunicadas a um adulto responsável ou ao serviço de emergência adequado. A gestão da unidade escolar deve definir formalmente encarregado, equipe de atendimento, prazos e fluxo de escalonamento antes do uso com dados reais.</p>
       </section>

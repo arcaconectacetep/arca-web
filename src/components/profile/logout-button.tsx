@@ -6,7 +6,7 @@ import { logout } from "@/app/actions";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
-export function LogoutButton() {
+export function LogoutButton({ className = "" }: { className?: string }) {
   const [pending, start] = useTransition();
   return (
     <ConfirmDialog
@@ -15,7 +15,7 @@ export function LogoutButton() {
       confirmLabel="Sair"
       disabled={pending}
       onConfirm={() => start(async () => logout())}
-      trigger={<button type="button" className="btn-ghost mt-5 text-danger hover:bg-danger/5 hover:text-danger">{pending ? <LoadingSpinner label="Saindo da conta" /> : <LogOut className="size-4" />}Sair da conta</button>}
+      trigger={<button type="button" className={`btn-secondary text-danger hover:bg-danger/10 hover:text-danger ${className}`}>{pending ? <LoadingSpinner label="Saindo da conta" /> : <LogOut className="size-4" />}Sair da conta</button>}
     />
   );
 }

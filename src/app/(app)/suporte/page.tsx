@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, LifeBuoy, ShieldCheck } from "lucide-react";
+import { ArrowRight, LifeBuoy, ShieldCheck, TriangleAlert } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { alertCategoryLabels, alertStatusLabels, labelFor } from "@/lib/labels";
 import { formatAppDate } from "@/lib/date";
@@ -16,42 +16,65 @@ export default async function Page() {
   return (
     <div className="mx-auto max-w-4xl">
       <p className="eyebrow">Canal privado de suporte</p>
-      <h1 className="page-title mt-2">
-        Você não precisa lidar com isso sozinho.
-      </h1>
-      <div className="card mt-7 border-l-4 border-l-warning p-5">
-        <p className="font-semibold">
-          Este canal é destinado ao acolhimento e encaminhamento de situações no
-          ambiente escolar. Em risco imediato, procure um adulto responsável ou
-          acione o serviço de emergência adequado.
-        </p>
-      </div>
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <div className="card p-6">
-          <LifeBuoy className="size-7 text-brand" />
-          <h2 className="mt-5 text-xl font-semibold">Solicitar acolhimento</h2>
-          <p className="mt-2 text-sm leading-6 text-muted">
-            Um fluxo cuidadoso, com revisão antes do envio e protocolo para
-            acompanhar.
-          </p>
-          <Link className="btn-primary mt-6" href="/suporte/novo">
-            Iniciar solicitação <ArrowRight className="size-4" />
+      <h1 className="page-title mt-2">Suporte e acolhimento</h1>
+      <p className="mt-3 max-w-2xl leading-7 text-muted">
+        Relate uma situação escolar e acompanhe o encaminhamento pelo protocolo.
+      </p>
+
+      <section className="card mt-7 overflow-hidden" aria-labelledby="novo-relato">
+        <div className="grid gap-5 p-5 sm:p-6 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center">
+          <span className="grid size-11 place-items-center rounded-xl bg-brand-soft text-brand">
+            <LifeBuoy className="size-5" aria-hidden />
+          </span>
+          <div>
+            <h2 id="novo-relato" className="text-xl font-bold">Nova solicitação</h2>
+            <p className="mt-1 text-sm leading-6 text-muted">
+              Descreva o necessário, revise as informações e receba um protocolo
+              para acompanhar.
+            </p>
+          </div>
+          <Link className="btn-primary md:justify-self-end" href="/suporte/novo">
+            Começar <ArrowRight className="size-4" />
           </Link>
         </div>
-        <div className="card p-6">
-          <ShieldCheck className="size-7 text-success" />
-          <h2 className="mt-5 text-xl font-semibold">Privacidade protegida</h2>
-          <p className="mt-2 text-sm leading-6 text-muted">
-            Somente você e a equipe autorizada visualizam suas solicitações.
-            Elas nunca aparecem no feed.
+        <div className="flex gap-3 border-t border-line bg-canvas/60 px-5 py-4 text-sm leading-6 sm:px-6">
+          <ShieldCheck className="mt-0.5 size-5 shrink-0 text-success" aria-hidden />
+          <p>
+            <strong>Relato restrito.</strong>{" "}
+            <span className="text-muted">
+              Somente você e a equipe autorizada podem visualizar a solicitação.
+              Nada é publicado no feed.
+            </span>
           </p>
         </div>
-      </div>
-      <section className="mt-10">
-        <h2 className="section-title">Meus protocolos</h2>
+      </section>
+
+      <aside className="mt-4 flex gap-3 rounded-xl bg-warning/10 p-4 text-sm leading-6">
+        <TriangleAlert className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden />
+        <p>
+          Em risco imediato, procure um adulto responsável ou acione o serviço
+          de emergência adequado.
+        </p>
+      </aside>
+
+      <section className="mt-9">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="eyebrow">Acompanhamento</p>
+            <h2 className="section-title mt-1">Meus protocolos</h2>
+          </div>
+          {!!data?.length && (
+            <span className="text-sm font-semibold text-muted tabular-nums">
+              {data.length} {data.length === 1 ? "solicitação" : "solicitações"}
+            </span>
+          )}
+        </div>
         {!data?.length ? (
-          <div className="mt-4 rounded-xl border border-dashed border-line p-8 text-center text-muted">
-            Você não possui solicitações.
+          <div className="card mt-4 p-7 text-center">
+            <p className="font-semibold">Nenhuma solicitação aberta</p>
+            <p className="mt-1 text-sm text-muted">
+              Quando você enviar um relato, o protocolo aparecerá aqui.
+            </p>
           </div>
         ) : (
           <div className="mt-4 space-y-3">
