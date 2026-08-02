@@ -30,5 +30,5 @@
 - Listagens administrativas: 20 itens por página, total explícito e cartões mobile sem rolagem horizontal; filtros persistem durante a paginação.
 - Mídia: até quatro imagens ordenáveis por arraste e controles de teclado; visualizador em tela cheia com navegação por setas e movimento reduzido respeitado.
 - Aparência: modo claro/escuro/sistema é independente da cor de destaque; fontes disponíveis Inter, Source Sans 3 e Atkinson Hyperlegible.
-- Splash ARCA: órbita institucional ligada ao carregamento real, uma vez por sessão de aba, com mínimo visível de 1,8s e saída de 280ms.
+- Splash ARCA: órbita institucional ligada ao carregamento real, uma vez por sessão de aba, com mínimo visível de 3s e saída de 280ms.
 - Navegação entre páginas: rota e filtros novos iniciam no topo com scroll nativo suave; âncoras são preservadas e movimento reduzido usa deslocamento imediato.

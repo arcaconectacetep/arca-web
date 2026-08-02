@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { BookOpen, HeartHandshake, Lightbulb, ShieldCheck } from "lucide-react";
 
-const MINIMUM_VISIBLE_MS = 1800;
+const MINIMUM_VISIBLE_MS = 3000;
 const EXIT_ANIMATION_MS = 280;
 
 export function SplashScreen() {
