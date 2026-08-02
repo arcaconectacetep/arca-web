@@ -47,7 +47,10 @@ function CommentItem({
   const own = comment.author_id === currentUser;
 
   return (
-    <article className="flex gap-3 py-5">
+    <article
+      id={`comentario-${comment.id}`}
+      className="scroll-mt-24 flex gap-3 rounded-xl p-4 transition-[background-color,box-shadow] duration-200 hover:bg-canvas/70 target:bg-brand-soft/70 target:shadow-[0_0_0_3px_hsl(var(--brand)/.09)]"
+    >
       <Link href={`/perfil/${comment.profiles.username}`}>
         <Avatar
           url={comment.profiles.avatar_url}
@@ -228,7 +231,7 @@ export function CommentsSection({
         </button>
       </form>
       {comments.length ? (
-        <div className="mt-5 divide-y divide-line">
+        <div className="mt-3 space-y-1">
           {comments.map((comment) => (
             <CommentItem
               key={comment.id}

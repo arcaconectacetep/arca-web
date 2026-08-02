@@ -37,4 +37,5 @@
 - Data e horário: calendário em popover com `react-day-picker` e seletores Radix de hora/minuto; o formulário persiste o valor local no formato `yyyy-MM-dd'T'HH:mm`.
 - Notificações: central de atividade agrupada por recência, com filtros Todas/Não lidas, avatar da pessoa para eventos sociais, ícone semântico sobreposto e linha vertical conectando eventos; itens não lidos usam fundo azul muito leve e ponto de estado, sem depender apenas de cor.
 - Notificações sociais: curtida e comentário carregam `actor_id` e `post_id`, abrem a publicação exata e usam texto humano (“nome + ação”); eventos institucionais usam ícone semântico no lugar de avatar.
+- Destino da atividade: comentários também carregam `comment_id` e abrem `#comentario-{id}` com destaque visual no item; cada notificação social exibe nome em peso 800, ação em peso 500–600, trecho contextual em superfície inset e CTA textual explícito.
 - Overlays: fundo de tinta com 55% e blur de 3px; conteúdo entra em 200ms com fade, zoom curto e deslocamento vertical de 8px, saindo em 150ms; borda silenciosa e raio de 16px.

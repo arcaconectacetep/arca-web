@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { differenceInCalendarDays, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
+  ArrowUpRight,
   Bell,
   CheckCheck,
   ChevronRight,
@@ -31,10 +32,15 @@ export type ActivityNotification = {
   created_at: string;
   actor_id?: string | null;
   post_id?: string | null;
+  comment_id?: string | null;
   actor?: {
     username: string | null;
     full_name: string | null;
     avatar_url: string | null;
+  } | null;
+  post?: {
+    title: string | null;
+    content: string;
   } | null;
 };
 
@@ -57,35 +63,70 @@ function presentation(notification: ActivityNotification) {
   switch (notification.type) {
     case "LIKE":
       return {
-        label: `${actorName} curtiu sua publicação`,
+        actorName,
+        action: "curtiu sua publicação",
+        label: null,
         icon: Heart,
         tone: "bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-300",
       };
     case "COMMENT":
       return {
-        label: `${actorName} comentou na sua publicação`,
+        actorName,
+        action: "comentou na sua publicação",
+        label: null,
         icon: MessageCircle,
         tone: "bg-brand-soft text-brand",
       };
     case "ANNOUNCEMENT":
       return {
+        actorName: null,
+        action: null,
         label: notification.title,
         icon: Megaphone,
         tone: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300",
       };
     case "SUPPORT_UPDATE":
       return {
+        actorName: null,
+        action: null,
         label: notification.title,
         icon: LifeBuoy,
         tone: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300",
       };
     default:
       return {
+        actorName: null,
+        action: null,
         label: notification.title,
         icon: ShieldCheck,
         tone: "bg-brand-soft text-brand",
       };
   }
+}
+
+function destinationFor(notification: ActivityNotification) {
+  if (notification.type === "COMMENT" && notification.post_id) {
+    const anchor = notification.comment_id
+      ? `#comentario-${notification.comment_id}`
+      : "#comentarios";
+    return `/publicacao/${notification.post_id}${anchor}`;
+  }
+  if (notification.type === "LIKE" && notification.post_id) {
+    return `/publicacao/${notification.post_id}`;
+  }
+  return notification.href || "/notificacoes";
+}
+
+function destinationLabel(notification: ActivityNotification) {
+  if (notification.type === "COMMENT") return "Abrir comentário";
+  if (notification.type === "LIKE") return "Abrir publicação";
+  if (notification.type === "SUPPORT_UPDATE") return "Ver solicitação";
+  if (notification.type === "ADMIN") return "Abrir painel";
+  return "Ver detalhes";
+}
+
+function postContext(notification: ActivityNotification) {
+  return notification.post?.title?.trim() || notification.post?.content?.trim();
 }
 
 function NotificationAvatar({ notification }: { notification: ActivityNotification }) {
@@ -161,7 +202,7 @@ export function NotificationCenter({
   ) {
     if (readIds.has(notification.id)) return;
     event.preventDefault();
-    const href = notification.href || "/notificacoes";
+    const href = destinationFor(notification);
     setReadIds((current) => new Set(current).add(notification.id));
     startTransition(async () => {
       const result = await markNotificationAsRead(notification.id);
@@ -270,7 +311,12 @@ export function NotificationCenter({
                       <div className="overflow-hidden rounded-2xl border border-line/70 bg-paper shadow-[0_12px_35px_-30px_hsl(var(--ink)/.45)]">
                         {group.items.map((notification, index) => {
                           const isRead = readIds.has(notification.id);
-                          const { label } = presentation(notification);
+                          const view = presentation(notification);
+                          const context = postContext(notification);
+                          const social = ["LIKE", "COMMENT"].includes(
+                            notification.type,
+                          );
+                          const destination = destinationFor(notification);
                           return (
                             <motion.div
                               layout
@@ -287,17 +333,39 @@ export function NotificationCenter({
                                 />
                               )}
                               <Link
-                                href={notification.href || "/notificacoes"}
+                                href={destination}
                                 onClick={(event) => openUnread(event, notification)}
-                                className={`group relative flex min-h-[92px] gap-4 border-b border-line/60 p-4 pr-10 transition-colors last:border-b-0 hover:bg-brand-soft/30 sm:p-5 sm:pr-12 ${
+                                aria-label={`${view.actorName ? `${view.actorName} ${view.action}` : view.label}. ${destinationLabel(notification)}`}
+                                className={`group relative flex min-h-[104px] gap-4 border-b border-line/60 p-4 transition-colors last:border-b-0 hover:bg-brand-soft/35 sm:p-5 ${
                                   isRead ? "" : "bg-brand-soft/20"
                                 }`}
                               >
                                 <NotificationAvatar notification={notification} />
                                 <span className="min-w-0 flex-1 self-center">
                                   <span className="flex items-start gap-2">
-                                    <span className={`text-sm leading-5 ${isRead ? "font-semibold" : "font-bold"}`}>
-                                      {label}
+                                    <span className="min-w-0 flex-1 text-[15px] leading-5 text-ink/85">
+                                      {view.actorName ? (
+                                        <>
+                                          <strong className="font-extrabold text-ink">
+                                            {view.actorName}
+                                          </strong>{" "}
+                                          <span
+                                            className={
+                                              isRead ? "" : "font-semibold text-ink"
+                                            }
+                                          >
+                                            {view.action}
+                                          </span>
+                                        </>
+                                      ) : (
+                                        <strong
+                                          className={
+                                            isRead ? "font-semibold" : "font-bold"
+                                          }
+                                        >
+                                          {view.label}
+                                        </strong>
+                                      )}
                                     </span>
                                     {!isRead && (
                                       <span
@@ -306,23 +374,49 @@ export function NotificationCenter({
                                       />
                                     )}
                                   </span>
-                                  {notification.body && (
-                                    <span className="mt-0.5 line-clamp-2 block text-sm leading-5 text-muted">
+                                  {social ? (
+                                    <span className="mt-2 block rounded-xl bg-canvas/80 px-3 py-2 text-sm leading-5 text-muted ring-1 ring-line/50 transition-colors group-hover:bg-paper/80">
+                                      {notification.type === "COMMENT" ? (
+                                        <span className="line-clamp-2">
+                                          “{notification.body || "Comentário indisponível."}”
+                                        </span>
+                                      ) : context ? (
+                                        <span className="line-clamp-1">
+                                          Em{" "}
+                                          <strong className="font-semibold text-ink/75">
+                                            {context}
+                                          </strong>
+                                        </span>
+                                      ) : (
+                                        <span>{notification.body}</span>
+                                      )}
+                                    </span>
+                                  ) : notification.body ? (
+                                    <span className="mt-1 line-clamp-2 block text-sm leading-5 text-muted">
                                       {notification.body}
                                     </span>
-                                  )}
-                                  <time
-                                    dateTime={notification.created_at}
-                                    className="mt-1 block text-xs font-medium text-muted"
-                                  >
-                                    {formatDistanceToNow(new Date(notification.created_at), {
-                                      addSuffix: true,
-                                      locale: ptBR,
-                                    })}
-                                  </time>
+                                  ) : null}
+                                  <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                    <time
+                                      dateTime={notification.created_at}
+                                      className="text-xs font-medium text-muted"
+                                    >
+                                      {formatDistanceToNow(
+                                        new Date(notification.created_at),
+                                        {
+                                          addSuffix: true,
+                                          locale: ptBR,
+                                        },
+                                      )}
+                                    </time>
+                                    <span className="inline-flex items-center gap-1 text-xs font-bold text-brand opacity-75 transition-opacity group-hover:opacity-100">
+                                      {destinationLabel(notification)}
+                                      <ArrowUpRight className="size-3.5" aria-hidden />
+                                    </span>
+                                  </span>
                                 </span>
                                 <ChevronRight
-                                  className="absolute right-4 top-1/2 size-4 -translate-y-1/2 text-muted transition-transform group-hover:translate-x-0.5 sm:right-5"
+                                  className="mt-4 hidden size-4 shrink-0 text-muted transition-transform group-hover:translate-x-0.5 sm:block"
                                   aria-hidden
                                 />
                               </Link>
