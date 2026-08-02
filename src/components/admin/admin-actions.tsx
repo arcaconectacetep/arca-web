@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { toast } from "sonner";
-import { deleteUser, hidePost, restorePost, restoreUser, suspendUser, updateSupportAlertStatus, updateUserRole } from "@/app/actions";
+import { deleteUser, hideComment, hidePost, restoreComment, restorePost, restoreUser, suspendUser, updateSupportAlertStatus, updateUserRole } from "@/app/actions";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { SelectField } from "@/components/ui/select-field";
@@ -32,6 +32,11 @@ export function UserToggle({ id, suspended, disabled = false }: { id: string; su
 export function PostToggle({ id, hidden }: { id: string; hidden: boolean }) {
   const [pending, start] = useTransition();
   return <ConfirmDialog disabled={pending} destructive={!hidden} title={hidden ? "Restaurar publicação?" : "Ocultar publicação?"} description={hidden ? "A publicação voltará a aparecer para a comunidade." : "A publicação deixará de aparecer para a comunidade até ser restaurada."} confirmLabel={hidden ? "Restaurar" : "Ocultar"} onConfirm={() => start(async () => notify(hidden ? await restorePost(id) : await hidePost(id), "Publicação atualizada."))} trigger={<button type="button" className="btn-secondary">{hidden ? "Restaurar" : "Ocultar"}</button>} />;
+}
+
+export function CommentToggle({ id, hidden }: { id: string; hidden: boolean }) {
+  const [pending, start] = useTransition();
+  return <ConfirmDialog disabled={pending} destructive={!hidden} title={hidden ? "Restaurar comentário?" : "Ocultar comentário?"} description={hidden ? "O comentário voltará a aparecer na conversa." : "O comentário deixará de aparecer e as denúncias abertas serão marcadas como resolvidas."} confirmLabel={hidden ? "Restaurar" : "Ocultar"} onConfirm={() => start(async () => notify(hidden ? await restoreComment(id) : await hideComment(id), "Comentário atualizado."))} trigger={<button type="button" className={hidden ? "btn-secondary" : "btn-danger"}>{pending && <LoadingSpinner label="Atualizando comentário" />}{hidden ? "Restaurar" : "Ocultar"}</button>} />;
 }
 
 export function AlertStatus({ id, value }: { id: string; value: string }) {

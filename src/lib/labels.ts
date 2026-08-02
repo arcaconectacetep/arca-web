@@ -50,6 +50,16 @@ export const postTypeLabels: Record<string, string> = {
   ENTREPRENEURSHIP: "Empreendedorismo",
 };
 
+export const reportReasonLabels: Record<string, string> = {
+  OFFENSIVE: "Conteúdo ofensivo",
+  DISCRIMINATION: "Preconceito ou discriminação",
+  MISINFORMATION: "Informação enganosa",
+  PRIVACY: "Exposição de dados pessoais",
+  SEXUAL_CONTENT: "Conteúdo sexual",
+  SPAM: "Spam ou link suspeito",
+  OTHER: "Outro motivo",
+};
+
 export const auditActionLabels: Record<string, string> = {
   USER_ROLE_UPDATED: "Papel de usuário alterado",
   USER_SUSPENDED: "Usuário suspenso",
@@ -58,12 +68,15 @@ export const auditActionLabels: Record<string, string> = {
   ACCOUNT_SELF_DELETED: "Conta excluída pelo titular",
   POST_HIDDEN: "Publicação ocultada",
   POST_RESTORED: "Publicação restaurada",
+  COMMENT_HIDDEN: "Comentário ocultado",
+  COMMENT_RESTORED: "Comentário restaurado",
   SUPPORT_STATUS_UPDATED: "Status de suporte atualizado",
 };
 
 export const auditResourceLabels: Record<string, string> = {
   profile: "Usuário",
   post: "Publicação",
+  comment: "Comentário",
   support_alert: "Solicitação de suporte",
 };
 

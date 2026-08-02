@@ -26,6 +26,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { SelectField } from "@/components/ui/select-field";
 import { Tooltip } from "@/components/ui/tooltip";
 import { prepareImageForUpload } from "@/lib/prepare-image";
+import { validateCommunityContent } from "@/lib/content-moderation";
+import { inspectImageForAdultContent } from "@/lib/nsfw-image-moderation";
 
 const typeOptions = Object.entries({
   GENERAL: "Geral",
@@ -64,6 +66,7 @@ export function PostComposer({
   const [pinned, setPinned] = useState(false);
   const [focused, setFocused] = useState(false);
   const [images, setImages] = useState<ComposerImage[]>([]);
+  const [imageScanning, setImageScanning] = useState(false);
   const [dragging, setDragging] = useState<number | null>(null);
   const expanded = focused || Boolean(content || title || images.length);
 
@@ -84,21 +87,39 @@ export function PostComposer({
     });
   }
 
-  function choose(files: FileList | null) {
+  async function choose(files: FileList | null) {
     if (!files) return;
     const next = [...images];
-    for (const file of Array.from(files)) {
-      if (next.length >= 4) break;
-      if (
-        !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
-        file.size > 10 * 1024 * 1024
-      ) {
-        toast.error(`${file.name}: formato ou tamanho inválido.`);
-        continue;
+    setImageScanning(true);
+    try {
+      for (const file of Array.from(files)) {
+        if (next.length >= 4) break;
+        if (
+          !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
+          file.size > 10 * 1024 * 1024
+        ) {
+          toast.error(`${file.name}: formato ou tamanho inválido.`);
+          continue;
+        }
+        try {
+          const inspection = await inspectImageForAdultContent(file);
+          if (inspection.blocked) {
+            toast.error(
+              `${file.name}: a imagem parece conter conteúdo adulto e foi bloqueada.`,
+            );
+            continue;
+          }
+          next.push({ file, preview: URL.createObjectURL(file) });
+        } catch {
+          toast.error(
+            `${file.name}: não foi possível concluir a análise de segurança. Tente novamente.`,
+          );
+        }
       }
-      next.push({ file, preview: URL.createObjectURL(file) });
+      setImages(next);
+    } finally {
+      setImageScanning(false);
     }
-    setImages(next);
   }
 
   async function upload(image: ComposerImage) {
@@ -134,6 +155,14 @@ export function PostComposer({
   }
 
   function submit() {
+    const moderationError = validateCommunityContent(
+      titleEnabled ? title : "",
+      content,
+    );
+    if (moderationError) {
+      toast.error(moderationError);
+      return;
+    }
     start(async () => {
       try {
         const uploaded = await Promise.all(images.map(upload));
@@ -326,10 +355,16 @@ export function PostComposer({
       <div className="flex flex-wrap items-center gap-1 border-t border-line/70 bg-canvas/35 px-3 py-2.5 sm:gap-2 sm:px-4">
         <Tooltip content="Adicionar até 4 imagens">
           <label
-            className={`btn-ghost cursor-pointer px-3 ${images.length >= 4 ? "pointer-events-none opacity-40" : ""}`}
+            className={`btn-ghost cursor-pointer border border-line/70 bg-paper px-3 shadow-quiet hover:bg-brand-soft ${images.length >= 4 || imageScanning ? "pointer-events-none opacity-50" : ""}`}
           >
-            <ImagePlus className="size-5" aria-hidden />
-            <span className="hidden sm:inline">Imagem</span>
+            {imageScanning ? (
+              <LoadingSpinner label="Analisando imagem" className="size-5" />
+            ) : (
+              <ImagePlus className="size-5" aria-hidden />
+            )}
+            <span className="hidden sm:inline">
+              {imageScanning ? "Analisando…" : "Imagem"}
+            </span>
             {images.length > 0 && (
               <span className="tabular-nums">{images.length}/4</span>
             )}
@@ -338,9 +373,9 @@ export function PostComposer({
               type="file"
               accept="image/jpeg,image/png,image/webp"
               multiple
-              disabled={images.length >= 4 || pending}
+              disabled={images.length >= 4 || pending || imageScanning}
               onChange={(event) => {
-                choose(event.target.files);
+                void choose(event.target.files);
                 event.currentTarget.value = "";
               }}
             />
@@ -351,7 +386,7 @@ export function PostComposer({
           <Tooltip content="Adicionar um título">
             <button
               type="button"
-              className="btn-ghost px-3"
+              className="btn-ghost border border-line/70 bg-paper px-3 shadow-quiet hover:bg-brand-soft"
               onClick={() => setTitleEnabled(true)}
               aria-label="Adicionar título"
             >
@@ -363,7 +398,7 @@ export function PostComposer({
 
         <SelectField
           aria-label="Categoria da publicação"
-          className="w-[9.5rem] border-0 bg-transparent shadow-none sm:w-[11rem]"
+          className="w-[9.5rem] bg-paper shadow-quiet sm:w-[11rem]"
           value={type}
           onValueChange={setType}
           options={typeOptions}
@@ -372,7 +407,7 @@ export function PostComposer({
         {role !== "STUDENT" && (
           <Popover>
             <PopoverTrigger asChild>
-              <button type="button" className="btn-ghost px-3">
+              <button type="button" className="btn-ghost border border-line/70 bg-paper px-3 shadow-quiet hover:bg-brand-soft">
                 <SlidersHorizontal className="size-4" aria-hidden />
                 <span className="hidden sm:inline">Opções</span>
                 {(official || pinned) && (
@@ -413,8 +448,8 @@ export function PostComposer({
         )}
 
         <button
-          disabled={pending || !content.trim()}
-          className="btn-primary ml-auto px-4"
+          disabled={pending || imageScanning || !content.trim()}
+          className="btn-primary mt-1 w-full px-4 sm:ml-auto sm:mt-0 sm:w-auto"
         >
           {pending ? (
             <LoadingSpinner label="Otimizando e publicando" />

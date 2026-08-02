@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { replacePostImages } from "@/app/actions";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { prepareImageForUpload } from "@/lib/prepare-image";
+import { inspectImageForAdultContent } from "@/lib/nsfw-image-moderation";
 import type { Post } from "@/types/database";
 import { Dialog, DialogContent } from "@/components/ui/radix-dialog";
 
@@ -28,6 +29,7 @@ export function PostMediaEditor({
   const [items, setItems] = useState<StoredMedia[]>([]);
   const [dragging, setDragging] = useState<number | null>(null);
   const [pending, startTransition] = useTransition();
+  const [imageScanning, setImageScanning] = useState(false);
 
   useEffect(() => {
     setItems(
@@ -55,6 +57,7 @@ export function PostMediaEditor({
     if (selected.length < files.length)
       toast.info("Cada publicação pode ter até quatro imagens.");
 
+    setImageScanning(true);
     for (const file of selected) {
       if (
         !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
@@ -64,6 +67,11 @@ export function PostMediaEditor({
         continue;
       }
       try {
+        const inspection = await inspectImageForAdultContent(file);
+        if (inspection.blocked) {
+          toast.error(`${file.name}: a imagem parece conter conteúdo adulto e foi bloqueada.`);
+          continue;
+        }
         const form = new FormData();
         form.set("file", await prepareImageForUpload(file));
         form.set("kind", "post");
@@ -92,6 +100,7 @@ export function PostMediaEditor({
         toast.error(error instanceof Error ? error.message : "Falha no upload.");
       }
     }
+    setImageScanning(false);
   }
 
   function save() {
@@ -155,12 +164,12 @@ export function PostMediaEditor({
           </ol>
         )}
         <div className="flex flex-col gap-3 border-t border-line pt-4 sm:flex-row sm:items-center">
-          <label className={`btn-ghost cursor-pointer ${items.length >= 4 || pending ? "pointer-events-none opacity-50" : ""}`}>
-            <ImagePlus className="size-4" />Adicionar imagens
-            <input className="sr-only" type="file" multiple accept="image/jpeg,image/png,image/webp" disabled={items.length >= 4 || pending} onChange={(event) => void addFiles(event.target.files)} />
+          <label className={`btn-ghost cursor-pointer border border-line/70 bg-paper shadow-quiet ${items.length >= 4 || pending || imageScanning ? "pointer-events-none opacity-50" : ""}`}>
+            {imageScanning ? <LoadingSpinner label="Analisando imagem" /> : <ImagePlus className="size-4" />}{imageScanning ? "Analisando…" : "Adicionar imagens"}
+            <input className="sr-only" type="file" multiple accept="image/jpeg,image/png,image/webp" disabled={items.length >= 4 || pending || imageScanning} onChange={(event) => void addFiles(event.target.files)} />
           </label>
           <p className="text-xs text-muted">Até 4 imagens, 10 MB cada.</p>
-          <button type="button" className="btn-primary sm:ml-auto" disabled={pending} onClick={save}>{pending ? <LoadingSpinner label="Salvando imagens" /> : <Save className="size-4" />}{pending ? "Salvando…" : "Salvar imagens"}</button>
+          <button type="button" className="btn-primary sm:ml-auto" disabled={pending || imageScanning} onClick={save}>{pending ? <LoadingSpinner label="Salvando imagens" /> : <Save className="size-4" />}{pending ? "Salvando…" : "Salvar imagens"}</button>
         </div>
       </div>
       </DialogContent>

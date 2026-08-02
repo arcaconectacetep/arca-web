@@ -76,7 +76,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-1 lg:hidden">
             <MobileMenu username={p?.username} role={p?.role} />
             <BrandLogo href="/inicio" compact />
-            <span className="text-sm font-bold tracking-tight">
+            <span className="hidden text-sm font-bold tracking-tight min-[400px]:inline">
               ConectaARCA
             </span>
           </div>
@@ -84,12 +84,21 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
             ARCA · Itaberaba, Bahia
           </span>
           <div className="flex items-center gap-1">
+            <Tooltip content="Ver meu perfil">
+              <Link
+                href={`/perfil/${p?.username ?? "me"}`}
+                aria-label="Ver meu perfil"
+                className="grid size-11 place-items-center rounded-xl border border-line/70 bg-canvas transition-[background-color,box-shadow] hover:bg-brand-soft hover:shadow-quiet lg:hidden"
+              >
+                <Avatar url={p?.avatar_url} name={p?.full_name} size={30} />
+              </Link>
+            </Tooltip>
             <NotificationBell count={count ?? 0} />
             <Tooltip content="Configurações">
               <Link
                 href="/configuracoes"
                 aria-label="Configurações"
-                className="grid size-11 place-items-center rounded-xl transition-colors hover:bg-paper"
+                className="grid size-11 place-items-center rounded-xl border border-line/70 bg-canvas transition-[background-color,box-shadow] hover:bg-brand-soft hover:shadow-quiet"
               >
                 <Settings className="size-5" />
               </Link>

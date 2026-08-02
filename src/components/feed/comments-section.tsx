@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
@@ -9,18 +9,21 @@ import {
   MessageCircle,
   MoreHorizontal,
   Pencil,
+  Flag,
   Send,
   Trash2,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { createComment, deleteComment, updateComment } from "@/app/actions";
+import { createComment, deleteComment, reportComment, updateComment } from "@/app/actions";
 import { Avatar } from "@/components/ui/avatar";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
 import { TwemojiText } from "@/components/ui/twemoji-text";
+import { Dialog, DialogContent } from "@/components/ui/radix-dialog";
+import { SelectField } from "@/components/ui/select-field";
 
 export type PostComment = {
   id: string;
@@ -44,15 +47,18 @@ function CommentItem({
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const [removed, setRemoved] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [reportPending, startReport] = useTransition();
   if (removed) return null;
   const own = comment.author_id === currentUser;
 
   return (
     <article
       id={`comentario-${comment.short_id}`}
-      className="scroll-mt-24 flex gap-3 rounded-xl p-4 transition-[background-color,box-shadow] duration-200 hover:bg-canvas/70 target:bg-brand-soft/70 target:shadow-[0_0_0_3px_hsl(var(--brand)/.09)]"
+      tabIndex={-1}
+      className="scroll-mt-24 flex gap-3 rounded-xl p-4 outline-none transition-[background-color,box-shadow] duration-200 hover:bg-canvas/70 data-[highlighted=true]:bg-brand-soft/70 data-[highlighted=true]:shadow-[0_0_0_3px_hsl(var(--brand)/.12)]"
     >
       <Link href={`/perfil/${comment.profiles.username}`}>
         <Avatar
@@ -82,8 +88,7 @@ function CommentItem({
               })}
             </time>
           </div>
-          {own && (
-            <DropdownMenu>
+          <DropdownMenu>
               <DropdownMenuTrigger asChild>
               <button
                 className="grid size-9 cursor-pointer list-none place-items-center rounded-lg text-muted hover:bg-canvas"
@@ -96,14 +101,14 @@ function CommentItem({
                 )}
               </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem
-                  onClick={() => setEditing(true)}
-                >
-                  <Pencil className="size-4" />
-                  Editar
-                </DropdownMenuItem>
-                <ConfirmDialog destructive title="Excluir comentário?" description="O comentário deixará de aparecer na conversa. Esta ação não pode ser desfeita." confirmLabel="Excluir" onConfirm={() => {
+              <DropdownMenuContent align="end" className="w-48">
+                {own ? (
+                  <>
+                    <DropdownMenuItem onClick={() => setEditing(true)}>
+                      <Pencil className="size-4" />
+                      Editar
+                    </DropdownMenuItem>
+                    <ConfirmDialog destructive title="Excluir comentário?" description="O comentário deixará de aparecer na conversa. Esta ação não pode ser desfeita." confirmLabel="Excluir" onConfirm={() => {
                     startTransition(async () => {
                       const result = await deleteComment(comment.id);
                       if (!result.ok) {
@@ -115,12 +120,21 @@ function CommentItem({
                       router.refresh();
                     });
                   }} trigger={<DropdownMenuItem className="text-danger data-[highlighted]:bg-danger/5" onSelect={(event) => event.preventDefault()}>
-                  <Trash2 className="size-4" />
-                  Excluir
-                </DropdownMenuItem>} />
+                      <Trash2 className="size-4" />
+                      Excluir
+                    </DropdownMenuItem>} />
+                  </>
+                ) : (
+                  <DropdownMenuItem
+                    className="text-danger data-[highlighted]:bg-danger/5"
+                    onClick={() => setReportOpen(true)}
+                  >
+                    <Flag className="size-4" />
+                    Denunciar comentário
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
         </div>
         {editing ? (
           <form
@@ -171,6 +185,70 @@ function CommentItem({
           />
         )}
       </div>
+      <Dialog open={reportOpen} onOpenChange={setReportOpen}>
+        <DialogContent
+          title="Denunciar comentário"
+          description="A equipe analisará o comentário e o contexto da conversa."
+        >
+          <form
+            className="space-y-4 p-5"
+            action={(form) =>
+              startReport(async () => {
+                const result = await reportComment(
+                  comment.id,
+                  String(form.get("reason")),
+                  String(form.get("details")),
+                );
+                if (!result.ok) {
+                  toast.error(result.error);
+                  return;
+                }
+                setReportOpen(false);
+                toast.success("Denúncia enviada para análise.");
+              })
+            }
+          >
+            <label>
+              <span className="label">Motivo</span>
+              <SelectField
+                name="reason"
+                required
+                defaultValue=""
+                placeholder="Selecione um motivo"
+                options={[
+                  { value: "", label: "Selecione um motivo" },
+                  { value: "OFFENSIVE", label: "Conteúdo ofensivo" },
+                  { value: "DISCRIMINATION", label: "Preconceito ou discriminação" },
+                  { value: "MISINFORMATION", label: "Informação enganosa" },
+                  { value: "PRIVACY", label: "Exposição de dados pessoais" },
+                  { value: "SEXUAL_CONTENT", label: "Conteúdo sexual" },
+                  { value: "SPAM", label: "Spam ou link suspeito" },
+                  { value: "OTHER", label: "Outro motivo" },
+                ]}
+              />
+            </label>
+            <label>
+              <span className="label">Detalhes <span className="font-normal text-muted">(opcional)</span></span>
+              <AutoResizeTextarea
+                className="field leading-6"
+                name="details"
+                maxLength={1000}
+                minRows={2}
+                placeholder="Ajude a equipe a entender o problema."
+              />
+            </label>
+            <div className="flex justify-end gap-2">
+              <button type="button" className="btn-ghost" onClick={() => setReportOpen(false)}>
+                Cancelar
+              </button>
+              <button className="btn-primary" disabled={reportPending}>
+                {reportPending && <LoadingSpinner label="Enviando denúncia" />}
+                Enviar denúncia
+              </button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </article>
   );
 }
@@ -186,6 +264,40 @@ export function CommentsSection({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    let highlightTimer: number | undefined;
+    let frame = 0;
+
+    const revealComment = () => {
+      const id = decodeURIComponent(window.location.hash.slice(1));
+      if (!id.startsWith("comentario-")) return;
+      const target = document.getElementById(id);
+      if (!target) return;
+      const reduced =
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        Boolean(document.querySelector('[data-motion="true"]'));
+      frame = window.requestAnimationFrame(() => {
+        target.scrollIntoView({
+          behavior: reduced ? "auto" : "smooth",
+          block: "center",
+        });
+        target.dataset.highlighted = "true";
+        target.focus({ preventScroll: true });
+        highlightTimer = window.setTimeout(() => {
+          delete target.dataset.highlighted;
+        }, 3200);
+      });
+    };
+
+    revealComment();
+    window.addEventListener("hashchange", revealComment);
+    return () => {
+      window.removeEventListener("hashchange", revealComment);
+      window.cancelAnimationFrame(frame);
+      if (highlightTimer !== undefined) window.clearTimeout(highlightTimer);
+    };
+  }, [comments]);
 
   return (
     <section id="comentarios" className="card mt-5 scroll-mt-24 p-5 sm:p-6">

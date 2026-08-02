@@ -45,3 +45,9 @@
 - Emoji: conteúdo gerado por pessoas usa Twemoji 17 para consistência entre plataformas; imagens ficam em `1.15em`, alinhadas à linha de base, e o texto é escapado antes do parse.
 - Perfil: identidade, papel, curso/turma/turno, biografia e métricas formam uma superfície única; as cinco publicações recentes aparecem abaixo no mesmo componente usado pelo feed.
 - Overlays: fundo de tinta com 55% e blur de 3px; conteúdo entra em 200ms com fade, zoom curto e deslocamento vertical de 8px, saindo em 150ms; borda silenciosa e raio de 16px.
+- Compositor mobile: ferramentas secundárias mantêm superfície `paper`, borda e sombra curta para comunicar clique; a ação Publicar fecha o rodapé em uma linha própria de largura total abaixo de 640px.
+- Header mobile: avatar de 30px é atalho direto para o próprio perfil, com alvo de 44px; menu lateral continua disponível para navegação completa.
+- Compartilhamento: ação no rodapé da publicação abre popover Radix com cópia de link e destinos explícitos; nunca depende do menu nativo de compartilhamento.
+- Comentário por âncora: `#comentario-{short_id}` centraliza, recebe foco programático e destaque azul por 3,2s; o efeito respeita movimento reduzido e também reage a `hashchange`.
+- Moderação comunitária: denúncia de comentário usa o mesmo diálogo e taxonomia de publicações; texto e domínios adultos são bloqueados na ação e por trigger PostgreSQL, enquanto imagens são pré-analisadas localmente e sob demanda pelo NSFWJS antes do upload.
+- Fila de comentários: denúncias abertas aparecem antes da listagem geral em Administração → Publicações, com motivo humano, relato, contexto exato e ação destrutiva auditada.

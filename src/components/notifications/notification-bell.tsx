@@ -19,7 +19,7 @@ export function NotificationBell({ count }: { count: number }) {
         aria-label={label}
         whileHover={{ y: -1 }}
         whileTap={{ scale: 0.94 }}
-        className="relative grid size-11 place-items-center rounded-xl transition-colors hover:bg-paper"
+        className="relative grid size-11 place-items-center rounded-xl border border-line/70 bg-canvas transition-[background-color,box-shadow] hover:bg-brand-soft hover:shadow-quiet"
       >
         <Bell className="size-5" />
         {count > 0 && (

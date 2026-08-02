@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
@@ -12,6 +12,9 @@ import {
   MessageCircle,
   MoreHorizontal,
   Images,
+  Copy,
+  ExternalLink,
+  Share2,
   Pencil,
   Pin,
   ShieldCheck,
@@ -37,6 +40,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { SelectField } from "@/components/ui/select-field";
 import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
 import { TwemojiText } from "@/components/ui/twemoji-text";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const labels: Record<string, string> = {
   GENERAL: "Geral",
@@ -71,6 +75,11 @@ export function PostCard({
   const [actionPending, startAction] = useTransition();
   const ownPost = post.author_id === currentUser;
   const postHref = `/publicacao/${post.short_id}`;
+  const [shareUrl, setShareUrl] = useState(postHref);
+
+  useEffect(() => {
+    setShareUrl(new URL(postHref, window.location.origin).toString());
+  }, [postHref]);
 
   if (removed) return null;
 
@@ -129,6 +138,17 @@ export function PostCard({
       toast.success("Publicação atualizada.");
       router.refresh();
     });
+  }
+
+  async function copyPostLink() {
+    try {
+      await navigator.clipboard.writeText(
+        new URL(postHref, window.location.origin).toString(),
+      );
+      toast.success("Link da publicação copiado.");
+    } catch {
+      toast.error("Não foi possível copiar o link.");
+    }
   }
 
   return (
@@ -340,6 +360,39 @@ export function PostCard({
           <span className="tabular-nums">{post.comments.length}</span>
           <span className="sr-only">comentários</span>
         </Link>
+        <Popover>
+          <PopoverTrigger asChild>
+            <button type="button" className="btn-ghost sm:ml-auto">
+              <Share2 className="size-5" />
+              <span className="hidden sm:inline">Compartilhar</span>
+              <span className="sr-only sm:hidden">Compartilhar publicação</span>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-64 p-2">
+            <p className="px-3 pb-2 pt-1 text-xs font-bold uppercase tracking-[0.12em] text-muted">
+              Compartilhar publicação
+            </p>
+            <button
+              type="button"
+              onClick={copyPostLink}
+              className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold hover:bg-canvas"
+            >
+              <Copy className="size-4 text-brand" />
+              Copiar link
+            </button>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(
+                `${post.title || "Publicação no ConectaARCA"} ${shareUrl}`,
+              )}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold hover:bg-canvas"
+            >
+              <ExternalLink className="size-4 text-brand" />
+              Enviar pelo WhatsApp
+            </a>
+          </PopoverContent>
+        </Popover>
       </footer>
       <Dialog open={reportOpen} onOpenChange={setReportOpen}>
         <DialogContent title="Denunciar publicação" description="A equipe analisará a publicação. Use este recurso apenas quando houver violação das regras da comunidade.">
@@ -363,7 +416,7 @@ export function PostCard({
         >
           <label>
             <span className="label">Motivo</span>
-            <SelectField name="reason" required defaultValue="" placeholder="Selecione um motivo" options={[{ value: "", label: "Selecione um motivo" }, { value: "OFFENSIVE", label: "Conteúdo ofensivo" }, { value: "DISCRIMINATION", label: "Preconceito ou discriminação" }, { value: "MISINFORMATION", label: "Informação enganosa" }, { value: "PRIVACY", label: "Exposição de dados pessoais" }, { value: "OTHER", label: "Outro motivo" }]} />
+            <SelectField name="reason" required defaultValue="" placeholder="Selecione um motivo" options={[{ value: "", label: "Selecione um motivo" }, { value: "OFFENSIVE", label: "Conteúdo ofensivo" }, { value: "DISCRIMINATION", label: "Preconceito ou discriminação" }, { value: "MISINFORMATION", label: "Informação enganosa" }, { value: "PRIVACY", label: "Exposição de dados pessoais" }, { value: "SEXUAL_CONTENT", label: "Conteúdo sexual" }, { value: "SPAM", label: "Spam ou link suspeito" }, { value: "OTHER", label: "Outro motivo" }]} />
           </label>
           <label>
             <span className="label">

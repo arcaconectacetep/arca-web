@@ -18,6 +18,7 @@ import {
 } from "@/lib/validations";
 import type { ActionResult, Role } from "@/types/database";
 import { deleteImageFromImgChest, deletePostFromImgChest, getImgChestImageIdFromUrl } from "@/services/imgchest";
+import { validateCommunityContent } from "@/lib/content-moderation";
 async function context() {
   const db = await createClient();
   const {
@@ -352,6 +353,8 @@ export async function createPost(input: unknown) {
   try {
     const { db, user, role } = await context();
     const data = postSchema.parse(input);
+    const moderationError = validateCommunityContent(data.title, data.content);
+    if (moderationError) return { ok: false, error: moderationError };
     if (
       (data.official || data.pinned || data.type === "ANNOUNCEMENT") &&
       role === "STUDENT"
@@ -407,6 +410,8 @@ export async function updatePost(id: string, input: unknown) {
   try {
     const { db, user, role } = await context();
     const data = postSchema.omit({ images: true }).parse(input);
+    const moderationError = validateCommunityContent(data.title, data.content);
+    if (moderationError) return { ok: false, error: moderationError };
     const { data: post } = await db
       .from("posts")
       .select("author_id")
@@ -537,6 +542,8 @@ export async function createComment(input: unknown) {
   try {
     const { db, user } = await context();
     const d = commentSchema.parse(input);
+    const moderationError = validateCommunityContent(d.content);
+    if (moderationError) return { ok: false, error: moderationError };
     const { error } = await db
       .from("comments")
       .insert({ post_id: d.postId, author_id: user.id, content: d.content });
@@ -551,6 +558,8 @@ export async function updateComment(id: string, content: string) {
   try {
     const { db, user } = await context();
     const value = commentSchema.shape.content.parse(content);
+    const moderationError = validateCommunityContent(value);
+    if (moderationError) return { ok: false, error: moderationError };
     const { error } = await db
       .from("comments")
       .update({ content: value })
@@ -599,6 +608,48 @@ export async function reportPost(
       : { ok: true };
   } catch (e) {
     return { ok: false, error: safe(e) };
+  }
+}
+
+const reportReasons = [
+  "OFFENSIVE",
+  "DISCRIMINATION",
+  "MISINFORMATION",
+  "PRIVACY",
+  "SEXUAL_CONTENT",
+  "SPAM",
+  "OTHER",
+] as const;
+
+export async function reportComment(
+  commentId: string,
+  reason: string,
+  details: string,
+) {
+  try {
+    const { db, user } = await context();
+    const parsed = z
+      .object({
+        commentId: z.string().uuid(),
+        reason: z.enum(reportReasons),
+        details: z.string().trim().max(1000),
+      })
+      .safeParse({ commentId, reason, details });
+    if (!parsed.success) return { ok: false, error: "Revise os dados da denúncia." };
+    const { error } = await db.from("comment_reports").insert({
+      comment_id: parsed.data.commentId,
+      reporter_id: user.id,
+      reason: parsed.data.reason,
+      details: parsed.data.details || null,
+    });
+    return error
+      ? {
+          ok: false,
+          error: "Este comentário já foi denunciado ou não está disponível.",
+        }
+      : { ok: true };
+  } catch (error) {
+    return { ok: false, error: safe(error) };
   }
 }
 export async function createSupportAlert(input: unknown) {
@@ -912,6 +963,70 @@ export async function restorePost(id: string) {
     return { ok: true };
   } catch (e) {
     return { ok: false, error: safe(e) };
+  }
+}
+export async function hideComment(id: string) {
+  try {
+    const { db, user } = await adminAction(["STAFF", "ADMIN"]);
+    const parsedId = z.string().uuid().parse(id);
+    const { data: changed, error: changeError } = await db
+      .from("comments")
+      .update({ hidden_at: new Date().toISOString() })
+      .eq("id", parsedId)
+      .select("id")
+      .maybeSingle();
+    if (changeError || !changed)
+      return { ok: false, error: "Comentário não encontrado." };
+    await db
+      .from("comment_reports")
+      .update({
+        status: "ACTION_TAKEN",
+        reviewed_by: user.id,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq("comment_id", parsedId)
+      .in("status", ["OPEN", "REVIEWING"]);
+    const { error: auditError } = await db.from("audit_logs").insert({
+      actor_id: user.id,
+      action: "COMMENT_HIDDEN",
+      resource_type: "comment",
+      resource_id: parsedId,
+    });
+    if (auditError)
+      return { ok: false, error: "Comentário ocultado, mas a auditoria falhou." };
+    revalidatePath("/admin/publicacoes");
+    revalidatePostViews();
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: safe(error) };
+  }
+}
+
+export async function restoreComment(id: string) {
+  try {
+    const { db, user } = await adminAction(["STAFF", "ADMIN"]);
+    const parsedId = z.string().uuid().parse(id);
+    const { data: changed, error: changeError } = await db
+      .from("comments")
+      .update({ hidden_at: null })
+      .eq("id", parsedId)
+      .select("id")
+      .maybeSingle();
+    if (changeError || !changed)
+      return { ok: false, error: "Comentário não encontrado." };
+    const { error: auditError } = await db.from("audit_logs").insert({
+      actor_id: user.id,
+      action: "COMMENT_RESTORED",
+      resource_type: "comment",
+      resource_id: parsedId,
+    });
+    if (auditError)
+      return { ok: false, error: "Comentário restaurado, mas a auditoria falhou." };
+    revalidatePath("/admin/publicacoes");
+    revalidatePostViews();
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: safe(error) };
   }
 }
 export async function markNotificationAsRead(id?: string) {
