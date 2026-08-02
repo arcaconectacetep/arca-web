@@ -10,6 +10,8 @@ import { z } from "zod";
 import { SelectField } from "@/components/ui/select-field";
 import { CheckboxField } from "@/components/ui/checkbox-field";
 import { colorModeOptions, fontFamilyOptions, fontScaleOptions, shiftOptions, themeOptions } from "@/lib/appearance-options";
+import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 type Values = z.infer<typeof profileSchema>;
 export function OnboardingForm({
   courses,
@@ -100,7 +102,7 @@ export function OnboardingForm({
       </label>
       <label className="md:col-span-2">
         <span className="label">Biografia (opcional)</span>
-        <textarea className="field min-h-24 resize-y" {...register("bio")} />
+        <AutoResizeTextarea className="field leading-6" minRows={2} {...register("bio")} />
       </label>
       <fieldset className="rounded-xl bg-canvas p-4 md:col-span-2">
         <legend className="label px-1">Aparência</legend>
@@ -152,6 +154,7 @@ export function OnboardingForm({
         <small className="text-danger">{errors.termsAccepted?.message}</small>
       </label>
       <button disabled={pending} className="btn-primary md:col-span-2">
+        {pending && <LoadingSpinner label="Preparando perfil" />}
         {pending ? "Salvando…" : "Concluir e entrar"}
       </button>
     </form>

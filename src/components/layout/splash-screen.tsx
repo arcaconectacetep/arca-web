@@ -10,7 +10,11 @@ export function SplashScreen() {
   const [visible, setVisible] = useState(true);
   const [closing, setClosing] = useState(false);
   useEffect(() => {
-    if (sessionStorage.getItem("arca-splash-seen")) {
+    let alreadySeen = false;
+    try {
+      alreadySeen = sessionStorage.getItem("arca-splash-seen") === "1";
+    } catch {}
+    if (alreadySeen) {
       setVisible(false);
       return;
     }
@@ -23,12 +27,14 @@ export function SplashScreen() {
         MINIMUM_VISIBLE_MS - (performance.now() - started),
       );
       finishTimeout = window.setTimeout(() => {
-        sessionStorage.setItem("arca-splash-seen", "1");
+        try {
+          sessionStorage.setItem("arca-splash-seen", "1");
+        } catch {}
         setClosing(true);
-        exitTimeout = window.setTimeout(
-          () => setVisible(false),
-          EXIT_ANIMATION_MS,
-        );
+        exitTimeout = window.setTimeout(() => {
+          setVisible(false);
+          document.documentElement.dataset.splashSeen = "true";
+        }, EXIT_ANIMATION_MS);
       }, remaining);
     };
     if (document.readyState === "complete") finish();

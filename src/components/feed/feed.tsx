@@ -60,7 +60,7 @@ export async function Feed({
 
   const { data: profile } = await db
     .from("profiles")
-    .select("role")
+    .select("role,full_name,avatar_url,class_name")
     .eq("id", user.id)
     .single();
   const validType = categories.some((category) => category.value === type)
@@ -106,7 +106,15 @@ export async function Feed({
   return (
     <div>
       {composer && (
-        <PostComposer section={section} role={profile?.role ?? "STUDENT"} />
+        <PostComposer
+          section={section}
+          role={profile?.role ?? "STUDENT"}
+          author={{
+            full_name: profile?.full_name ?? null,
+            avatar_url: profile?.avatar_url ?? null,
+            class_name: profile?.class_name ?? null,
+          }}
+        />
       )}
 
       <form

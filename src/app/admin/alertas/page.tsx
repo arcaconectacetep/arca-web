@@ -48,7 +48,7 @@ export default async function Page({
           >
             <div className="flex-1">
               <Link
-                href={`/admin/alertas/${a.id}`}
+                href={`/admin/alertas/${encodeURIComponent(a.protocol)}`}
                 className="font-mono font-bold text-brand"
               >
                 {a.protocol}

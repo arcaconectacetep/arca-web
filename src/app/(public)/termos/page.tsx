@@ -85,6 +85,25 @@ const sections: LegalSection[] = [
       </p>
     ),
   },
+  {
+    id: "licencas",
+    title: "Tecnologias e licenças",
+    content: (
+      <p>
+        A apresentação consistente de emojis utiliza o projeto{" "}
+        <a
+          href="https://github.com/jdecked/twemoji"
+          target="_blank"
+          rel="noreferrer"
+          className="font-semibold text-brand underline"
+        >
+          Twemoji
+        </a>
+        , distribuído sob licença MIT para o código e CC BY 4.0 para os
+        elementos gráficos.
+      </p>
+    ),
+  },
 ];
 
 export default function Page() {
@@ -93,7 +112,7 @@ export default function Page() {
       eyebrow="Regras da comunidade"
       title="Termos de Uso"
       description="Um acordo simples para manter o ConectaARCA seguro, respeitoso e útil para toda a comunidade escolar."
-      updatedAt="26 de julho de 2026"
+      updatedAt="2 de agosto de 2026"
       sections={sections}
       icon={Scale}
     />

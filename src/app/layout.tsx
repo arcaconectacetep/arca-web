@@ -67,6 +67,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <script
+          id="splash-session-state"
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(sessionStorage.getItem('arca-splash-seen'))document.documentElement.dataset.splashSeen='true'}catch(e){}",
+          }}
+        />
+      </head>
       <body className={`${inter.variable} ${sourceSans.variable} ${atkinson.variable}`}>
         <MotionProvider>
           <SplashScreen />

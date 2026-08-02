@@ -33,6 +33,7 @@ import { Dialog, DialogClose, DialogContent } from "@/components/ui/radix-dialog
 import { SelectField } from "@/components/ui/select-field";
 import { Turnstile } from "@/components/security/turnstile";
 import { colorModeOptions, fontFamilyOptions, fontScaleOptions, shiftOptions, themeOptions } from "@/lib/appearance-options";
+import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
 
 type SettingsProfile = {
   id: string;
@@ -267,10 +268,11 @@ export function SettingsForm({ profile }: { profile: SettingsProfile }) {
             </label>
             <label className="sm:col-span-2">
               <span className="label">Biografia</span>
-              <textarea
-                className="field min-h-28 resize-y"
+              <AutoResizeTextarea
+                className="field leading-6"
                 name="bio"
                 maxLength={500}
+                minRows={2}
                 defaultValue={profile.bio ?? ""}
                 placeholder="Conte um pouco sobre seus interesses e projetos."
               />

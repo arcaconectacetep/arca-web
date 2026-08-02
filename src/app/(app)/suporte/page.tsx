@@ -81,7 +81,7 @@ export default async function Page() {
             {data.map((a) => (
               <Link
                 key={a.id}
-                href={`/suporte/${a.id}`}
+                href={`/suporte/${encodeURIComponent(a.protocol)}`}
                 className="card flex min-h-20 items-center justify-between gap-4 p-4 hover:ring-2 hover:ring-brand/20"
               >
                 <span>

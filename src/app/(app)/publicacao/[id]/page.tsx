@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export default async function Page({
   params,
 }: {
@@ -26,26 +29,26 @@ export default async function Page({
   } = await db.auth.getUser();
   if (!user) redirect(`/login?next=/publicacao/${id}`);
 
-  const [{ data: post }, { data: comments }] = await Promise.all([
-    db
-      .from("posts")
-      .select(
-        "*,profiles!posts_author_id_fkey(username,full_name,avatar_url,role,class_name),post_images(image_url,thumbnail_url,imgchest_image_id,imgchest_post_id,alt_text,position),post_likes(user_id),comments(id)",
-      )
-      .eq("id", id)
-      .is("deleted_at", null)
-      .is("hidden_at", null)
-      .single(),
-    db
-      .from("comments")
-      .select(
-        "id,content,author_id,created_at,profiles!comments_author_id_fkey(username,full_name,avatar_url)",
-      )
-      .eq("post_id", id)
-      .is("hidden_at", null)
-      .order("created_at", { ascending: true }),
-  ]);
+  let postQuery = db
+    .from("posts")
+    .select(
+      "*,profiles!posts_author_id_fkey(username,full_name,avatar_url,role,class_name),post_images(image_url,thumbnail_url,imgchest_image_id,imgchest_post_id,alt_text,position),post_likes(user_id),comments(id)",
+    )
+    .is("deleted_at", null)
+    .is("hidden_at", null);
+  postQuery = UUID_PATTERN.test(id)
+    ? postQuery.eq("id", id)
+    : postQuery.eq("short_id", id);
+  const { data: post } = await postQuery.maybeSingle();
   if (!post) notFound();
+  const { data: comments } = await db
+    .from("comments")
+    .select(
+      "id,short_id,content,author_id,created_at,profiles!comments_author_id_fkey(username,full_name,avatar_url)",
+    )
+    .eq("post_id", post.id)
+    .is("hidden_at", null)
+    .order("created_at", { ascending: true });
 
   return (
     <div className="mx-auto max-w-[760px]">
@@ -62,7 +65,7 @@ export default async function Page({
       />
       <PostCard post={post as unknown as Post} currentUser={user.id} detail />
       <CommentsSection
-        postId={id}
+        postId={post.id}
         comments={(comments ?? []) as unknown as PostComment[]}
         currentUser={user.id}
       />

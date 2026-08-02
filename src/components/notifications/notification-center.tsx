@@ -21,6 +21,7 @@ import { Tabs } from "radix-ui";
 import { toast } from "sonner";
 import { markNotificationAsRead } from "@/app/actions";
 import { Avatar } from "@/components/ui/avatar";
+import { TwemojiText } from "@/components/ui/twemoji-text";
 
 export type ActivityNotification = {
   id: string;
@@ -39,8 +40,12 @@ export type ActivityNotification = {
     avatar_url: string | null;
   } | null;
   post?: {
+    short_id: string;
     title: string | null;
     content: string;
+  } | null;
+  comment?: {
+    short_id: string;
   } | null;
 };
 
@@ -105,14 +110,16 @@ function presentation(notification: ActivityNotification) {
 }
 
 function destinationFor(notification: ActivityNotification) {
-  if (notification.type === "COMMENT" && notification.post_id) {
-    const anchor = notification.comment_id
-      ? `#comentario-${notification.comment_id}`
+  const postId = notification.post?.short_id || notification.post_id;
+  if (notification.type === "COMMENT" && postId) {
+    const commentId = notification.comment?.short_id || notification.comment_id;
+    const anchor = commentId
+      ? `#comentario-${commentId}`
       : "#comentarios";
-    return `/publicacao/${notification.post_id}${anchor}`;
+    return `/publicacao/${postId}${anchor}`;
   }
-  if (notification.type === "LIKE" && notification.post_id) {
-    return `/publicacao/${notification.post_id}`;
+  if (notification.type === "LIKE" && postId) {
+    return `/publicacao/${postId}`;
   }
   return notification.href || "/notificacoes";
 }
@@ -347,7 +354,7 @@ export function NotificationCenter({
                                       {view.actorName ? (
                                         <>
                                           <strong className="font-extrabold text-ink">
-                                            {view.actorName}
+                                            <TwemojiText text={view.actorName} />
                                           </strong>{" "}
                                           <span
                                             className={
@@ -363,7 +370,7 @@ export function NotificationCenter({
                                             isRead ? "font-semibold" : "font-bold"
                                           }
                                         >
-                                          {view.label}
+                                          <TwemojiText text={view.label || "Notificação"} />
                                         </strong>
                                       )}
                                     </span>
@@ -378,22 +385,27 @@ export function NotificationCenter({
                                     <span className="mt-2 block rounded-xl bg-canvas/80 px-3 py-2 text-sm leading-5 text-muted ring-1 ring-line/50 transition-colors group-hover:bg-paper/80">
                                       {notification.type === "COMMENT" ? (
                                         <span className="line-clamp-2">
-                                          “{notification.body || "Comentário indisponível."}”
+                                          “<TwemojiText
+                                            text={
+                                              notification.body ||
+                                              "Comentário indisponível."
+                                            }
+                                          />”
                                         </span>
                                       ) : context ? (
                                         <span className="line-clamp-1">
                                           Em{" "}
                                           <strong className="font-semibold text-ink/75">
-                                            {context}
+                                            <TwemojiText text={context} />
                                           </strong>
                                         </span>
                                       ) : (
-                                        <span>{notification.body}</span>
+                                        <TwemojiText text={notification.body} />
                                       )}
                                     </span>
                                   ) : notification.body ? (
                                     <span className="mt-1 line-clamp-2 block text-sm leading-5 text-muted">
-                                      {notification.body}
+                                      <TwemojiText text={notification.body} />
                                     </span>
                                   ) : null}
                                   <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">

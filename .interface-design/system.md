@@ -32,10 +32,16 @@
 - Mídia: até quatro imagens ordenáveis por arraste e controles de teclado; visualizador em tela cheia com navegação por setas e movimento reduzido respeitado.
 - Aparência: modo claro/escuro/sistema é independente da cor de destaque; fontes disponíveis Inter, Source Sans 3 e Atkinson Hyperlegible.
 - Splash ARCA: órbita institucional ligada ao carregamento real, uma vez por sessão de aba, com mínimo visível de 3s e saída de 280ms.
+- Splash sem flash: script inline no `<head>` lê o estado da sessão antes do primeiro paint e aplica `data-splash-seen`; a splash renderizada no servidor fica oculta por CSS quando já foi vista, sem aguardar hidratação.
 - Navegação entre páginas: rota e filtros novos iniciam no topo com scroll nativo suave; âncoras são preservadas e movimento reduzido usa deslocamento imediato.
 - Primitivos interativos: manter Radix como fundação e expor wrappers locais no padrão shadcn; popover, tooltip, dialog, alert dialog, menu, select, radio e checkbox nunca usam a apresentação nativa do navegador.
 - Data e horário: calendário em popover com `react-day-picker` e seletores Radix de hora/minuto; o formulário persiste o valor local no formato `yyyy-MM-dd'T'HH:mm`.
 - Notificações: central de atividade agrupada por recência, com filtros Todas/Não lidas, avatar da pessoa para eventos sociais, ícone semântico sobreposto e linha vertical conectando eventos; itens não lidos usam fundo azul muito leve e ponto de estado, sem depender apenas de cor.
 - Notificações sociais: curtida e comentário carregam `actor_id` e `post_id`, abrem a publicação exata e usam texto humano (“nome + ação”); eventos institucionais usam ícone semântico no lugar de avatar.
 - Destino da atividade: comentários também carregam `comment_id` e abrem `#comentario-{id}` com destaque visual no item; cada notificação social exibe nome em peso 800, ação em peso 500–600, trecho contextual em superfície inset e CTA textual explícito.
+- IDs públicos: publicações e comentários usam `short_id` hexadecimal único de 10 caracteres em URLs e âncoras; UUID permanece interno e rotas antigas continuam compatíveis. Suporte usa o protocolo `ARCA-…` como identificador público.
+- Compositor: identidade e alcance no cabeçalho, textarea expansível como foco, título opcional sob demanda, até quatro imagens ordenáveis, categoria persistente e opções institucionais dentro de popover; rodapé de ferramentas usa apenas ícones com função inequívoca e ação principal isolada à direita.
+- Textarea expansível: começa em 1–4 linhas conforme o contexto, cresce pelo `scrollHeight`, não oferece resize manual e ativa rolagem interna apenas após 160–360px; aplicado a posts, comentários, biografia, suporte, edição e moderação.
+- Emoji: conteúdo gerado por pessoas usa Twemoji 17 para consistência entre plataformas; imagens ficam em `1.15em`, alinhadas à linha de base, e o texto é escapado antes do parse.
+- Perfil: identidade, papel, curso/turma/turno, biografia e métricas formam uma superfície única; as cinco publicações recentes aparecem abaixo no mesmo componente usado pelo feed.
 - Overlays: fundo de tinta com 55% e blur de 3px; conteúdo entra em 200ms com fade, zoom curto e deslocamento vertical de 8px, saindo em 150ms; borda silenciosa e raio de 16px.

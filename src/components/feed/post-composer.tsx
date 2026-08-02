@@ -1,31 +1,89 @@
 "use client";
-import { useRef, useState, useTransition } from "react";
+
 import Image from "next/image";
-import { ArrowLeft, ArrowRight, GripVertical, ImagePlus, Send, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useRef, useState, useTransition } from "react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Globe2,
+  GripVertical,
+  Heading2,
+  ImagePlus,
+  Send,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import { createPost } from "@/app/actions";
 import type { Role, Section } from "@/types/database";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { prepareImageForUpload } from "@/lib/prepare-image";
-import { SelectField } from "@/components/ui/select-field";
+import { Avatar } from "@/components/ui/avatar";
+import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
 import { CheckboxField } from "@/components/ui/checkbox-field";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { SelectField } from "@/components/ui/select-field";
+import { Tooltip } from "@/components/ui/tooltip";
+import { prepareImageForUpload } from "@/lib/prepare-image";
+
+const typeOptions = Object.entries({
+  GENERAL: "Geral",
+  PEDAGOGICAL: "Pedagógico",
+  ANNOUNCEMENT: "Comunicado",
+  HEALTH: "Saúde",
+  SAFETY: "Segurança",
+  OPPORTUNITY: "Oportunidade",
+  CULTURE: "Cultura",
+  ENTREPRENEURSHIP: "Empreendedorismo",
+}).map(([value, label]) => ({ value, label }));
+
+type ComposerImage = { file: File; preview: string };
+
 export function PostComposer({
   section = "FEED",
   role,
+  author,
 }: {
   section?: Section;
   role: Role;
+  author: {
+    full_name: string | null;
+    avatar_url: string | null;
+    class_name: string | null;
+  };
 }) {
+  const router = useRouter();
   const form = useRef<HTMLFormElement>(null);
   const [pending, start] = useTransition();
-  const [images, setImages] = useState<Array<{ file: File; preview: string }>>(
-    [],
-  );
+  const [content, setContent] = useState("");
+  const [title, setTitle] = useState("");
+  const [titleEnabled, setTitleEnabled] = useState(false);
+  const [type, setType] = useState("GENERAL");
+  const [official, setOfficial] = useState(false);
+  const [pinned, setPinned] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [images, setImages] = useState<ComposerImage[]>([]);
   const [dragging, setDragging] = useState<number | null>(null);
+  const expanded = focused || Boolean(content || title || images.length);
+
   function move(from: number, to: number) {
     if (to < 0 || to >= images.length || from === to) return;
-    setImages((current) => { const next = [...current]; const [item] = next.splice(from, 1); next.splice(to, 0, item); return next; });
+    setImages((current) => {
+      const next = [...current];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return next;
+    });
   }
+
+  function removeImage(index: number) {
+    setImages((current) => {
+      URL.revokeObjectURL(current[index].preview);
+      return current.filter((_, itemIndex) => itemIndex !== index);
+    });
+  }
+
   function choose(files: FileList | null) {
     if (!files) return;
     const next = [...images];
@@ -42,135 +100,328 @@ export function PostComposer({
     }
     setImages(next);
   }
-  async function upload(x: { file: File }) {
-    const fd = new FormData();
-    fd.set("file", await prepareImageForUpload(x.file));
-    fd.set("kind", "post");
-    const r = await fetch("/api/upload", { method: "POST", body: fd });
-    const j = (await r.json().catch(() => null)) as {
+
+  async function upload(image: ComposerImage) {
+    const data = new FormData();
+    data.set("file", await prepareImageForUpload(image.file));
+    data.set("kind", "post");
+    const response = await fetch("/api/upload", { method: "POST", body: data });
+    const result = (await response.json().catch(() => null)) as {
       error?: string;
       imageUrl?: string;
     } | null;
-    if (!r.ok || !j?.imageUrl)
+    if (!response.ok || !result?.imageUrl)
       throw new Error(
-        j?.error ??
-          (r.status === 413
+        result?.error ??
+          (response.status === 413
             ? "A imagem excedeu o limite do servidor."
             : "Não foi possível enviar a imagem."),
       );
-    return { ...j, altText: "Imagem da publicação" };
+    return { ...result, altText: "Imagem da publicação" };
   }
-  function submit(data: FormData) {
+
+  function resetComposer() {
+    images.forEach((image) => URL.revokeObjectURL(image.preview));
+    form.current?.reset();
+    setContent("");
+    setTitle("");
+    setTitleEnabled(false);
+    setType("GENERAL");
+    setOfficial(false);
+    setPinned(false);
+    setImages([]);
+    setFocused(false);
+  }
+
+  function submit() {
     start(async () => {
       try {
         const uploaded = await Promise.all(images.map(upload));
         const result = await createPost({
-          title: String(data.get("title") || ""),
-          content: String(data.get("content")),
-          type: String(data.get("type")),
+          title: titleEnabled ? title : "",
+          content,
+          type,
           section,
-          official: data.get("official") === "on",
-          pinned: data.get("pinned") === "on",
+          official,
+          pinned,
           images: uploaded,
         });
         if (!result.ok) {
           toast.error(result.error);
           return;
         }
-        toast.success("Publicação criada.");
-        form.current?.reset();
-        setImages([]);
-      } catch (e) {
-        toast.error(e instanceof Error ? e.message : "Falha ao publicar.");
+        resetComposer();
+        toast.success("Publicação criada e disponível na comunidade.");
+        router.refresh();
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Falha ao publicar.",
+        );
       }
     });
   }
+
   return (
-    <form ref={form} action={submit} className="card mb-6 p-5">
-      <label>
-        <span className="sr-only">Título opcional</span>
-        <input
-          name="title"
-          maxLength={120}
-          className="mb-2 w-full bg-transparent text-lg font-semibold outline-none placeholder:font-normal placeholder:text-muted"
-          placeholder="Dê um título (opcional)"
+    <form
+      ref={form}
+      action={submit}
+      className="card mb-6 overflow-hidden"
+      onFocus={() => setFocused(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
+      }}
+    >
+      <div className="flex gap-3 p-4 sm:p-5">
+        <Avatar
+          url={author.avatar_url}
+          name={author.full_name}
+          size={44}
         />
-      </label>
-      <label>
-        <span className="sr-only">Conteúdo</span>
-        <textarea
-          name="content"
-          required
-          maxLength={5000}
-          minLength={1}
-          className="min-h-24 w-full resize-y bg-transparent leading-6 outline-none placeholder:text-muted"
-          placeholder="O que você quer compartilhar com a comunidade?"
-        />
-      </label>
-      {images.length > 0 && (
-        <div className="my-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {images.map((x, i) => (
-            <div
-              key={x.preview}
-              draggable
-              onDragStart={() => setDragging(i)}
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={() => { if (dragging !== null) move(dragging, i); setDragging(null); }}
-              onDragEnd={() => setDragging(null)}
-              className={`relative aspect-square overflow-hidden rounded-xl ring-2 transition-[opacity,box-shadow] ${dragging === i ? "opacity-50 ring-brand" : "ring-transparent"}`}
-            >
-              <Image
-                src={x.preview}
-                fill
-                alt="Prévia da imagem"
-                className="object-cover"
-                unoptimized
-              />
-              <button
-                type="button"
-                aria-label="Remover imagem"
-                onClick={() => setImages((v) => v.filter((_, n) => n !== i))}
-                className="absolute right-1 top-1 grid size-9 place-items-center rounded-full bg-ink text-white"
-              >
-                <X className="size-4" />
-              </button>
-              <span className="absolute left-1 top-1 grid size-9 cursor-grab place-items-center rounded-full bg-ink/80 text-white" aria-hidden><GripVertical className="size-4" /></span>
-              <div className="absolute bottom-1 left-1 flex gap-1"><button type="button" className="grid size-9 place-items-center rounded-full bg-ink/80 text-white disabled:opacity-40" disabled={i === 0} onClick={() => move(i, i - 1)} aria-label={`Mover imagem ${i + 1} para a esquerda`}><ArrowLeft className="size-4" /></button><button type="button" className="grid size-9 place-items-center rounded-full bg-ink/80 text-white disabled:opacity-40" disabled={i === images.length - 1} onClick={() => move(i, i + 1)} aria-label={`Mover imagem ${i + 1} para a direita`}><ArrowRight className="size-4" /></button></div>
-              <span className="sr-only">Imagem {i + 1} de {images.length}</span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-sm font-bold">
+                {author.full_name || "Criar publicação"}
+              </p>
+              <p className="mt-0.5 inline-flex items-center gap-1.5 text-xs text-muted">
+                <Globe2 className="size-3.5" aria-hidden />
+                Comunidade escolar
+                {author.class_name ? ` · Turma ${author.class_name}` : ""}
+              </p>
             </div>
-          ))}
+            {expanded && (
+              <span className="text-xs tabular-nums text-muted">
+                {content.length}/5000
+              </span>
+            )}
+          </div>
+
+          <AnimatePresence initial={false}>
+            {titleEnabled && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="mt-4 flex items-center gap-2"
+              >
+                <input
+                  name="title"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  maxLength={120}
+                  className="min-h-10 min-w-0 flex-1 bg-transparent text-lg font-bold outline-none placeholder:font-medium placeholder:text-muted/70"
+                  placeholder="Título da publicação"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  className="grid size-10 place-items-center rounded-xl text-muted hover:bg-canvas hover:text-ink"
+                  onClick={() => {
+                    setTitle("");
+                    setTitleEnabled(false);
+                  }}
+                  aria-label="Remover título"
+                >
+                  <X className="size-4" />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <label className="mt-3 block">
+            <span className="sr-only">Conteúdo da publicação</span>
+            <AutoResizeTextarea
+              name="content"
+              required
+              maxLength={5000}
+              maxHeight={320}
+              minRows={expanded ? 2 : 1}
+              value={content}
+              onChange={(event) => setContent(event.target.value)}
+              className="w-full bg-transparent py-2 text-[15px] leading-6 outline-none placeholder:text-muted/75 sm:text-base"
+              placeholder="Compartilhe uma ideia, aviso ou projeto…"
+            />
+          </label>
         </div>
-      )}
-      <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line pt-4">
-        <label className="btn-ghost cursor-pointer">
-          <ImagePlus className="size-5" />
-          Imagem
-          <input
-            className="sr-only"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            multiple
-            onChange={(e) => choose(e.target.files)}
-          />
-        </label>
-        <SelectField name="type" aria-label="Categoria" className="w-auto" defaultValue="GENERAL" options={Object.entries({ GENERAL: "Geral", PEDAGOGICAL: "Pedagógico", ANNOUNCEMENT: "Comunicado", HEALTH: "Saúde", SAFETY: "Segurança", OPPORTUNITY: "Oportunidade", CULTURE: "Cultura", ENTREPRENEURSHIP: "Empreendedorismo" }).map(([value, label]) => ({ value, label }))} />
-        {role !== "STUDENT" && (
-          <label className="flex min-h-11 items-center gap-2 px-2 text-sm">
-            <CheckboxField name="official" value="on" /> Oficial
-          </label>
+      </div>
+
+      <AnimatePresence initial={false}>
+        {images.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            className="grid grid-cols-2 gap-2 px-4 pb-4 sm:grid-cols-4 sm:px-5 sm:pb-5"
+          >
+            {images.map((image, index) => (
+              <div
+                key={image.preview}
+                draggable
+                onDragStart={() => setDragging(index)}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={() => {
+                  if (dragging !== null) move(dragging, index);
+                  setDragging(null);
+                }}
+                onDragEnd={() => setDragging(null)}
+                className={`group relative aspect-square overflow-hidden rounded-xl bg-canvas ring-2 transition-[opacity,box-shadow] ${
+                  dragging === index
+                    ? "opacity-50 ring-brand"
+                    : "ring-transparent"
+                }`}
+              >
+                <Image
+                  src={image.preview}
+                  fill
+                  alt={`Prévia da imagem ${index + 1}`}
+                  className="object-cover"
+                  unoptimized
+                />
+                <span className="absolute left-2 top-2 grid size-7 place-items-center rounded-full bg-ink/80 text-xs font-bold text-white backdrop-blur">
+                  {index + 1}
+                </span>
+                <button
+                  type="button"
+                  aria-label={`Remover imagem ${index + 1}`}
+                  onClick={() => removeImage(index)}
+                  className="absolute right-2 top-2 grid size-9 place-items-center rounded-full bg-ink/85 text-white backdrop-blur hover:bg-danger"
+                >
+                  <X className="size-4" />
+                </button>
+                <span
+                  className="absolute bottom-2 left-2 grid size-9 cursor-grab place-items-center rounded-full bg-ink/75 text-white backdrop-blur"
+                  aria-hidden
+                >
+                  <GripVertical className="size-4" />
+                </span>
+                <div className="absolute bottom-2 right-2 flex gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+                  <button
+                    type="button"
+                    className="grid size-9 place-items-center rounded-full bg-ink/80 text-white disabled:opacity-35"
+                    disabled={index === 0}
+                    onClick={() => move(index, index - 1)}
+                    aria-label={`Mover imagem ${index + 1} para a esquerda`}
+                  >
+                    <ArrowLeft className="size-4" />
+                  </button>
+                  <button
+                    type="button"
+                    className="grid size-9 place-items-center rounded-full bg-ink/80 text-white disabled:opacity-35"
+                    disabled={index === images.length - 1}
+                    onClick={() => move(index, index + 1)}
+                    aria-label={`Mover imagem ${index + 1} para a direita`}
+                  >
+                    <ArrowRight className="size-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </motion.div>
         )}
-        {role !== "STUDENT" && (
-          <label className="flex min-h-11 items-center gap-2 px-2 text-sm">
-            <CheckboxField name="pinned" value="on" /> Fixar
+      </AnimatePresence>
+
+      {official && <input type="hidden" name="official" value="on" />}
+      {pinned && <input type="hidden" name="pinned" value="on" />}
+
+      <div className="flex flex-wrap items-center gap-1 border-t border-line/70 bg-canvas/35 px-3 py-2.5 sm:gap-2 sm:px-4">
+        <Tooltip content="Adicionar até 4 imagens">
+          <label
+            className={`btn-ghost cursor-pointer px-3 ${images.length >= 4 ? "pointer-events-none opacity-40" : ""}`}
+          >
+            <ImagePlus className="size-5" aria-hidden />
+            <span className="hidden sm:inline">Imagem</span>
+            {images.length > 0 && (
+              <span className="tabular-nums">{images.length}/4</span>
+            )}
+            <input
+              className="sr-only"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              disabled={images.length >= 4 || pending}
+              onChange={(event) => {
+                choose(event.target.files);
+                event.currentTarget.value = "";
+              }}
+            />
           </label>
+        </Tooltip>
+
+        {!titleEnabled && (
+          <Tooltip content="Adicionar um título">
+            <button
+              type="button"
+              className="btn-ghost px-3"
+              onClick={() => setTitleEnabled(true)}
+              aria-label="Adicionar título"
+            >
+              <Heading2 className="size-5" aria-hidden />
+              <span className="hidden sm:inline">Título</span>
+            </button>
+          </Tooltip>
         )}
-        <button disabled={pending} className="btn-primary ml-auto">
+
+        <SelectField
+          aria-label="Categoria da publicação"
+          className="w-[9.5rem] border-0 bg-transparent shadow-none sm:w-[11rem]"
+          value={type}
+          onValueChange={setType}
+          options={typeOptions}
+        />
+
+        {role !== "STUDENT" && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <button type="button" className="btn-ghost px-3">
+                <SlidersHorizontal className="size-4" aria-hidden />
+                <span className="hidden sm:inline">Opções</span>
+                {(official || pinned) && (
+                  <span className="size-2 rounded-full bg-brand" aria-hidden />
+                )}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-72 p-3">
+              <p className="px-1 pb-2 text-xs font-bold uppercase tracking-[0.12em] text-muted">
+                Destaque institucional
+              </p>
+              <label className="flex cursor-pointer gap-3 rounded-xl p-3 hover:bg-canvas">
+                <CheckboxField
+                  checked={official}
+                  onCheckedChange={(checked) => setOfficial(checked === true)}
+                />
+                <span>
+                  <strong className="block text-sm">Publicação oficial</strong>
+                  <small className="mt-0.5 block leading-5 text-muted">
+                    Identifica o conteúdo como comunicado da instituição.
+                  </small>
+                </span>
+              </label>
+              <label className="flex cursor-pointer gap-3 rounded-xl p-3 hover:bg-canvas">
+                <CheckboxField
+                  checked={pinned}
+                  onCheckedChange={(checked) => setPinned(checked === true)}
+                />
+                <span>
+                  <strong className="block text-sm">Fixar no topo</strong>
+                  <small className="mt-0.5 block leading-5 text-muted">
+                    Mantém a publicação antes das demais nesta seção.
+                  </small>
+                </span>
+              </label>
+            </PopoverContent>
+          </Popover>
+        )}
+
+        <button
+          disabled={pending || !content.trim()}
+          className="btn-primary ml-auto px-4"
+        >
           {pending ? (
-            <LoadingSpinner label="Enviando publicação" />
+            <LoadingSpinner label="Otimizando e publicando" />
           ) : (
-            <Send className="size-4" />
+            <Send className="size-4" aria-hidden />
           )}
-          {pending ? "Publicando…" : "Publicar"}
+          <span>{pending ? "Publicando…" : "Publicar"}</span>
         </button>
       </div>
     </form>

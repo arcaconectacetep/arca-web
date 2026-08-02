@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageBack } from "@/components/ui/page-back";
 import { alertCategoryLabels, alertStatusLabels, alertUrgencyLabels, labelFor } from "@/lib/labels";
 import { formatAppDateTime } from "@/lib/date";
+import { TwemojiText } from "@/components/ui/twemoji-text";
 export default async function Page({
   params,
 }: {
@@ -11,13 +12,15 @@ export default async function Page({
 }) {
   const { id } = await params;
   const db = await createClient();
-  const { data: a } = await db
+  let query = db
     .from("support_alerts")
     .select(
       "id,protocol,category,urgency,description,location,happened_at,allow_contact,status,created_at,support_alert_events(event_type,new_status,created_at,metadata)",
-    )
-    .eq("id", id)
-    .single();
+    );
+  query = id.toUpperCase().startsWith("ARCA-")
+    ? query.eq("protocol", id.toUpperCase())
+    : query.eq("id", id);
+  const { data: a } = await query.maybeSingle();
   if (!a) notFound();
   return (
     <div className="mx-auto max-w-3xl">
@@ -59,6 +62,13 @@ export default async function Page({
           </div>
         </dl>
       </div>
+      <section className="card mt-5 p-6">
+        <h2 className="text-lg font-bold">Seu relato</h2>
+        <TwemojiText
+          text={a.description}
+          className="mt-3 block whitespace-pre-wrap leading-7 text-ink/90"
+        />
+      </section>
       <section className="mt-8">
         <h2 className="section-title">Histórico</h2>
         <ol className="relative mt-5 border-l-2 border-brand-soft pl-6">

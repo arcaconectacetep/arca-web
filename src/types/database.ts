@@ -29,6 +29,7 @@ export interface Profile {
 }
 export interface Post {
   id: string;
+  short_id: string;
   author_id: string;
   title: string | null;
   content: string;

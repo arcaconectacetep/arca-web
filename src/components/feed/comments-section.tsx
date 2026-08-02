@@ -19,9 +19,12 @@ import { Avatar } from "@/components/ui/avatar";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
+import { TwemojiText } from "@/components/ui/twemoji-text";
 
 export type PostComment = {
   id: string;
+  short_id: string;
   content: string;
   author_id: string;
   created_at: string;
@@ -48,7 +51,7 @@ function CommentItem({
 
   return (
     <article
-      id={`comentario-${comment.id}`}
+      id={`comentario-${comment.short_id}`}
       className="scroll-mt-24 flex gap-3 rounded-xl p-4 transition-[background-color,box-shadow] duration-200 hover:bg-canvas/70 target:bg-brand-soft/70 target:shadow-[0_0_0_3px_hsl(var(--brand)/.09)]"
     >
       <Link href={`/perfil/${comment.profiles.username}`}>
@@ -65,7 +68,9 @@ function CommentItem({
               href={`/perfil/${comment.profiles.username}`}
               className="text-sm font-bold hover:text-brand"
             >
-              {comment.profiles.full_name}
+              <TwemojiText
+                text={comment.profiles.full_name || `@${comment.profiles.username}`}
+              />
             </Link>
             <time
               className="ml-2 text-xs text-muted"
@@ -136,10 +141,11 @@ function CommentItem({
               })
             }
           >
-            <textarea
-              className="field min-h-24 resize-y"
+            <AutoResizeTextarea
+              className="field leading-6"
               name="content"
               maxLength={1000}
+              minRows={2}
               required
               defaultValue={comment.content}
               autoFocus
@@ -159,9 +165,10 @@ function CommentItem({
             </div>
           </form>
         ) : (
-          <p className="mt-1 whitespace-pre-wrap text-[15px] leading-6 text-ink/90">
-            {comment.content}
-          </p>
+          <TwemojiText
+            text={comment.content}
+            className="mt-1 block whitespace-pre-wrap text-[15px] leading-6 text-ink/90"
+          />
         )}
       </div>
     </article>
@@ -203,8 +210,11 @@ export function CommentsSection({
             }
             const input = document.getElementById(
               "new-comment",
-            ) as HTMLInputElement | null;
-            if (input) input.value = "";
+            ) as HTMLTextAreaElement | null;
+            if (input) {
+              input.value = "";
+              input.dispatchEvent(new Event("input", { bubbles: true }));
+            }
             toast.success("Comentário publicado.");
             router.refresh();
           })
@@ -212,11 +222,12 @@ export function CommentsSection({
       >
         <label className="flex-1">
           <span className="sr-only">Adicionar comentário</span>
-          <input
+          <AutoResizeTextarea
             id="new-comment"
             name="content"
-            className="field"
+            className="field leading-6"
             maxLength={1000}
+            maxHeight={160}
             required
             placeholder="Participe da conversa…"
           />

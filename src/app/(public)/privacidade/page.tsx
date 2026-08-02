@@ -55,8 +55,9 @@ const sections: LegalSection[] = [
     content: (
       <p>
         Avatares e imagens de publicações são hospedados no ImgChest e apenas
-        suas URLs ficam registradas no banco. O canal de suporte não aceita
-        imagens ou anexos. Fotografias institucionais usadas nas páginas
+        suas URLs ficam registradas no banco. Emojis são apresentados com os
+        elementos gráficos do Twemoji entregues pelo CDN jsDelivr. O canal de
+        suporte não aceita imagens ou anexos. Fotografias institucionais usadas nas páginas
         públicas são ilustrações geradas por inteligência artificial e não
         retratam pessoas vinculadas ao projeto.
       </p>
@@ -115,7 +116,7 @@ export default function Page() {
       eyebrow="Privacidade e cuidado"
       title="Política de Privacidade"
       description="Entenda quais informações são utilizadas, quem pode acessá-las e como protegemos especialmente os relatos de suporte."
-      updatedAt="26 de julho de 2026"
+      updatedAt="2 de agosto de 2026"
       sections={sections}
       icon={ShieldCheck}
     />

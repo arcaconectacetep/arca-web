@@ -35,6 +35,8 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogContent } from "@/components/ui/radix-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SelectField } from "@/components/ui/select-field";
+import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
+import { TwemojiText } from "@/components/ui/twemoji-text";
 
 const labels: Record<string, string> = {
   GENERAL: "Geral",
@@ -68,7 +70,7 @@ export function PostCard({
   const [likePending, startLike] = useTransition();
   const [actionPending, startAction] = useTransition();
   const ownPost = post.author_id === currentUser;
-  const postHref = `/publicacao/${post.id}`;
+  const postHref = `/publicacao/${post.short_id}`;
 
   if (removed) return null;
 
@@ -153,7 +155,7 @@ export function PostCard({
               href={`/perfil/${post.profiles.username}`}
               className="font-bold hover:text-brand"
             >
-              {post.profiles.full_name}
+              <TwemojiText text={post.profiles.full_name || `@${post.profiles.username}`} />
             </Link>
             <div className="flex flex-wrap gap-x-2 text-xs text-muted">
               <span>@{post.profiles.username}</span>
@@ -258,10 +260,11 @@ export function PostCard({
             </label>
             <label>
               <span className="label">Conteúdo</span>
-              <textarea
-                className="field min-h-32 resize-y"
+              <AutoResizeTextarea
+                className="field leading-6"
                 name="content"
                 maxLength={5000}
+                minRows={3}
                 required
                 defaultValue={post.content}
               />
@@ -293,14 +296,13 @@ export function PostCard({
               <h2
                 className={`${detail ? "text-2xl" : "text-xl"} mt-4 font-bold transition-colors group-hover:text-brand`}
               >
-                {post.title}
+                <TwemojiText text={post.title} />
               </h2>
             )}
-            <p
+            <TwemojiText
+              text={post.content}
               className={`mt-2 whitespace-pre-wrap leading-7 text-ink/90 ${detail ? "" : "line-clamp-5"}`}
-            >
-              {post.content}
-            </p>
+            />
             {!detail && (
               <span className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-brand">
                 Abrir publicação{" "}
@@ -368,10 +370,11 @@ export function PostCard({
               Detalhes{" "}
               <span className="font-normal text-muted">(opcional)</span>
             </span>
-            <textarea
-              className="field min-h-24 resize-y"
+            <AutoResizeTextarea
+              className="field leading-6"
               name="details"
               maxLength={1000}
+              minRows={2}
               placeholder="Ajude a equipe a entender o problema."
             />
           </label>

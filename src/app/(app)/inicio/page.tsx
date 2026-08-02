@@ -11,7 +11,10 @@ export default async function Page({
     <div className="mx-auto max-w-3xl">
       <section>
         <p className="eyebrow">Feed escolar</p>
-        <h1 className="page-title mb-6 mt-2">A comunidade acontece aqui.</h1>
+        <h1 className="page-title mt-2">Publicações da comunidade</h1>
+        <p className="mb-6 mt-2 text-muted">
+          Ideias, avisos e projetos compartilhados pela escola.
+        </p>
         <Suspense fallback={<FeedSkeleton cards={3} />}>
           <Feed
             search={params.q}

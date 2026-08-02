@@ -1,13 +1,15 @@
 import Image from "next/image";
+import Link from "next/link";
 import { TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { labelFor, postTypeLabels } from "@/lib/labels";
+import { TwemojiText } from "@/components/ui/twemoji-text";
 export default async function Page() {
   const db = await createClient();
   const { data } = await db
     .from("posts")
     .select(
-      "id,title,content,type,created_at,post_images(image_url,alt_text),post_likes(count),comments(count),profiles!posts_author_id_fkey(full_name,username)",
+      "id,short_id,title,content,type,created_at,post_images(image_url,alt_text),post_likes(count),comments(count),profiles!posts_author_id_fkey(full_name,username)",
     )
     .eq("section", "TRENDS")
     .is("hidden_at", null)
@@ -37,7 +39,11 @@ export default async function Page() {
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {posts.map((p) => (
-            <article key={p.id} className="card overflow-hidden">
+            <Link
+              key={p.id}
+              href={`/publicacao/${p.short_id}`}
+              className="card-interactive group overflow-hidden"
+            >
               {p.post_images?.[0] && (
                 <div className="relative aspect-[4/3]">
                   <Image
@@ -56,17 +62,18 @@ export default async function Page() {
                     {p.score} pontos
                   </span>
                 </div>
-                <h2 className="mt-4 text-xl font-semibold">
-                  {p.title || "Contribuição da comunidade"}
+                <h2 className="mt-4 text-xl font-semibold transition-colors group-hover:text-brand">
+                  <TwemojiText text={p.title || "Contribuição da comunidade"} />
                 </h2>
-                <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted">
-                  {p.content}
-                </p>
+                <TwemojiText
+                  text={p.content}
+                  className="mt-2 line-clamp-3 block text-sm leading-6 text-muted"
+                />
                 <p className="mt-5 text-xs text-muted">
                   por {p.profiles?.[0]?.full_name}
                 </p>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       )}

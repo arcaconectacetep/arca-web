@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { PageBack } from "@/components/ui/page-back";
 import { alertCategoryLabels, alertStatusLabels, alertUrgencyLabels, labelFor } from "@/lib/labels";
 import { formatAppDateTime } from "@/lib/date";
+import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
+import { TwemojiText } from "@/components/ui/twemoji-text";
 
 export default async function Page({
   params,
@@ -13,13 +15,15 @@ export default async function Page({
 }) {
   const { id } = await params;
   const db = await createClient();
-  const { data: alert } = await db
+  let query = db
     .from("support_alerts")
     .select(
       "*,profiles!support_alerts_author_id_fkey(full_name,username),support_alert_notes(id,content,created_at,profiles!support_alert_notes_author_id_fkey(full_name)),support_alert_events(id,event_type,previous_status,new_status,created_at)",
-    )
-    .eq("id", id)
-    .single();
+    );
+  query = id.toUpperCase().startsWith("ARCA-")
+    ? query.eq("protocol", id.toUpperCase())
+    : query.eq("id", id);
+  const { data: alert } = await query.maybeSingle();
   if (!alert) notFound();
   return (
     <div className="max-w-4xl">
@@ -36,9 +40,10 @@ export default async function Page({
             <span className="badge">{labelFor(alertUrgencyLabels, alert.urgency)}</span>
           </div>
           <h2 className="section-title mt-6">Relato</h2>
-          <p className="mt-3 whitespace-pre-wrap leading-7">
-            {alert.description}
-          </p>
+          <TwemojiText
+            text={alert.description}
+            className="mt-3 block whitespace-pre-wrap leading-7"
+          />
           <dl className="mt-6 grid gap-4 border-t border-line pt-5 sm:grid-cols-2">
             <div>
               <dt className="text-xs font-bold text-muted">AUTOR</dt>
@@ -73,15 +78,16 @@ export default async function Page({
           <form
             action={async (form) => {
               "use server";
-              await addSupportAlertNote(id, String(form.get("content")));
+              await addSupportAlertNote(alert.id, String(form.get("content")));
             }}
             className="mt-4"
           >
-            <textarea
+            <AutoResizeTextarea
               name="content"
               required
               maxLength={3000}
-              className="field min-h-28"
+              minRows={3}
+              className="field leading-6"
               placeholder="Registre o encaminhamento…"
             />
             <button className="btn-primary mt-3 w-full">Adicionar nota</button>
@@ -95,7 +101,7 @@ export default async function Page({
                 profiles: { full_name: string }[];
               }) => (
                 <div key={note.id} className="rounded-xl bg-canvas p-3 text-sm">
-                  <p>{note.content}</p>
+                  <TwemojiText text={note.content} />
                   <small className="mt-2 block text-muted">
                     {note.profiles?.[0]?.full_name} ·{" "}
                     {formatAppDateTime(note.created_at)}

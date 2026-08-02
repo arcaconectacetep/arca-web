@@ -9,6 +9,8 @@ import { alertUrgencyLabels, labelFor } from "@/lib/labels";
 import { CheckboxField } from "@/components/ui/checkbox-field";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { RadioGroupField } from "@/components/ui/radio-group-field";
+import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 const categories = [
   { value: "BULLYING", label: "Bullying" },
   { value: "CYBERBULLYING", label: "Cyberbullying" },
@@ -64,7 +66,7 @@ export function SupportForm() {
         return;
       }
       toast.success(`Solicitação enviada. Protocolo ${r.data?.protocol}`);
-      router.push(`/suporte/${r.data?.id}`);
+      router.push(`/suporte/${encodeURIComponent(r.data?.protocol ?? r.data?.id ?? "")}`);
     });
   }
   return (
@@ -128,9 +130,11 @@ export function SupportForm() {
           </fieldset>
           <label>
             <span className="label">Descreva o ocorrido</span>
-            <textarea
-              className="field min-h-40"
+            <AutoResizeTextarea
+              className="field leading-6"
               maxLength={5000}
+              minRows={4}
+              maxHeight={360}
               value={data.description}
               onChange={(e) =>
                 setData({ ...data, description: e.target.value })
@@ -222,6 +226,7 @@ export function SupportForm() {
           </button>
         ) : (
           <button disabled={pending} className="btn-primary" onClick={send}>
+            {pending && <LoadingSpinner label="Enviando solicitação" />}
             {pending ? "Enviando…" : "Confirmar envio"}
           </button>
         )}
