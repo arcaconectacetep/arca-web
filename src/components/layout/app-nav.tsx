@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BookOpen, Home, LifeBuoy, Lightbulb, Megaphone } from "lucide-react";
+import { motion } from "motion/react";
 
 const items = [
   { href: "/inicio", label: "Início", icon: Home },
@@ -30,7 +31,8 @@ export function AppNav({ mobile = false }: { mobile?: boolean }) {
               className={`relative flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-[color,transform] duration-150 active:scale-95 ${active ? "text-brand" : "text-muted"}`}
             >
               {active && (
-                <span
+                <motion.span
+                  layoutId="mobile-navigation-active"
                   aria-hidden
                   className="absolute top-0 h-0.5 w-7 rounded-full bg-brand"
                 />
@@ -57,7 +59,8 @@ export function AppNav({ mobile = false }: { mobile?: boolean }) {
             className={`group relative flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-[background-color,color,transform] duration-150 hover:translate-x-0.5 ${active ? "bg-paper text-brand shadow-quiet" : "text-muted hover:bg-paper hover:text-brand"}`}
           >
             {active && (
-              <span
+              <motion.span
+                layoutId="desktop-navigation-active"
                 aria-hidden
                 className="absolute -left-5 h-6 w-0.5 rounded-full bg-brand"
               />

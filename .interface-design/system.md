@@ -5,6 +5,7 @@
 - Profundidade: sombras muito sutis e bordas de baixo contraste; base de espaçamento 4px.
 - Tipografia: Inter em toda a experiência, com pesos e espaçamento mais expressivos nos títulos. Escala 1.25, títulos compactos e corpo confortável.
 - Movimento: entradas curtas de 220–280ms, linha de percurso desenhada e microinterações discretas; tudo desativado quando movimento reduzido estiver ativo.
+- Motion: `MotionProvider` centraliza transições de 200ms com curva `0.23, 1, 0.32, 1`; Motion anima mudanças de estado e entrada/saída, enquanto Radix controla foco, teclado e ciclo de vida dos overlays.
 - Densidade: cards 20–24px, controles com no mínimo 44px; sidebar 264px.
 - Botão primário: 44px, raio 10px, azul tinta, texto 14px/700.
 - Card: raio 16px, papel, borda silenciosa + elevação sutil no hover quando interativo.
@@ -32,3 +33,8 @@
 - Aparência: modo claro/escuro/sistema é independente da cor de destaque; fontes disponíveis Inter, Source Sans 3 e Atkinson Hyperlegible.
 - Splash ARCA: órbita institucional ligada ao carregamento real, uma vez por sessão de aba, com mínimo visível de 3s e saída de 280ms.
 - Navegação entre páginas: rota e filtros novos iniciam no topo com scroll nativo suave; âncoras são preservadas e movimento reduzido usa deslocamento imediato.
+- Primitivos interativos: manter Radix como fundação e expor wrappers locais no padrão shadcn; popover, tooltip, dialog, alert dialog, menu, select, radio e checkbox nunca usam a apresentação nativa do navegador.
+- Data e horário: calendário em popover com `react-day-picker` e seletores Radix de hora/minuto; o formulário persiste o valor local no formato `yyyy-MM-dd'T'HH:mm`.
+- Notificações: central de atividade agrupada por recência, com filtros Todas/Não lidas, avatar da pessoa para eventos sociais, ícone semântico sobreposto e linha vertical conectando eventos; itens não lidos usam fundo azul muito leve e ponto de estado, sem depender apenas de cor.
+- Notificações sociais: curtida e comentário carregam `actor_id` e `post_id`, abrem a publicação exata e usam texto humano (“nome + ação”); eventos institucionais usam ícone semântico no lugar de avatar.
+- Overlays: fundo de tinta com 55% e blur de 3px; conteúdo entra em 200ms com fade, zoom curto e deslocamento vertical de 8px, saindo em 150ms; borda silenciosa e raio de 16px.

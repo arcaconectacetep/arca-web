@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
-import * as Dialog from "@radix-ui/react-dialog";
+import { Dialog } from "radix-ui";
 
 type Media = { image_url: string; alt_text: string; position?: number };
 export function MediaGallery({ images }: { images: Media[] }) {

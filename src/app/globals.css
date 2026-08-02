@@ -93,6 +93,11 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
 }
+
+::selection {
+  background: hsl(var(--brand) / 0.18);
+  color: hsl(var(--ink));
+}
 [data-font="SOURCE_SANS"] body { font-family: var(--font-source-sans), sans-serif; }
 [data-font="ATKINSON"] body { font-family: var(--font-atkinson), sans-serif; }
 
@@ -260,7 +265,7 @@ button:active {
 
 @layer components {
   .card {
-    @apply rounded-2xl bg-paper shadow-quiet transition-[transform,box-shadow] duration-200;
+    @apply rounded-2xl bg-paper shadow-quiet transition-[transform,box-shadow,border-color,background-color] duration-200;
   }
 
   .card-interactive {

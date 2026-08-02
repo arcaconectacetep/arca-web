@@ -4,7 +4,7 @@ import Link from "next/link";
 import { BrandLogo } from "./brand-logo";
 import { PublicFooter } from "@/components/layout/public-footer";
 import { createClient } from "@/lib/supabase/server";
-import * as Accordion from "@radix-ui/react-accordion";
+import { Accordion } from "radix-ui";
 import { ChevronDown } from "lucide-react";
 
 export type LegalSection = {

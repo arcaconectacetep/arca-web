@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "motion/react";
 import {
   deletePost,
   reportPost,
@@ -129,7 +130,13 @@ export function PostCard({
   }
 
   return (
-    <article className="card overflow-hidden" id={`publicacao-${post.id}`}>
+    <motion.article
+      layout
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="card overflow-hidden"
+      id={`publicacao-${post.id}`}
+    >
       <div className="p-5">
         <header className="flex gap-3">
           <Link
@@ -391,6 +398,6 @@ export function PostCard({
           onOpenChange={setMediaOpen}
         />
       )}
-    </article>
+    </motion.article>
   );
 }

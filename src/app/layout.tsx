@@ -6,6 +6,7 @@ import "./globals.css";
 import { SplashScreen } from "@/components/layout/splash-screen";
 import { CookiePreferences } from "@/components/privacy/cookie-preferences";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
+import { MotionProvider } from "@/components/motion/motion-provider";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -67,16 +68,18 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={`${inter.variable} ${sourceSans.variable} ${atkinson.variable}`}>
-        <SplashScreen />
-        <Suspense fallback={null}>
-          <ScrollToTop />
-        </Suspense>
-        <a href="#conteudo" className="skip-link">
-          Pular para o conteúdo
-        </a>
-        {children}
-        <Toaster richColors position="top-right" closeButton />
-        <CookiePreferences />
+        <MotionProvider>
+          <SplashScreen />
+          <Suspense fallback={null}>
+            <ScrollToTop />
+          </Suspense>
+          <a href="#conteudo" className="skip-link">
+            Pular para o conteúdo
+          </a>
+          {children}
+          <Toaster richColors position="top-right" closeButton />
+          <CookiePreferences />
+        </MotionProvider>
       </body>
     </html>
   );

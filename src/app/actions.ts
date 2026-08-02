@@ -930,6 +930,7 @@ export async function markNotificationAsRead(id?: string) {
         error: "Não foi possível atualizar as notificações.",
       };
     revalidatePath("/notificacoes");
+    revalidatePath("/", "layout");
     return { ok: true };
   } catch (e) {
     return { ok: false, error: safe(e) };

@@ -2,20 +2,40 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import { createSupportAlert } from "@/app/actions";
 import { alertUrgencyLabels, labelFor } from "@/lib/labels";
 import { CheckboxField } from "@/components/ui/checkbox-field";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { RadioGroupField } from "@/components/ui/radio-group-field";
 const categories = [
-  ["BULLYING", "Bullying"],
-  ["CYBERBULLYING", "Cyberbullying"],
-  ["PREJUDICE", "Preconceito"],
-  ["DISCRIMINATION", "Discriminação"],
-  ["HARASSMENT", "Assédio"],
-  ["THREAT", "Ameaça"],
-  ["ACCESSIBILITY", "Acessibilidade"],
-  ["EMOTIONAL_SUPPORT", "Sofrimento emocional"],
-  ["OTHER", "Outro problema escolar"],
+  { value: "BULLYING", label: "Bullying" },
+  { value: "CYBERBULLYING", label: "Cyberbullying" },
+  { value: "PREJUDICE", label: "Preconceito" },
+  { value: "DISCRIMINATION", label: "Discriminação" },
+  { value: "HARASSMENT", label: "Assédio" },
+  { value: "THREAT", label: "Ameaça" },
+  { value: "ACCESSIBILITY", label: "Acessibilidade" },
+  { value: "EMOTIONAL_SUPPORT", label: "Sofrimento emocional" },
+  { value: "OTHER", label: "Outro problema escolar" },
+];
+const urgencyOptions = [
+  {
+    value: "GUIDANCE",
+    label: "Orientação",
+    description: "Preciso conversar e entender os próximos passos.",
+  },
+  {
+    value: "ATTENTION",
+    label: "Atenção",
+    description: "A situação precisa de acompanhamento em breve.",
+  },
+  {
+    value: "URGENT",
+    label: "Urgente",
+    description: "Há risco imediato ou a situação está acontecendo agora.",
+  },
 ];
 export function SupportForm() {
   const router = useRouter();
@@ -54,14 +74,21 @@ export function SupportForm() {
         aria-label={`Etapa ${step} de 3`}
       >
         {[1, 2, 3].map((n) => (
-          <span
+          <motion.span
             key={n}
             className={`h-2 flex-1 rounded-full ${n <= step ? "bg-brand" : "bg-line"}`}
+            animate={{ opacity: n <= step ? 1 : 0.55 }}
           />
         ))}
       </div>
+      <AnimatePresence mode="wait" initial={false}>
       {step === 1 && (
-        <fieldset>
+        <motion.fieldset
+          key="category"
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -8 }}
+        >
           <legend className="section-title">
             Que tipo de situação deseja relatar?
           </legend>
@@ -69,49 +96,34 @@ export function SupportForm() {
             Escolha a opção que mais se aproxima. A equipe fará o acolhimento
             adequado.
           </p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            {categories.map(([value, label]) => (
-              <label
-                key={value}
-                className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border p-4 ${data.category === value ? "border-brand bg-brand-soft" : "border-line"}`}
-              >
-                <input
-                  type="radio"
-                  name="category"
-                  value={value}
-                  checked={data.category === value}
-                  onChange={(e) =>
-                    setData({ ...data, category: e.target.value })
-                  }
-                />
-                <span className="font-semibold">{label}</span>
-              </label>
-            ))}
+          <div className="mt-6">
+            <RadioGroupField
+              name="category"
+              options={categories}
+              value={data.category}
+              onValueChange={(category) => setData({ ...data, category })}
+            />
           </div>
-        </fieldset>
+        </motion.fieldset>
       )}
       {step === 2 && (
-        <div className="space-y-5">
+        <motion.div
+          key="details"
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -8 }}
+          className="space-y-5"
+        >
           <fieldset>
             <legend className="label">Qual o nível de urgência?</legend>
-            <div className="grid gap-2 sm:grid-cols-3">
-              {[
-                ["GUIDANCE", "Orientação"],
-                ["ATTENTION", "Atenção"],
-                ["URGENT", "Urgente"],
-              ].map(([v, l]) => (
-                <label
-                  key={v}
-                  className="flex min-h-12 items-center gap-2 rounded-xl border border-line p-3"
-                >
-                  <input
-                    type="radio"
-                    checked={data.urgency === v}
-                    onChange={() => setData({ ...data, urgency: v })}
-                  />
-                  {l}
-                </label>
-              ))}
+            <div className="mt-2">
+              <RadioGroupField
+                name="urgency"
+                options={urgencyOptions}
+                value={data.urgency}
+                onValueChange={(urgency) => setData({ ...data, urgency })}
+                columns={3}
+              />
             </div>
           </fieldset>
           <label>
@@ -135,26 +147,27 @@ export function SupportForm() {
                 onChange={(e) => setData({ ...data, location: e.target.value })}
               />
             </label>
-            <label>
+            <div>
               <span className="label">Quando ocorreu (opcional)</span>
-              <input
-                type="datetime-local"
-                className="field"
+              <DateTimePicker
                 value={data.happenedAt}
-                onChange={(e) =>
-                  setData({ ...data, happenedAt: e.target.value })
-                }
+                onChange={(happenedAt) => setData({ ...data, happenedAt })}
               />
-            </label>
+            </div>
           </div>
           <label className="flex gap-3">
             <CheckboxField checked={data.allowContact} onCheckedChange={(checked) => setData({ ...data, allowContact: checked === true })} />
             <span>Aceito que a gestão entre em contato comigo.</span>
           </label>
-        </div>
+        </motion.div>
       )}
       {step === 3 && (
-        <div>
+        <motion.div
+          key="review"
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -8 }}
+        >
           <CheckCircle2 className="size-9 text-brand" />
           <h2 className="section-title mt-4">Revise antes de confirmar</h2>
           <p className="mt-2 text-muted">
@@ -165,7 +178,7 @@ export function SupportForm() {
             <div className="py-3">
               <dt className="font-bold">Tipo</dt>
               <dd className="mt-1 text-muted">
-                {categories.find((x) => x[0] === data.category)?.[1]}
+                {categories.find((x) => x.value === data.category)?.label}
               </dd>
             </div>
             <div className="py-3">
@@ -187,8 +200,9 @@ export function SupportForm() {
               </dd>
             </div>
           </dl>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
       <div className="mt-8 flex justify-between">
         {step > 1 ? (
           <button

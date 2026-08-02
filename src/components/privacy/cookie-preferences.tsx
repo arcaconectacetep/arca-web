@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Cookie, X } from "lucide-react";
 import { CheckboxField } from "@/components/ui/checkbox-field";
-import * as Collapsible from "@radix-ui/react-collapsible";
+import { Collapsible } from "radix-ui";
 
 const COOKIE_NAME = "arca_cookie_consent";
 function save(value: "essential" | "personalization") {

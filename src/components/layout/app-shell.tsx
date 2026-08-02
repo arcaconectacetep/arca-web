@@ -1,11 +1,14 @@
 import Link from "next/link";
-import { Bell, Settings, ShieldCheck } from "lucide-react";
+import { Settings, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/ui/avatar";
 import { UserPreferences } from "@/components/accessibility/user-preferences";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { AppNav } from "@/components/layout/app-nav";
 import { MobileMenu } from "@/components/layout/mobile-menu";
+import { MotionProvider } from "@/components/motion/motion-provider";
+import { NotificationBell } from "@/components/notifications/notification-bell";
+import { Tooltip } from "@/components/ui/tooltip";
 import { labelFor, roleLabels } from "@/lib/labels";
 export async function AppShell({ children }: { children: React.ReactNode }) {
   const db = await createClient();
@@ -29,13 +32,18 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
         .is("read_at", null)
     : { count: 0 };
   return (
-    <div
-      data-theme={p?.theme}
-      data-contrast={p?.high_contrast}
-      data-motion={p?.reduced_motion}
-      className="min-h-screen"
-    >
-      <UserPreferences fontScale={p?.font_scale ?? 1} colorMode={p?.color_mode ?? "SYSTEM"} fontFamily={p?.font_family ?? "INTER"} />
+    <MotionProvider reduceMotion={p?.reduced_motion ?? false}>
+      <div
+        data-theme={p?.theme}
+        data-contrast={p?.high_contrast}
+        data-motion={p?.reduced_motion}
+        className="min-h-screen"
+      >
+      <UserPreferences
+        fontScale={p?.font_scale ?? 1}
+        colorMode={p?.color_mode ?? "SYSTEM"}
+        fontFamily={p?.font_family ?? "INTER"}
+      />
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-line bg-paper px-5 py-7 shadow-[4px_0_24px_-20px_hsl(var(--ink)/.35)] lg:flex lg:flex-col">
         <BrandLogo href="/inicio" className="mb-10 text-lg" />
         <AppNav />
@@ -64,7 +72,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-line/80 bg-canvas/95 px-4 backdrop-blur md:px-8">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-line/70 bg-paper/85 px-4 shadow-[0_8px_24px_-24px_hsl(var(--ink)/.55)] backdrop-blur-xl md:px-8">
           <div className="flex items-center gap-1 lg:hidden">
             <MobileMenu username={p?.username} role={p?.role} />
             <BrandLogo href="/inicio" compact />
@@ -76,25 +84,16 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
             ARCA · Itaberaba, Bahia
           </span>
           <div className="flex items-center gap-1">
-            <Link
-              href="/notificacoes"
-              aria-label={`${count ?? 0} notificações não lidas`}
-              className="relative grid size-11 place-items-center rounded-xl hover:bg-paper"
-            >
-              <Bell className="size-5" />
-              {!!count && (
-                <span className="absolute right-1.5 top-1.5 grid min-w-4 place-items-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
-                  {count}
-                </span>
-              )}
-            </Link>
-            <Link
-              href="/configuracoes"
-              aria-label="Configurações"
-              className="grid size-11 place-items-center rounded-xl hover:bg-paper"
-            >
-              <Settings className="size-5" />
-            </Link>
+            <NotificationBell count={count ?? 0} />
+            <Tooltip content="Configurações">
+              <Link
+                href="/configuracoes"
+                aria-label="Configurações"
+                className="grid size-11 place-items-center rounded-xl transition-colors hover:bg-paper"
+              >
+                <Settings className="size-5" />
+              </Link>
+            </Tooltip>
           </div>
         </header>
         <main
@@ -105,6 +104,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
         </main>
       </div>
       <AppNav mobile />
-    </div>
+      </div>
+    </MotionProvider>
   );
 }
